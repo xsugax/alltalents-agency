@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /explorer.html
+Allow: /crowdbooking.html
+
+Disallow: /login.html
+Disallow: /portal.html
+Disallow: /booking.html
+Disallow: /admin.html
+Disallow: /api/
+
+# Crawl-delay for bots
+Crawl-delay: 10
+
+Sitemap: https://alltalents-agency.vercel.app/sitemap.xml

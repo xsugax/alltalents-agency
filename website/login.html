@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset='UTF-8'>
+	<meta name='viewport' content='width=device-width,initial-scale=1'>
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://upload.wikimedia.org; connect-src 'self' http://localhost:4100; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta name='referrer' content='no-referrer'>
+	<title>Client Login | ALL TALENTS Agency</title>
+	<meta name="robots" content="noindex, nofollow">
+	<link rel='stylesheet' href='assets/styles.css'>
+</head>
+<body>
+	<div class='container' id='app'></div>
+	<script type='module'>
+		import { request, nav, setAuth, loadTicker } from './assets/app.js';
+
+		const app = document.getElementById('app');
+		app.innerHTML = `
+			${nav('login')}
+			<section class='glass card section' style='max-width:820px;margin:16px auto'>
+				<p class='eyebrow'>Secure Access Gateway</p>
+				<h2>Executive Authentication for Confidential Operations</h2>
+				<p class='lead'>Authenticate to access representative messaging, strategic booking workflows, and private portal records. Access is role-aware for client, management, and administrative control layers.</p>
+				<div class='grid g2 section'>
+					<div class='stack'>
+						<input id='email' value='client@aurelux.com'>
+						<input id='password' type='password' value='Client@123'>
+						<button class='primary' id='login'>Authenticate Session</button>
+						<p class='small muted' id='msg'></p>
+					</div>
+					<div class='stack'>
+						<p class='eyebrow'>Credential Profiles</p>
+						<p class='small muted'>client@aurelux.com / Client@123</p>
+						<p class='small muted'>manager@aurelux.com / Manager@123</p>
+						<p class='small muted'>admin@aurelux.com / Admin@123</p>
+						<p class='small muted'>Client role: inquiry, messaging, and booking initiation.</p>
+						<p class='small muted'>Admin role: platform governance and service control.</p>
+					</div>
+				</div>
+				<div class='flow-grid section'>
+					<article class='flow-step'>
+						<p class='num'>Security</p>
+						<h4>Role-Gated Session</h4>
+						<p>Every session is bound to role authorization for protected route access.</p>
+					</article>
+					<article class='flow-step'>
+						<p class='num'>Continuity</p>
+						<h4>Persistent Authentication</h4>
+						<p>Approved sessions are preserved in browser storage for workflow continuity.</p>
+					</article>
+				</div>
+			</section>
+		`;
+		await loadTicker();
+
+		document.getElementById('login').onclick = async () => {
+			try {
+				const r = await request('/auth/login', {
+					method: 'POST',
+					body: JSON.stringify({
+						email: document.getElementById('email').value,
+						password: document.getElementById('password').value,
+					}),
+				});
+				setAuth(r.token, r.user);
+				document.getElementById('msg').textContent = 'Authenticated as ' + r.user.role + '. Session is active.';
+			} catch (e) {
+				document.getElementById('msg').textContent = e.message;
+			}
+		};
+	</script>
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset='UTF-8'>
+	<meta name='viewport' content='width=device-width,initial-scale=1'>
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://upload.wikimedia.org; connect-src 'self' http://localhost:4100; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta name='referrer' content='no-referrer'>
+	<title>ALL TALENTS Agency | Book A-List Celebrities Worldwide</title>
+	<!-- SEO: Primary Meta -->
+	<meta name="description" content="Book A-list celebrities, musicians, athletes, K-pop idols, and influencers for corporate events, brand campaigns, and exclusive appearances. 119+ verified talents. Secure & confidential.">
+	<meta name="keywords" content="celebrity booking agency, hire celebrity, book A-list talent, corporate entertainment, brand ambassador, celebrity appearance, talent agency, BTS booking, K-pop celebrities, celebrity event">
+	<meta name="robots" content="index, follow">
+	<meta name="author" content="ALL TALENTS Agency">
+	<!-- Open Graph -->
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="ALL TALENTS Agency">
+	<meta property="og:title" content="ALL TALENTS Agency | Elite Celebrity Booking Platform">
+	<meta property="og:description" content="Book 119+ verified A-list celebrities for corporate events, brand campaigns, and exclusive appearances. Secure, confidential, globally managed.">
+	<meta property="og:url" content="https://alltalents-agency.vercel.app/">
+	<meta property="og:image" content="https://alltalents-agency.vercel.app/assets/og-preview.png">
+	<!-- Twitter Card -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="ALL TALENTS Agency | Elite Celebrity Booking">
+	<meta name="twitter:description" content="Book 119+ verified A-list celebrities worldwide. Secure, confidential, fully managed talent representation.">
+	<meta name="twitter:image" content="https://alltalents-agency.vercel.app/assets/og-preview.png">
+	<!-- Canonical -->
+	<link rel="canonical" href="https://alltalents-agency.vercel.app/">
+	<!-- Structured Data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		"name": "ALL TALENTS Agency",
+		"url": "https://alltalents-agency.vercel.app",
+		"description": "Elite celebrity booking and talent representation platform — 119+ verified celebrities worldwide.",
+		"contactPoint": { "@type": "ContactPoint", "contactType": "Talent Booking", "availableLanguage": "English" },
+		"potentialAction": {
+			"@type": "SearchAction",
+			"target": { "@type": "EntryPoint", "urlTemplate": "https://alltalents-agency.vercel.app/explorer.html?search={search_term_string}" },
+			"query-input": "required name=search_term_string"
+		}
+	}
+	</script>
+	<link rel='stylesheet' href='assets/styles.css'>
+</head>
+<body>
+	<div class='container' id='app'></div>
+	<button id='floatMsgBtn' class='floating-msg-btn' title='Open Messaging'>💬</button>
+	<section id='floatMsgPanel' class='floating-msg-panel'>
+		<h4>Representation Chat</h4>
+		<p class='hint'>Live desk for the featured profile. Login to send.</p>
+		<div id='chatThread' class='chat-thread'></div>
+		<div class='floating-msg-grid'>
+			<input id='homeTarget' readonly placeholder='Featured profile'>
+			<div class='floating-msg-row'>
+				<input id='homeName' placeholder='Your full name'>
+				<input id='homeOrg' placeholder='Organization'>
+			</div>
+			<select id='homeType'>
+				<option value='meet'>How to Meet</option>
+				<option value='msg'>Representative Message</option>
+			</select>
+			<textarea id='homeBody' rows='3' placeholder='Write your request'></textarea>
+			<button id='homeSend' class='primary'>Send via Secure Channel</button>
+			<p id='homeStatus' class='small muted'></p>
+		</div>
+	</section>
+	<script type='module'>
+		import { request, nav, loadTicker } from './assets/app.js';
+
+		let featuredCelebrity = { id: '', name: '' };
+
+		// ── Typewriter utility ──────────────────────────
+		async function typeText(el, text, speed = 22) {
+			el.textContent = '';
+			for (let i = 0; i < text.length; i++) {
+				el.textContent += text[i];
+				await new Promise(r => setTimeout(r, speed));
+			}
+		}
+		function addBubble(thread, role, text, isTyping = false) {
+			const wrap = document.createElement('div');
+			wrap.className = `chat-bubble ${role}`;
+			const lbl = document.createElement('div');
+			lbl.className = 'cb-label';
+			lbl.textContent = role === 'user' ? 'You' : 'Representation Desk';
+			wrap.appendChild(lbl);
+			if (isTyping) {
+				const d = document.createElement('div');
+				d.className = 'typing-dots';
+				d.innerHTML = '<span></span><span></span><span></span>';
+				wrap.appendChild(d);
+			} else {
+				const msg = document.createElement('div');
+				msg.className = 'cb-msg';
+				msg.textContent = text;
+				wrap.appendChild(msg);
+			}
+			thread.appendChild(wrap);
+			thread.scrollTop = thread.scrollHeight;
+			return wrap;
+		}
+
+		const app = document.getElementById('app');
+		app.innerHTML = `
+			${nav('home')}
+			<section class='glass hero section' id='hero'>
+				<p class='small muted' style='opacity:.45;letter-spacing:.12em;text-transform:uppercase;font-size:10px'>Loading featured profiles...</p>
+			</section>
+			<section class='grid g4 section' id='kpis'>
+				${['','','',''].map(()=>`<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>`).join('')}
+			</section>
+			<section class='access-strip section'>
+				<div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(212,175,55,.5);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);background:rgba(212,175,55,.06);margin-bottom:18px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0'></span>Live Access Status</div>
+				<h2 class='access-strip-title'>100 Verified Celebrities.<br>Direct Access. Right Now.</h2>
+				<p class='access-strip-sub'>Every talent on this platform is reachable through Aurelux's authorized private channels. Your qualification as a registered client unlocks exclusive meeting windows, direct representative outreach, and priority booking rights — unavailable anywhere else.</p>
+				<form id='heroSearch' style='display:flex;gap:0;margin:22px 0 24px;max-width:620px;width:100%' onsubmit='event.preventDefault(); const q = document.getElementById("heroSearchInput").value.trim(); if(q) window.location.href="explorer.html?search="+encodeURIComponent(q);'>
+					<input id='heroSearchInput' type='text' placeholder='Search for your favourite celebrity…' autocomplete='off' style='flex:1;border-radius:10px 0 0 10px;border:1.5px solid rgba(212,175,55,.55);border-right:none;background:rgba(255,255,255,.04);color:#f4e1a0;padding:15px 20px;font-size:14px;letter-spacing:.02em;outline:none;min-width:0;transition:border-color .2s' onfocus='this.style.borderColor="rgba(212,175,55,.9)"' onblur='this.style.borderColor="rgba(212,175,55,.55)"'>
+					<button type='submit' style='background:linear-gradient(135deg,#d4af37,#b8962e);color:#0b0b0b;border:none;padding:15px 28px;border-radius:0 10px 10px 0;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap'>Search &#x2192;</button>
+				</form>
+				<div style='display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px'>
+					<span style='font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(212,175,55,.5);align-self:center;margin-right:4px'>Quick search:</span>
+					${['Beyonc\u00e9','Taylor Swift','Cristiano Ronaldo','Drake','Zach Bryan','Morgan Wallen','Jennifer Aniston','Emma Watson','Rihanna','Chris Stapleton','Lainey Wilson','Dwayne Johnson'].map(n => `<button onclick='window.location.href="explorer.html?search="+encodeURIComponent("${n}")' style='background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.8);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .2s' onmouseover='this.style.background="rgba(212,175,55,.15)";this.style.borderColor="rgba(212,175,55,.6)"' onmouseout='this.style.background="rgba(212,175,55,.06)";this.style.borderColor="rgba(212,175,55,.25)"'>${n}</button>`).join('')}
+				</div>
+				<div class='access-live-count'>Live windows open for qualified clients today</div>
+				<div class='window-grid' id='windowGrid' style='margin-top:18px'>
+					${[1,2,3,4].map(()=>`<div class='window-card' style='height:88px;background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.05)'></div>`).join('')}
+				</div>
+				<div style='margin-top:18px;text-align:center'>
+					<a href='explorer.html'><button class='primary' style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase'>Explore All Access Windows →</button></a>
+				</div>
+			</section>
+			<section class='crowd-hero section'>
+				<div class='crowd-hero-label'>New Feature — Crowd Access</div>
+				<h2 style='margin-bottom:10px'>Can't Afford Solo Private Access?<br><span>Join a Group. Share the Moment.</span></h2>
+				<p class='access-strip-sub'>Crowd Booking lets you join a verified group at the celebrity's <em>next real event</em> — concerts, premieres, paddocks, brand days. Same icon, same room. Drastically lower entry point with installment payment plans. Slots are limited and fill fast.</p>
+				<div style='margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px' id='crowdTeaserGrid'>
+					${[1,2,3].map(()=>`<div class='crowd-event-card' style='height:80px;background:rgba(255,255,255,.02);border-color:rgba(159,230,176,.08)'></div>`).join('')}
+				</div>
+				<div style='margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;align-items:center'>
+					<a href='crowdbooking.html'><button style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(135deg,rgba(159,230,176,.2),rgba(159,230,176,.07));border:1px solid rgba(159,230,176,.5);color:#9fe6b0;border-radius:10px;cursor:pointer'>👥 View All Crowd Events →</button></a>
+					<span class='small muted'>From $1,800 /person · Pay in 3 or 6 installments</span>
+				</div>
+			</section>
+			<section class='card section stack'>
+				<p class='eyebrow'>Client Entry Logic</p>
+				<h3>Structured Executive Journey</h3>
+				<div class='flow-grid'>
+					<article class='flow-step'>
+						<p class='num'>Step 01</p>
+						<h4>Discover Profiles</h4>
+						<p>Review verified talent records, pricing entry points, and representation authority in Explorer.</p>
+					</article>
+					<article class='flow-step'>
+						<p class='num'>Step 02</p>
+						<h4>Qualify Opportunity</h4>
+						<p>Confirm timing windows and event fit before committing resources to legal and commercial drafting.</p>
+					</article>
+					<article class='flow-step'>
+						<p class='num'>Step 03</p>
+						<h4>Engage Representatives</h4>
+						<p>Use the messaging desk to open direct representative communication and activate the booking pathway.</p>
+					</article>
+				</div>
+			</section>
+			<section class='grid g3 section'>
+				<article class='card stack'>
+					<p class='eyebrow'>Mandate</p>
+					<h3>Elite Access With Executive Discipline</h3>
+					<p class='lead'>ALL TALENTS Agency serves private offices, global brands, and senior planners who require reputational precision, legal discretion, and premium outcomes. Each engagement is framed with structured due diligence and clear governance.</p>
+				</article>
+				<article class='card stack'>
+					<p class='eyebrow'>Operating Model</p>
+					<h3>Representation-First Booking Workflow</h3>
+					<p class='lead'>All inquiries are screened through official representatives before terms are drafted. This protects reputation, removes low-intent requests, and aligns every proposal with security, confidentiality, and strategic fit.</p>
+				</article>
+				<article class='card stack'>
+					<p class='eyebrow'>Client Value</p>
+					<h3>From Inquiry to Confirmed Presence</h3>
+					<p class='lead'>Clients can discover talent, evaluate demand signals, verify availability windows, open representative communication, and initiate bookings from one controlled executive interface.</p>
+				</article>
+			</section>
+			<section class='grid g2 section'>
+				<article class='card stack' id='pulseCard'>
+					<p class='eyebrow'>Live Intelligence</p>
+					<h3>Market Pulse Radar</h3>
+					<p class='small muted'>Tracking demand heat and top waitlist pressure across the verified roster.</p>
+					<div id='pulseBody' class='small muted'>Loading market pulse...</div>
+				</article>
+				<article class='card stack'>
+					<p class='eyebrow'>AI Strategy Lab</p>
+					<h3>Executive Event Blueprint Generator</h3>
+					<p class='small muted'>Generate a strategic plan with fit, pressure, and exclusivity scoring in one click.</p>
+					<div class='grid g2'>
+						<select id='bpCelebrity'></select>
+						<input id='bpObjective' value='Brand Elevation' placeholder='Objective'>
+						<input id='bpAudience' value='Executive Guests' placeholder='Audience Type'>
+						<input id='bpRegion' value='Global' placeholder='Target Region'>
+						<input id='bpBudget' type='number' value='350000' placeholder='Budget'>
+						<input id='bpTimeline' type='number' value='30' placeholder='Timeline Days'>
+					</div>
+					<button class='primary' id='bpGenerate'>Generate Blueprint</button>
+					<div id='bpOut' class='small muted'>Login to unlock blueprint generation.</div>
+				</article>
+			</section>
+		`;
+
+		const panel = document.getElementById('floatMsgPanel');
+		const btn = document.getElementById('floatMsgBtn');
+		btn.onclick = () => panel.classList.toggle('open');
+
+		function setHomeTemplate(mode, celebrityName) {
+			const textarea = document.getElementById('homeBody');
+			if (mode === 'meet') {
+				textarea.value = `How-to-meet request for ${celebrityName}: Please share representation protocol, qualification criteria, expected timeline, and first-step coordination requirements.`;
+			} else {
+				textarea.value = `Representative message for ${celebrityName}: Requesting callback to discuss strategic fit, event scope, and process.`;
+			}
+		}
+
+		await loadTicker();
+
+		const payload = await request('/celebrities/featured');
+		const hero = document.getElementById('hero');
+		const featured = payload.data.slice(0, 6);
+		featuredCelebrity = { id: featured[0].id, name: featured[0].name };
+		document.getElementById('homeTarget').value = `${featured[0].name} (${featured[0].id})`;
+		document.getElementById('homeType').value = 'meet';
+		setHomeTemplate('meet', featured[0].name);
+
+		// ── Cinematic Rotating Hero ──────────────────────────
+		let heroIdx = 0;
+		let heroTimer = null;
+		let heroProg = null;
+		const HERO_INTERVAL = 7000;
+
+		function buildHeroHTML() {
+			const fmtP = p => p >= 1e6 ? `$${(p/1e6).toFixed(1)}M` : `$${Math.round(p/1000)}K`;
+			const slides = featured.map((c, i) => `
+				<div class='hero-slide${i === 0 ? ' hs-active' : ''}' data-idx='${i}'>
+					<p class='eyebrow'>Featured Profile · ${i + 1} of ${featured.length} &nbsp;·&nbsp; ${c.category}</p>
+					<h1 class='headline'>${c.name}</h1>
+					${c.eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:rgba(229,228,226,.65);font-style:italic;margin:0 0 10px;border-left:2px solid rgba(212,175,55,.5);padding-left:12px'>${c.eliteSignal}</p>` : ''}
+					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px'>
+						${c.netWorth ? `<span class='small'><span class='muted'>Net Worth</span> <strong style='color:var(--accent)'>${c.netWorth}</strong></span>` : ''}
+						<span class='small'><span class='muted'>Global Reach</span> <strong style='color:var(--accent)'>${c.socialReachMillions}M</strong></span>
+						<span class='small'><span class='muted'>Private Access</span> <strong style='color:var(--accent)'>${fmtP(c.startingPrice)}</strong></span>
+						<span class='small'><span class='muted'>Agency</span> <strong style='color:var(--accent)'>${c.agencyRepresentation}</strong></span>
+					</div>
+					<p class='small muted'>${c.availability === 'Open' ? '✦ Accepting qualified outreach now.' : c.availability === 'Limited' ? '⚠ Limited access windows — act within 48h.' : '● Waitlist only — secure your slot.'}</p>
+					<div style='margin-top:12px;display:flex;gap:10px;flex-wrap:wrap'>
+						<a href='explorer.html'><button class='primary' style='width:auto;padding:10px 22px'>⚡ Access Private Profile →</button></a>
+						<a href='booking.html?id=${c.id}'><button class='secondary' style='width:auto;padding:10px 22px'>Start Private Engagement</button></a>
+					</div>
+				</div>
+			`).join('');
+			// Sizer: invisible copy of first slide keeps track height stable during transitions
+			const sizer = `<div class='hero-slide hero-slide-sizer' aria-hidden='true'>
+					<p class='eyebrow'>Featured Profile · 1 of ${featured.length} · ${featured[0].category}</p>
+					<h1 class='headline'>${featured[0].name}</h1>
+					${featured[0].eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:rgba(229,228,226,.65);font-style:italic;margin:0 0 10px;border-left:2px solid rgba(212,175,55,.5);padding-left:12px'>${featured[0].eliteSignal}</p>` : ''}
+					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px'>
+						${featured[0].netWorth ? `<span class='small'><span class='muted'>Net Worth</span> <strong style='color:var(--accent)'>${featured[0].netWorth}</strong></span>` : ''}
+						<span class='small'><span class='muted'>Global Reach</span> <strong style='color:var(--accent)'>${featured[0].socialReachMillions}M</strong></span>
+						<span class='small'><span class='muted'>Private Access</span> <strong style='color:var(--accent)'>$${(featured[0].startingPrice/1e6).toFixed(1)}M</strong></span>
+						<span class='small'><span class='muted'>Agency</span> <strong style='color:var(--accent)'>${featured[0].agencyRepresentation}</strong></span>
+					</div>
+					<p class='small muted'>✦ Accepting qualified outreach now.</p>
+					<div style='margin-top:12px;display:flex;gap:10px;flex-wrap:wrap'>
+						<button class='primary' style='width:auto;padding:10px 22px'>⚡ Access Private Profile →</button>
+						<button class='secondary' style='width:auto;padding:10px 22px'>Start Private Engagement</button>
+					</div>
+				</div>`;
+			const dots = featured.map((_, i) => `<div class='hero-dot${i === 0 ? ' hd-active' : ''}' data-dot='${i}'></div>`).join('');
+			return `<div class='hero-stage' id='heroStage'><div class='hero-slides-track'>${slides}${sizer}</div></div><div class='hero-dots'>${dots}</div>`;
+		}
+
+		hero.innerHTML = buildHeroHTML();
+
+		function goToSlide(newIdx) {
+			const slides = hero.querySelectorAll('.hero-slide:not(.hero-slide-sizer)');
+			const dots = hero.querySelectorAll('.hero-dot');
+			const exitIdx = heroIdx; // capture before mutation
+			slides[exitIdx].classList.remove('hs-active');
+			slides[exitIdx].classList.add('hs-exit');
+			setTimeout(() => slides[exitIdx]?.classList.remove('hs-exit'), 1100);
+			heroIdx = (newIdx + featured.length) % featured.length;
+			slides[heroIdx].classList.add('hs-active');
+			dots.forEach((d, i) => d.classList.toggle('hd-active', i === heroIdx));
+			featuredCelebrity = { id: featured[heroIdx].id, name: featured[heroIdx].name };
+			document.getElementById('homeTarget').value = `${featured[heroIdx].name} (${featured[heroIdx].id})`;
+			setHomeTemplate(document.getElementById('homeType').value, featured[heroIdx].name);
+
+			// progress bar reset
+			if (heroProg) { heroProg.style.transition = 'none'; heroProg.style.width = '0%'; }
+			setTimeout(() => {
+				if (heroProg) { heroProg.style.transition = `width ${HERO_INTERVAL}ms linear`; heroProg.style.width = '100%'; }
+			}, 50);
+		}
+
+		// Add progress bar
+		const stage = document.getElementById('heroStage');
+		const progBar = document.createElement('div');
+		progBar.className = 'hero-progress';
+		progBar.style.width = '0%';
+		stage.appendChild(progBar);
+		heroProg = progBar;
+		setTimeout(() => { progBar.style.transition = `width ${HERO_INTERVAL}ms linear`; progBar.style.width = '100%'; }, 100);
+
+		hero.querySelectorAll('.hero-dot').forEach((dot) => {
+			dot.onclick = () => { clearInterval(heroTimer); goToSlide(Number(dot.dataset.dot)); startHeroTimer(); };
+		});
+
+		function startHeroTimer() {
+			heroTimer = setInterval(() => goToSlide(heroIdx + 1), HERO_INTERVAL);
+		}
+		startHeroTimer();
+		stage.addEventListener('mouseenter', () => { clearInterval(heroTimer); if (heroProg) heroProg.style.animationPlayState = 'paused'; });
+		stage.addEventListener('mouseleave', () => { startHeroTimer(); if (heroProg) { heroProg.style.transition = `width ${HERO_INTERVAL}ms linear`; heroProg.style.width = '100%'; } });
+
+		document.getElementById('kpis').innerHTML = [
+			['Total Global Bookings', payload.metrics.totalGlobalBookings.toLocaleString()],
+			['Managed Portfolio Value', (() => { const v = payload.metrics.managedPortfolioValue; return v >= 1e12 ? `$${(v/1e12).toFixed(2)}T` : v >= 1e9 ? `$${(v/1e9).toFixed(1)}B` : `$${(v/1e6).toFixed(0)}M`; })()],
+			['Active Negotiations', payload.metrics.activeNegotiations.toLocaleString()],
+			['Verified Celebrities', payload.metrics.verifiedCelebrities],
+		].map(([name, value]) => `<div class='card'><div class='small muted'>${name}</div><div class='kpi'>${value}</div></div>`).join('');
+
+		// ── Populate "Direct Access Windows" strip ──────────
+		const fmtPH = p => p >= 1e6 ? `$${(p/1e6).toFixed(1)}M` : `$${Math.round(p/1000)}K`;
+		const windowGrid = document.getElementById('windowGrid');
+		if (windowGrid) {
+			windowGrid.innerHTML = featured.slice(0, 4).map(c => `
+				<div class='window-card' onclick="window.location.href='explorer.html'" style='display:flex;flex-direction:column;gap:6px'>
+					<div class='wc-avail ${c.availability === "Open" ? "wa-open" : "wa-limited"}'>● ${c.availability === "Open" ? "OPEN WINDOW" : c.availability === "Waitlist" ? "WAITLIST" : "LIMITED WINDOW"}</div>
+					<div class='wc-name'>${c.name}</div>
+					<div class='wc-meta'>${c.category} · ${c.region}</div>
+					<div style='display:flex;gap:10px;flex-wrap:wrap;margin-top:2px'>
+						${c.netWorth ? `<span style='font-size:10px;color:rgba(212,175,55,.7)'>${c.netWorth} est. worth</span>` : ''}
+						<span style='font-size:10px;color:rgba(229,228,226,.4)'>${c.socialReachMillions}M reach</span>
+					</div>
+					<div class='wc-price'>Private access from ${fmtPH(c.startingPrice)}</div>
+				</div>
+			`).join('');
+		}
+
+		document.getElementById('bpCelebrity').innerHTML = featured
+			.map((item) => `<option value='${item.id}'>${item.name} · $${item.startingPrice.toLocaleString()}</option>`)
+			.join('');
+
+		// ── Populate Crowd Teaser Grid ──────────────────────────
+		try {
+			const crowdEvts = await request('/crowd-events');
+			const teaserGrid = document.getElementById('crowdTeaserGrid');
+			if (teaserGrid && crowdEvts?.data?.length) {
+				// Pick top 3 by fewest slots remaining (most urgency)
+				const top3 = [...crowdEvts.data]
+					.filter(e => e.available > 0)
+					.sort((a, b) => a.available - b.available)
+					.slice(0, 3);
+				teaserGrid.innerHTML = top3.map(ev => {
+					const soldPct = Math.min(100, Math.round((ev.claimed / ev.slots) * 100));
+					const urgency = ev.available <= 5 ? '#ff6b6b' : ev.available <= 12 ? '#ffd166' : '#9fe6b0';
+					const fmtP = p => p >= 1000 ? `$${(p/1000).toFixed(1)}K` : `$${p}`;
+					return `
+					<div class='crowd-event-card' onclick="window.location.href='crowdbooking.html'" style='cursor:pointer;padding:16px'>
+						<div class='ce-event-type'>${ev.eventType ?? 'Event'}</div>
+						<div class='ce-title' style='font-size:13px;margin:6px 0 4px'>${ev.eventTitle}</div>
+						<div class='ce-meta' style='font-size:11px;margin-bottom:8px'>${ev.name} · ${ev.city}</div>
+						<div class='ce-slot-bar' style='height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin-bottom:6px'>
+							<div class='ce-slot-fill' style='height:100%;border-radius:3px;width:${soldPct}%;background:${urgency};transition:width .8s ease'></div>
+						</div>
+						<div style='display:flex;justify-content:space-between;align-items:center'>
+							<span style='font-size:10px;color:${urgency};font-weight:600'>${ev.available} slot${ev.available === 1 ? '' : 's'} left</span>
+							<span style='font-size:11px;color:var(--gold);font-weight:600'>${fmtP(ev.pricePerSlot)}/person</span>
+						</div>
+					</div>`;
+				}).join('');
+			}
+		} catch { /* teaser stays as skeleton placeholders */ }
+
+		try {
+			const pulse = await request('/intelligence/market-pulse');
+			document.getElementById('pulseBody').innerHTML = `
+				<div class='flow-grid'>
+					<div class='flow-step'><p class='num'>Demand Heat</p><h4>${pulse.metrics.demandHeat}%</h4><p>Average roster demand velocity.</p></div>
+					<div class='flow-step'><p class='num'>Entry Quote</p><h4>$${pulse.metrics.averageEntryQuote.toLocaleString()}</h4><p>Average opening commercial posture.</p></div>
+					<div class='flow-step'><p class='num'>Waitlist Pressure</p><h4>${pulse.metrics.topWaitlistPressure}</h4><p>Profiles currently in waitlist state.</p></div>
+				</div>
+				<div class='hr'></div>
+				<p class='small muted'><b>Top Demand Profiles:</b> ${pulse.top.map((t) => `${t.name} (${t.demandIndex}%)`).join(' · ')}</p>
+			`;
+		} catch {
+			document.getElementById('pulseBody').textContent = 'Market pulse unavailable.';
+		}
+
+		document.getElementById('homeType').addEventListener('change', (e) => {
+			if (!featuredCelebrity.name) return;
+			setHomeTemplate(e.target.value, featuredCelebrity.name);
+		});
+
+		document.getElementById('homeSend').onclick = async () => {
+			const thread = document.getElementById('chatThread');
+			const status = document.getElementById('homeStatus');
+			const fullName = document.getElementById('homeName').value.trim();
+			const org = document.getElementById('homeOrg').value.trim();
+			const body = document.getElementById('homeBody').value.trim();
+			const mode = document.getElementById('homeType').value;
+
+			if (!featuredCelebrity.id) { status.textContent = 'Profile not ready. Refresh.'; return; }
+			if (!fullName || !org || !body) { status.textContent = 'Fill name, organization, and message.'; return; }
+
+			addBubble(thread, 'user', body);
+			document.getElementById('homeBody').value = '';
+			status.textContent = '';
+			const typingBubble = addBubble(thread, 'desk', '', true);
+
+			try {
+				const result = await request('/messages/send', {
+					method: 'POST',
+					body: JSON.stringify({
+						celebrityId: featuredCelebrity.id,
+						priority: mode === 'meet' ? 'Urgent' : 'Priority',
+						body: `[${mode === 'meet' ? 'How to Meet Request' : 'Representative Message'}]\nClient: ${fullName}\nOrganization: ${org}\nCelebrity: ${featuredCelebrity.name}\n\n${body}`,
+					}),
+				});
+				await new Promise(r => setTimeout(r, 1100));
+				typingBubble.remove();
+				const replyBubble = addBubble(thread, 'desk', '');
+				await typeText(replyBubble.querySelector('.cb-msg'), result.acknowledgement.body, 20);
+			} catch (error) {
+				typingBubble.remove();
+				addBubble(thread, 'desk', error.message + ' — login first to send.');
+			}
+		};
+
+		document.getElementById('bpGenerate').onclick = async () => {
+			const out = document.getElementById('bpOut');
+			try {
+				const response = await request('/intelligence/blueprint', {
+					method: 'POST',
+					body: JSON.stringify({
+						celebrityId: document.getElementById('bpCelebrity').value,
+						objective: document.getElementById('bpObjective').value,
+						audienceType: document.getElementById('bpAudience').value,
+						region: document.getElementById('bpRegion').value,
+						budget: Number(document.getElementById('bpBudget').value || 0),
+						timelineDays: Number(document.getElementById('bpTimeline').value || 30),
+					}),
+				});
+				out.innerHTML = `
+					<p class='small'><b>Blueprint:</b> ${response.blueprintId}</p>
+					<p class='small'><b>Recommendation:</b> ${response.strategy.recommendation}</p>
+					<p class='small'><b>Scores:</b> Fit ${response.scores.fitScore} · Pressure ${response.scores.pressureScore} · Budget ${response.scores.budgetAlignment} · Exclusivity ${response.scores.exclusivityIndex}</p>
+					<p class='small'><b>Execution Plan:</b> ${response.executionPlan.join(' → ')}</p>
+				`;
+			} catch (error) {
+				out.textContent = error.message + ' (login first for AI strategy generation)';
+			}
+		};
+	</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "alltalents-platform",
+  "version": "2.1.0",
+  "scripts": {
+    "predev": "kill-port 5600 4100",
+    "dev": "concurrently \"npm run dev --prefix api\" \"npm run static\"",
+    "static": "http-server website -p 5600 -c-1",
+    "api": "npm run dev --prefix api"
+  },
+  "keywords": [],
+  "author": "ATA Operations Group <ops@alltalentsagency.com>",
+  "license": "UNLICENSED",
+  "description": "Private talent representation platform",
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "http-server": "^14.1.1",
+    "kill-port": "^2.0.1"
+  }
+}

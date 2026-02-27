@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset='UTF-8'>
+	<meta name='viewport' content='width=device-width,initial-scale=1'>
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://upload.wikimedia.org; connect-src 'self' http://localhost:4100; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta name='referrer' content='no-referrer'>
+	<title>Client Portal | ALL TALENTS Agency</title>
+	<meta name="robots" content="noindex, nofollow">
+	<link rel='stylesheet' href='assets/styles.css'>
+</head>
+<body>
+	<div class='container' id='app'></div>
+	<script type='module'>
+		import { request, nav, loadTicker } from './assets/app.js';
+
+		const app = document.getElementById('app');
+		app.innerHTML = `${nav('portal')}<section id='p' class='section'></section>`;
+
+		await loadTicker();
+
+		const PHASES = [
+			'Inquiry Received',
+			'Representative Qualification',
+			'Commercial Negotiation',
+			'Contract Finalization',
+			'Escrow Confirmation',
+			'Engagement Confirmed',
+		];
+
+		function renderPhaseTimeline(currentStatus) {
+			const activeIdx = PHASES.findIndex(p => p === currentStatus);
+			const nodes = PHASES.map((phase, i) => {
+				const cls = i < activeIdx ? 'ph-done' : i === activeIdx ? 'ph-active' : '';
+				const dot = i < activeIdx ? '✓' : i + 1;
+				return `<div class='phase-node ${cls}'><div class='phase-dot'>${dot}</div><div class='phase-lbl'>${phase}</div></div>`;
+			}).join('');
+			return `<div class='phase-strip'>${nodes}</div>`;
+		}
+
+		try {
+			const [d, standing] = await Promise.all([
+				request('/portal/overview'),
+				request('/portal/standing').catch(() => null),
+			]);
+
+			const gaugeHTML = (() => {
+				if (!standing) return '';
+				const C = 314.159; const ARC = C * (240 / 360); // 209.44
+				const filled = (standing.score / 99) * ARC;
+				const pct = Math.round((standing.score / 99) * 100);
+				return `
+				<div class='grid g2 section'>
+					<div class='card stack'>
+						<p class='eyebrow'>Client Standing</p>
+						<h3>Relationship Score</h3>
+						<p class='small muted'>Your standing determines access tier, slot priority, and dedicated manager assignment.</p>
+						<div class='gauge-wrap' style='padding:10px 0'>
+							<svg class='gauge-svg' width='130' height='130' viewBox='0 0 130 130'>
+								<defs>
+									<linearGradient id='gaugeGrad' x1='0' y1='1' x2='1' y2='0'>
+										<stop offset='0%' stop-color='#c49b2e'/>
+										<stop offset='100%' stop-color='#f5e272'/>
+									</linearGradient>
+								</defs>
+								<circle cx='65' cy='65' r='50' class='gauge-ring-bg' stroke-width='9'
+									stroke-dasharray='${ARC.toFixed(2)} 10000' transform='rotate(150 65 65)'/>
+								<circle cx='65' cy='65' r='50' class='gauge-ring-fill' stroke-width='9'
+									stroke-dasharray='0 10000' transform='rotate(150 65 65)'
+									id='gaugeArc'/>
+								<text x='65' y='65' text-anchor='middle' class='gauge-val' dy='.35em'>${standing.score}</text>
+								<text x='65' y='88' text-anchor='middle' class='gauge-lbl'>/ 99 standing</text>
+							</svg>
+							<span class='tier-pill'>${standing.tier}</span>
+						</div>
+						${standing.nextTier ? `<p class='standing-next'>📈 ${standing.nextTierThreshold - standing.score} more points to reach <b>${standing.nextTier}</b> tier</p>` : `<p class='standing-next'>✦ Maximum tier achieved — Sovereign access active.</p>`}
+					</div>
+					<div class='card stack'>
+						<p class='eyebrow'>Active Privileges</p>
+						<h3>${standing.tier} Access Rights</h3>
+						<ul class='privilege-list'>
+							${standing.privileges.map(p => `<li>${p}</li>`).join('')}
+						</ul>
+						<div class='hr' style='margin:10px 0'></div>
+						<p class='small muted'>Score breakdown: Base 42 · Bookings +${standing.breakdown.bookingContribution} · Messages +${standing.breakdown.messageContribution} · Role +${standing.breakdown.roleBonus}</p>
+					</div>
+				</div>`;
+			})();
+
+			document.getElementById('p').innerHTML = `
+				<div class='card stack'>
+					<p class='eyebrow'>Client Command Center</p>
+					<h2>Private Client Portal</h2>
+					<p class='lead'>This command layer consolidates active opportunities, contract posture, payment records, and representative communications within one secure operating environment.</p>
+					<p class='small muted'>Membership Tier: ${d.membershipTier}</p>
+				</div>
+
+				${gaugeHTML}
+
+				<div class='card section stack'>
+					<p class='eyebrow'>Operational Logic</p>
+					<div class='flow-grid'>
+						<article class='flow-step'>
+							<p class='num'>Layer 01</p>
+							<h4>Portfolio Visibility</h4>
+							<p>Track booking files and contract stages with decision-ready visibility.</p>
+						</article>
+						<article class='flow-step'>
+							<p class='num'>Layer 02</p>
+							<h4>Commercial Control</h4>
+							<p>Monitor payment posture and escrow continuity across active engagements.</p>
+						</article>
+						<article class='flow-step'>
+							<p class='num'>Layer 03</p>
+							<h4>Service Continuity</h4>
+							<p>Maintain representative message history for timeline and compliance clarity.</p>
+						</article>
+					</div>
+				</div>
+
+				<div class='card section stack'>
+					<p class='eyebrow'>Active Booking Files</p>
+					<h3>Contract & Engagement Tracker</h3>
+					${d.bookings.length === 0 ? `<p class='small muted'>No active bookings. Initiate one from Explorer or Booking.</p>` : d.bookings.map(b => `
+						<div class='card stack' style='margin-top:8px'>
+							<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px'>
+								<div><p class='eyebrow'>Contract ${b.contractId}</p><h4 style='margin:4px 0'>${b.celebrityName}</h4></div>
+								<span class='badge'>${b.status}</span>
+							</div>
+							<p class='small muted'>${b.eventType} · ${b.date || 'Date TBD'} · ${b.location} · Security: ${b.securityLevel}</p>
+							<p class='small muted'>Quote: <b style='color:#d4af37'>$${b.pricing.finalQuote.toLocaleString()}</b> · Escrow: $${b.pricing.escrow.toLocaleString()}</p>
+							<p class='eyebrow' style='margin-top:8px'>Engagement Phase Tracker</p>
+							${renderPhaseTimeline(b.status)}
+						</div>
+					`).join('')}
+				</div>
+
+				<div class='card section stack'>
+					<p class='eyebrow'>Representative Communications</p>
+					<h3>Client Message Archive</h3>
+					<p class='small muted'>All messages are preserved as part of engagement audit continuity and support timeline clarity between inquiry and confirmation phases.</p>
+					${d.messages.map(m => `<p class='small'><b>${m.from}:</b> ${m.body}</p>`).join('') || '<p class="small muted">No messages currently available.</p>'}
+				</div>
+			`;
+
+			// Animate gauge arc
+			if (standing) {
+				const ARC2 = 314.159 * (240 / 360);
+				const filled = (standing.score / 99) * ARC2;
+				setTimeout(() => {
+					const arc = document.getElementById('gaugeArc');
+					if (arc) arc.setAttribute('stroke-dasharray', `${filled.toFixed(2)} 10000`);
+				}, 300);
+			}
+		} catch (e) {
+			document.getElementById('p').innerHTML = `<div class='card'>${e.message}. Login first.</div>`;
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://upload.wikimedia.org; connect-src 'self' http://localhost:4100; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta name='referrer' content='no-referrer'>
+  <title>Celebrity Talent Directory | 119+ Verified Stars — ALL TALENTS Agency</title>
+  <!-- SEO: Primary Meta -->
+  <meta name="description" content="Search 119+ verified A-list celebrities — musicians, film stars, athletes, K-pop idols (BTS, BLACKPINK), influencers, and comedians. Filter by category, region, and availability for any event.">
+  <meta name="keywords" content="celebrity directory, search celebrity talent, A-list stars, K-pop booking, BTS members, BLACKPINK Lisa Jennie, Korean actors, celebrity for hire, talent search, influencer booking">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="ALL TALENTS Agency">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ALL TALENTS Agency">
+  <meta property="og:title" content="Celebrity Talent Directory — 119+ Verified Stars | ALL TALENTS Agency">
+  <meta property="og:description" content="Browse and book 119+ verified celebrities across music, film, sports, K-pop, comedy, and influencer categories worldwide.">
+  <meta property="og:url" content="https://alltalents-agency.vercel.app/explorer.html">
+  <meta property="og:image" content="https://alltalents-agency.vercel.app/assets/og-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Celebrity Talent Directory — ALL TALENTS Agency">
+  <meta name="twitter:description" content="Search 119+ verified A-list celebrities. Filter by K-pop, Music, Film, Sports, Comedy & more.">
+  <link rel="canonical" href="https://alltalents-agency.vercel.app/explorer.html">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Celebrity Talent Directory",
+    "description": "Search 119+ verified celebrity talents across music, film, sports, comedy, and K-pop.",
+    "url": "https://alltalents-agency.vercel.app/explorer.html",
+    "isPartOf": { "@type": "WebSite", "name": "ALL TALENTS Agency", "url": "https://alltalents-agency.vercel.app" }
+  }
+  </script>
+  <link rel='stylesheet' href='assets/styles.css'>
+</head>
+<body>
+  <div class='container' id='app'></div>
+  <div id='dossierBack' class='dossier-back' style='display:none'></div>
+
+  <!-- ── DIRECT ACCESS PORTAL ─────────────────────────── -->
+  <div id='accessPortal' class='access-portal-back'>
+    <div class='ap-glow-bg'></div>
+    <div class='ap-scanlines'></div>
+    <button class='ap-close-btn' id='apClose'>Close ✕</button>
+    <div class='ap-inner'>
+      <div class='ap-portrait-col' id='apPortraitCol'>
+        <img class='ap-portrait-img' id='apPortraitImg' src='' alt=''>
+      </div>
+      <div class='ap-content-col' id='apContentCol'></div>
+    </div>
+  </div>
+
+  <button id='floatMsgBtn' class='floating-msg-btn' title='Open Messaging'>💬</button>
+  <section id='floatMsgPanel' class='floating-msg-panel'>
+    <h4>Messaging Management</h4>
+    <p class='hint'>Use this right-corner concierge panel for How-to-Meet requests and representative outreach.</p>
+    <div class='floating-msg-grid'>
+      <input id='meetTarget' readonly placeholder='Selected celebrity'>
+      <div class='floating-msg-row'>
+        <input id='meetName' placeholder='Your full name'>
+        <input id='meetOrg' placeholder='Organization'>
+      </div>
+      <select id='meetType'>
+        <option value='meet'>How to Meet</option>
+        <option value='msg'>General Representative Message</option>
+      </select>
+      <textarea id='meetBody' rows='5' placeholder='Write your request'></textarea>
+      <button id='meetSend' class='primary'>Send Message</button>
+      <p id='meetStatus' class='small muted'></p>
+    </div>
+  </section>
+
+  <script type='module'>
+    import { request, nav, loadTicker } from './assets/app.js';
+
+    let selectedCelebrity = { id: '', name: '' };
+    const shortlist = new Set();
+    const celebMap = new Map();
+    let allCelebrities = []; // perf: fetched once, filtered client-side
+
+    // ── ACCESS PORTAL ───────────────────────────────────────
+    const portal = document.getElementById('accessPortal');
+    const apCloseBtn = document.getElementById('apClose');
+    function closePortal() { portal.classList.remove('ap-open'); document.body.style.overflow = ''; }
+    apCloseBtn.onclick = closePortal;
+    portal.addEventListener('click', (e) => { if (e.target === portal) closePortal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePortal(); });
+
+    const VENUES = [
+      { icon: '🛥', name: 'Monaco Yacht',  loc: 'Port Hercule, Monaco' },
+      { icon: '🏙', name: 'NYC Penthouse', loc: 'Midtown Manhattan, NY' },
+      { icon: '🏰', name: 'Dubai Palace',  loc: 'Palm Jumeirah, Dubai' },
+      { icon: '🏡', name: 'London Estate', loc: 'Mayfair, London' },
+      { icon: '🗼', name: 'Paris Riviera', loc: 'Champs-Élysées, Paris' },
+    ];
+    function genDates() {
+      const arr = []; const d = new Date(); d.setDate(d.getDate() + 4);
+      for (let i = 0; i < 5; i++) {
+        arr.push({ day: d.getDate(), month: d.toLocaleString('en-GB', { month: 'short' }), status: i === 1 ? 'limited' : 'open', label: i === 1 ? 'Limited' : 'Open' });
+        d.setDate(d.getDate() + (i === 2 ? 2 : 1));
+      }
+      return arr;
+    }
+    function openAccessPortal(c) {
+      if (!c) return;
+      const dates = genDates();
+      const venueHtml = VENUES.map((v, i) => `<div class='ap-venue' data-vi='${i}'><div class='ap-venue-icon'>${v.icon}</div><div class='ap-venue-name'>${v.name}</div><div class='ap-venue-loc'>${v.loc}</div></div>`).join('');
+      const dateHtml = dates.map((d, i) => `<div class='ap-day' data-di='${i}'><div class='ap-day-num'>${d.day}</div><div class='ap-day-month'>${d.month}</div><div class='ap-day-status ds-${d.status}'>${d.label}</div></div>`).join('');
+      const brief = [
+        { label: 'Est. Net Worth',  value: c.netWorth || '—' },
+        { label: 'Brand Value',     value: c.brandValue || '—' },
+        { label: 'Global Reach',    value: c.socialReachMillions + 'M' },
+        { label: 'Availability',    value: c.availability },
+      ];
+      const briefHtml = brief.map(b => `<div class='ap-brief-cell'><div class='ap-bc-label'>${b.label}</div><div class='ap-bc-value'>${b.value}</div></div>`).join('');
+      document.getElementById('apPortraitImg').src = c.portrait;
+      document.getElementById('apPortraitImg').alt = c.name;
+      document.getElementById('apContentCol').innerHTML = `
+        <div class='ap-stamp'><div class='ap-stamp-dot'></div>Aurelux Private Access — Authorized Channel</div>
+        <h1 class='ap-celeb-name'>${c.name}</h1>
+        <p class='ap-celeb-meta'>${c.category} &nbsp;·&nbsp; ${c.region} &nbsp;·&nbsp; ${c.agencyRepresentation}</p>
+        <p style='font-size:12.5px;line-height:1.6;color:rgba(229,228,226,.72);font-style:italic;margin:0 0 18px;padding:12px 14px;border-left:2px solid rgba(212,175,55,.5);background:rgba(212,175,55,.04);border-radius:0 8px 8px 0'>"${c.eliteSignal}"</p>
+        <div class='ap-live-status'><div class='ap-live-dot'></div>Direct meeting access LIVE for qualified clients — closes in 72h</div>
+        <div class='ap-brief-row'>${briefHtml}</div>
+        <div class='ap-divider'></div>
+        <p class='ap-section-label'>Select Your Private Venue</p>
+        <div class='ap-venues'>${venueHtml}</div>
+        <p class='ap-section-label'>Choose Exclusive Window</p>
+        <div class='ap-dates'>${dateHtml}</div>
+        <button class='ap-confirm-btn' id='apConfirmBtn'>⚡ &nbsp;Initiate Private Access Protocol</button>
+        <p class='ap-price-note'>From $${c.startingPrice.toLocaleString()} &nbsp;·&nbsp; NDA standard &nbsp;·&nbsp; Escrow protected</p>
+      `;
+      document.querySelectorAll('.ap-venue').forEach(el => {
+        el.onclick = () => { document.querySelectorAll('.ap-venue').forEach(v => v.classList.remove('av-sel')); el.classList.add('av-sel'); };
+      });
+      document.querySelectorAll('.ap-day').forEach(el => {
+        el.onclick = () => { document.querySelectorAll('.ap-day').forEach(d => d.classList.remove('ad-sel')); el.classList.add('ad-sel'); };
+      });
+      document.getElementById('apConfirmBtn').onclick = () => { window.location.href = `booking.html?id=${c.id}`; };
+      portal.classList.add('ap-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // ── Dossier Modal ───────────────────────────
+    const dossierBack = document.getElementById('dossierBack');
+    dossierBack.addEventListener('click', (e) => { if (e.target === dossierBack) dossierBack.style.display = 'none'; });
+
+    async function openDossier(id) {
+      dossierBack.innerHTML = `<div class='dossier-modal'><button class='dossier-close' id='dClose'>Close ✕</button><div id='dossierContent'><p class='small muted'>Loading classified profile...</p></div></div>`;
+      dossierBack.style.display = 'flex';
+      document.getElementById('dClose').onclick = () => { dossierBack.style.display = 'none'; };
+      try {
+        const { celebrity: cel, dossier: d } = await request('/celebrities/' + id + '/dossier');
+        document.getElementById('dossierContent').innerHTML = `
+          <span class='dossier-classified'>${d.classificationLevel}</span>
+          <div class='dossier-header'>
+            <img class='dossier-portrait' src='${cel.portrait}' alt='${cel.name}'>
+            <div>
+              <p class='eyebrow'>${cel.category} · ${cel.region}</p>
+              <h2 style='margin:4px 0'>${cel.name}</h2>
+              <p class='small muted'>Private Strategic Briefing File</p>
+            </div>
+          </div>
+          <div class='dossier-meta-grid'>
+            <div class='dossier-meta-item'><div class='dmk'>Media Authority</div><div class='dmv'>${d.mediaAuthorityScore}/99</div></div>
+            <div class='dossier-meta-item'><div class='dmk'>Leverage Level</div><div class='dmv'>${d.negotiationLeverage.split('—')[0].trim()}</div></div>
+            <div class='dossier-meta-item'><div class='dmk'>Optimal Lead Time</div><div class='dmv'>${d.optimalLeadTime}</div></div>
+            <div class='dossier-meta-item'><div class='dmk'>Recommended Venue</div><div class='dmv'>${d.recommendedVenue}</div></div>
+          </div>
+          <div class='dossier-section'>
+            <h5>Strategic Talking Points</h5>
+            <ul class='dossier-tp'>${d.talkingPoints.map(p => `<li>${p}</li>`).join('')}</ul>
+          </div>
+          <div class='dossier-section'>
+            <h5>Risk Brief</h5>
+            <p class='small'>${d.riskBrief}</p>
+            <p class='small muted' style='margin-top:8px'><b>NDA Status:</b> ${d.ndaStatus}</p>
+          </div>
+          <div style='margin-top:16px;display:flex;gap:10px'>
+            <a href='booking.html?id=${cel.id}' style='flex:1'><button class='primary' style='width:100%'>Initiate Engagement →</button></a>
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('dossierContent').innerHTML = `<p class='small muted'>Unable to retrieve dossier: ${err.message}</p>`;
+      }
+    }
+
+    const app = document.getElementById('app');
+    app.innerHTML = `
+      ${nav('explorer')}
+      <section class='glass card section' style='border-color:rgba(212,175,55,.35);box-shadow:0 0 60px rgba(212,175,55,.07),0 22px 50px rgba(0,0,0,.35)'>
+        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(159,230,176,.4);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#9fe6b0;background:rgba(159,230,176,.05);margin-bottom:14px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:#9fe6b0;display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Private Access Zone — Session Authorized</div>
+        <h2 style='font-size:clamp(26px,3.8vw,44px);font-weight:900;letter-spacing:-.02em;margin:0 0 10px'>Select Your Celebrity.<br>Claim Your Private Window.</h2>
+        <p class='lead'>You have direct access to 119+ verified talents through Aurelux's authorized channel network. Tap any profile to open your private meeting portal — choose a venue, lock in your window, and initiate contact.</p>
+        <div style='display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px'>
+          <input id='search' placeholder='🔍  Search by celebrity name…' style='flex:2;min-width:220px'>
+          <select id='category' style='flex:1;min-width:140px'><option>All</option><option>Film</option><option>Music</option><option>Sports</option><option>Fashion</option><option>Business</option><option>Influencer</option><option>Comedy</option><option>Entertainment</option></select>
+          <select id='region' style='flex:1;min-width:140px'><option>All</option><option>North America</option><option>Europe</option><option>Middle East</option><option>Asia</option><option>Latin America</option><option>Africa</option></select>
+          <select id='availability' style='flex:1;min-width:130px'><option>All</option><option>Open</option><option>Limited</option><option>Waitlist</option></select>
+          <input id='date' type='date' style='flex:1;min-width:140px'>
+          <button id='clearFilters' class='secondary' style='white-space:nowrap;padding:9px 16px;font-size:12px'>✕ Clear</button>
+        </div>
+        <div style='display:flex;align-items:center;padding:6px 2px;border-top:1px solid rgba(255,255,255,.07)'>
+          <p id='resultsCount' class='small muted' style='margin:0'>Loading talents…</p>
+        </div>
+      </section>
+      <section class='card section stack'>
+        <p class='eyebrow'>Engagement Logic</p>
+        <div class='flow-grid'>
+          <article class='flow-step'>
+            <p class='num'>Phase 01</p>
+            <h4>Profile Screening</h4>
+            <p>Shortlist candidates by category, region, and strategic relevance.</p>
+          </article>
+          <article class='flow-step'>
+            <p class='num'>Phase 02</p>
+            <h4>Availability Validation</h4>
+            <p>Use date checks to confirm practical windows before outreach.</p>
+          </article>
+          <article class='flow-step'>
+            <p class='num'>Phase 03</p>
+            <h4>Representative Outreach</h4>
+            <p>Open How-to-Meet or direct representative requests via the floating panel.</p>
+          </article>
+        </div>
+      </section>
+      <section class='card section stack'>
+        <p class='eyebrow'>VIP Decision Engine</p>
+        <h3>Smart Shortlist Comparison</h3>
+        <p class='small muted'>Add up to 5 profiles from the grid and run an instant value-to-risk ranking.</p>
+        <div class='grid g2'>
+          <div>
+            <p class='small muted'>Selected IDs</p>
+            <p id='shortlistState' class='small'>No profiles selected.</p>
+          </div>
+          <div>
+            <button class='primary' id='compareBtn'>Run VIP Comparison</button>
+          </div>
+        </div>
+        <div id='compareOut' class='small muted'>Comparison output will appear here.</div>
+      </section>
+      <section class='grid g3 section' id='results'>
+        ${[1,2,3].map(()=>`<article class='card stack' style='height:280px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></article>`).join('')}
+      </section>
+      <section id='inquirySection' class='glass card section' style='border-color:rgba(212,175,55,.3);box-shadow:0 0 40px rgba(212,175,55,.05),0 16px 40px rgba(0,0,0,.3);max-width:680px;margin:0 auto'>
+        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(212,175,55,.4);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#d4af37;background:rgba(212,175,55,.05);margin-bottom:16px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:#d4af37;display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Celebrity Not Listed? Request Via Private Desk</div>
+        <h3 style='font-weight:800;margin:0 0 6px;font-size:clamp(20px,2.8vw,30px)'>Can't Find Who<br>You're Looking For?</h3>
+        <p class='small muted' style='margin:0 0 22px;line-height:1.7'>Submit a private celebrity inquiry through our Concierge Desk. Our representation team will assess availability, negotiate terms, and revert within 48 hours under full NDA.</p>
+        <form id='celebInquiryForm' style='display:flex;flex-direction:column;gap:14px'>
+          <div style='display:flex;gap:12px;flex-wrap:wrap'>
+            <div style='flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px'>
+              <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>YOUR NAME</label>
+              <input id='inqName' placeholder='Full name' required style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+            </div>
+            <div style='flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px'>
+              <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>EMAIL ADDRESS</label>
+              <input id='inqEmail' type='email' placeholder='your@email.com' required style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+            </div>
+          </div>
+          <div style='display:flex;flex-direction:column;gap:5px'>
+            <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>CELEBRITY NAME</label>
+            <input id='inqCelebrity' placeholder='Who would you like to book?' required style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+          </div>
+          <div style='display:flex;gap:12px;flex-wrap:wrap'>
+            <div style='flex:1;min-width:180px;display:flex;flex-direction:column;gap:5px'>
+              <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>EVENT TYPE</label>
+              <select id='inqEventType' style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+                <option value=''>Select event type…</option>
+                <option>Corporate Keynote</option>
+                <option>Brand Endorsement</option>
+                <option>Private Performance</option>
+                <option>Meet & Greet</option>
+                <option>Film / TV Project</option>
+                <option>Social Media Campaign</option>
+                <option>Charity / Gala</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div style='flex:1;min-width:160px;display:flex;flex-direction:column;gap:5px'>
+              <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>DESIRED DATE</label>
+              <input id='inqDate' type='date' style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+            </div>
+          </div>
+          <div style='display:flex;flex-direction:column;gap:5px'>
+            <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>ADDITIONAL DETAILS</label>
+            <textarea id='inqMessage' rows='4' placeholder='Budget range, location, audience size, any specific requests…' style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);resize:vertical'></textarea>
+          </div>
+          <div style='display:flex;align-items:center;gap:16px;flex-wrap:wrap'>
+            <button type='submit' id='inqSubmitBtn' class='primary' style='min-width:200px'>Submit Celebrity Request</button>
+            <p id='inqMsg' class='small muted' style='margin:0'></p>
+          </div>
+        </form>
+      </section>
+    `;
+
+    const panel = document.getElementById('floatMsgPanel');
+    const btn = document.getElementById('floatMsgBtn');
+    btn.onclick = () => panel.classList.toggle('open');
+
+    function renderShortlistState() {
+      const ids = Array.from(shortlist);
+      document.getElementById('shortlistState').textContent = ids.length ? ids.join(', ') : 'No profiles selected.';
+    }
+
+    const filters = { search: '', category: 'All', region: 'All', availability: 'All' };
+    // ── Pre-fill filters from URL params (e.g. explorer.html?search=Beyonce&category=Music) ──
+    const _urlParams = new URLSearchParams(window.location.search);
+    ['search', 'category', 'region', 'availability'].forEach((key) => {
+      const val = _urlParams.get(key);
+      if (val) {
+        filters[key] = val;
+        const el = document.getElementById(key);
+        if (el) el.value = val;
+      }
+    });
+    // ── debounced search; instant selects ────────────────────────────────────
+    let _searchDebounce;
+    document.getElementById('search').addEventListener('input', () => {
+      filters.search = document.getElementById('search').value;
+      clearTimeout(_searchDebounce);
+      _searchDebounce = setTimeout(applyFilters, 280);
+    });
+    ['category', 'region', 'availability'].forEach((id) =>
+      document.getElementById(id).addEventListener('input', () => {
+        filters[id] = document.getElementById(id).value;
+        applyFilters();
+      })
+    );
+
+    document.getElementById('clearFilters').onclick = () => {
+      filters.search = ''; filters.category = 'All'; filters.region = 'All'; filters.availability = 'All';
+      document.getElementById('search').value = '';
+      document.getElementById('category').value = 'All';
+      document.getElementById('region').value = 'All';
+      document.getElementById('availability').value = 'All';
+      applyFilters();
+    };
+
+    function setMeetTemplate(mode, celebrityName) {
+      const textarea = document.getElementById('meetBody');
+      if (mode === 'meet') {
+        textarea.value = `How-to-meet request for ${celebrityName}: Please share representation protocol, qualification criteria, expected timeline, and first-step coordination requirements.`;
+      } else {
+        textarea.value = `Representative message for ${celebrityName}: Requesting callback to discuss strategic fit, event scope, and process.`;
+      }
+    }
+
+    // ── Waitlist Reservation Modal ─────────────────────────
+    const wlBack = document.createElement('div');
+    wlBack.className = 'wl-modal-back';
+    wlBack.style.display = 'none';
+    document.body.appendChild(wlBack);
+    wlBack.addEventListener('click', (e) => { if (e.target === wlBack) wlBack.style.display = 'none'; });
+
+    async function openWaitlistReserve(id, name) {
+      wlBack.innerHTML = `<div class='wl-modal'><p class='eyebrow'>Waitlist Slot Reservation</p><h3 style='margin:8px 0'>${name}</h3><p class='small muted'>Securing your place in queue. Login required.</p><div style='margin-top:14px' id='wlContent'><p class='small muted'>Processing reservation...</p></div></div>`;
+      wlBack.style.display = 'flex';
+      try {
+        const r = await request('/waitlist/reserve', { method: 'POST', body: JSON.stringify({ celebrityId: id }) });
+        const exp = new Date(r.expiresAt);
+        document.getElementById('wlContent').innerHTML = `
+          <div class='wl-code'>${r.reservationCode}</div>
+          <p class='wl-expiry'>Reservation valid until ${exp.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}</p>
+          <div id='wlCountdown' class='wl-timer'>47:59:59</div>
+          <p class='small muted' style='margin-top:10px'>${r.message}</p>
+          <p class='small muted' style='font-size:10px;margin-top:6px;opacity:.7'>${r.terms}</p>
+          <button class='wl-close' onclick='document.querySelector(".wl-modal-back").style.display="none"'>Close</button>
+        `;
+        // live countdown
+        let total = Math.floor((exp.getTime() - Date.now()) / 1000);
+        const tick = setInterval(() => {
+          if (total <= 0) { clearInterval(tick); return; }
+          total--;
+          const h = String(Math.floor(total / 3600)).padStart(2, '0');
+          const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+          const s = String(total % 60).padStart(2, '0');
+          const el = document.getElementById('wlCountdown');
+          if (el) el.textContent = `${h}:${m}:${s}`; else clearInterval(tick);
+        }, 1000);
+      } catch (err) {
+        document.getElementById('wlContent').innerHTML = `<p class='small muted'>${err.message} — login first.</p><button class='wl-close' onclick='document.querySelector(".wl-modal-back").style.display="none"'>Close</button>`;
+      }
+    }
+
+    // ── One-time fetch (single API call for all celebrities) ─────────────────
+    async function init() {
+      try {
+        const res = await request('/celebrities');
+        allCelebrities = res.data;
+        allCelebrities.forEach(c => celebMap.set(c.id, c));
+        applyFilters();
+      } catch(err) {
+        document.getElementById('results').innerHTML = `<div class='card' style='grid-column:1/-1;text-align:center;padding:40px'><p class='muted'>Unable to load profiles — API unavailable.</p></div>`;
+      }
+    }
+
+    // ── Client-side filtering (zero API calls) ────────────────────────────────
+    function applyFilters() {
+      let data = allCelebrities;
+      const s = filters.search.trim().toLowerCase();
+      if (s) data = data.filter(c => c.name.toLowerCase().includes(s));
+      if (filters.category !== 'All') data = data.filter(c => c.category === filters.category);
+      if (filters.region !== 'All') data = data.filter(c => c.region === filters.region);
+      if (filters.availability !== 'All') data = data.filter(c => c.availability === filters.availability);
+      renderCards(data);
+    }
+
+    // ── Render cards + delegated events + RAF tilt + lazy pressure badges ─────
+    let _pressureObserver = null;
+    function renderCards(data) {
+      const countEl = document.getElementById('resultsCount');
+      if (countEl) {
+        const isFiltered = filters.search.trim() || filters.category !== 'All' || filters.region !== 'All' || filters.availability !== 'All';
+        countEl.textContent = isFiltered
+          ? `Showing ${data.length} of ${allCelebrities.length} talents`
+          : `Showing all ${data.length} talents`;
+      }
+
+      const results = document.getElementById('results');
+      if (data.length === 0) {
+        results.innerHTML = `<div class='card' style='grid-column:1/-1;text-align:center;padding:60px 20px'><p style='font-size:36px;margin-bottom:12px'>🔍</p><h4 style='margin-bottom:8px'>No talents found</h4><p class='small muted'>No celebrities match your filters. Click <b>✕ Clear</b> to reset.</p></div>`;
+        return;
+      }
+
+      const fmtP = p => p >= 1e6 ? `$${(p/1e6).toFixed(1)}M` : `$${Math.round(p/1000)}K`;
+      results.innerHTML = data.map((c) => `
+        <article class='celeb-card tilt-card' data-id='${c.id}' style='contain:layout style'>
+          <div class='celeb-portrait-wrap'>
+            <img src='${c.portrait}' alt='${c.name}' loading='lazy' decoding='async'/>
+            <div class='celeb-portrait-fade'></div>
+            <div class='celeb-portrait-badges'>
+              <span class='celeb-verified-badge'>✦ Verified</span>
+              <span class='celeb-avail-badge cab-${c.availability.toLowerCase()}'>${c.availability}</span>
+            </div>
+            <div class='celeb-portrait-name'>
+              <h3>${c.name}</h3>
+              <div class='cn-sub'>${c.category} &nbsp;·&nbsp; ${c.region}</div>
+            </div>
+          </div>
+          <div class='celeb-card-body'>
+            <div class='pressure-bar' id='press-${c.id}' data-pid='${c.id}'><div class='pressure-dot pd-normal'></div><span class='pressure-msg'>Reading demand signal…</span></div>
+            <div class='celeb-stat-bar' style='margin-top:10px'>
+              <div class='celeb-stat'><div class='cs-label'>Est. Net Worth</div><div class='cs-value'>${c.netWorth || '—'}</div></div>
+              <div class='celeb-stat'><div class='cs-label'>Global Reach</div><div class='cs-value'>${c.socialReachMillions}M</div></div>
+              <div class='celeb-stat'><div class='cs-label'>Brand Value</div><div class='cs-value'>${c.brandValue || '—'}</div></div>
+            </div>
+            <p class='celeb-signal'>"${c.eliteSignal}"</p>
+            <p class='celeb-price-tag'>Private access from &thinsp;<strong>${fmtP(c.startingPrice)}</strong>&thinsp; · ${c.agencyRepresentation} · NDA default</p>
+            <div class='celeb-actions'>
+              <button class='meet-direct-btn' data-a='portal' data-id='${c.id}'>⚡ &nbsp;Meet ${c.name.split(' ')[0]} Privately →</button>
+              <button class='crowd-mini-btn' data-a='crowd' data-id='${c.id}'>👥 &nbsp;Join Crowd Event →</button>
+              <div class='celeb-sub-actions'>
+                <button data-a='check' data-id='${c.id}'>Availability Window</button>
+                <button class='secondary' data-a='dossier' data-id='${c.id}'>Private Dossier</button>
+                <button class='secondary' data-a='shortlist' data-id='${c.id}'>${shortlist.has(c.id) ? '★ Shortlisted' : '☆ VIP Shortlist'}</button>
+                ${c.availability === 'Waitlist'
+                  ? `<button class='secondary' data-a='wl-reserve' data-id='${c.id}' data-name='${c.name}' style='border-color:rgba(240,195,107,.5);color:#f0c36b'>⏱ Reserve Slot</button>`
+                  : `<button class='secondary' data-a='set-meet' data-id='${c.id}' data-name='${c.name}'>How to Meet</button>`}
+              </div>
+            </div>
+            <p class='small muted' id='s-${c.id}' style='margin-top:6px'></p>
+          </div>
+        </article>
+      `).join('');
+
+      // ── Single delegated click handler for the whole grid ───────────────────
+      results.onclick = (e) => {
+        const btn = e.target.closest('[data-a]');
+        if (!btn) return;
+        const { a, id, name } = btn.dataset;
+        if (a === 'portal') {
+          openAccessPortal(celebMap.get(id));
+        } else if (a === 'crowd') {
+          window.location.href = `crowdbooking.html?celeb=${id}`;
+        } else if (a === 'dossier') {
+          openDossier(id);
+        } else if (a === 'wl-reserve') {
+          openWaitlistReserve(id, name);
+        } else if (a === 'set-meet') {
+          selectedCelebrity = { id, name };
+          document.getElementById('meetTarget').value = `${name} (${id})`;
+          document.getElementById('meetType').value = 'meet';
+          setMeetTemplate('meet', name);
+          document.getElementById('meetStatus').textContent = `Floating panel prepared for ${name}.`;
+          panel.classList.add('open');
+        } else if (a === 'check') {
+          const date = document.getElementById('date').value;
+          const status = document.getElementById('s-' + id);
+          if (!date) { status.textContent = 'Select a preferred date first.'; return; }
+          request(`/celebrities/${id}/availability?date=${date}`)
+            .then(r => { status.textContent = r.available ? `Confirmed for ${r.date}.` : 'Unavailable for selected date.'; })
+            .catch(err => { status.textContent = err.message; });
+        } else if (a === 'shortlist') {
+          if (shortlist.has(id)) {
+            shortlist.delete(id);
+          } else {
+            if (shortlist.size >= 5) { document.getElementById('compareOut').textContent = 'Limit reached. Keep shortlist at 5 profiles max.'; return; }
+            shortlist.add(id);
+          }
+          renderShortlistState();
+          btn.textContent = shortlist.has(id) ? '★ Shortlisted' : '☆ VIP Shortlist';
+        }
+      };
+
+      // ── RAF 3-D tilt with passive listeners ────────────────────────────────
+      results.querySelectorAll('.tilt-card').forEach((card) => {
+        let raf;
+        card.addEventListener('mousemove', (e) => {
+          if (raf) cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            const r = card.getBoundingClientRect();
+            const x = ((e.clientX - r.left) / r.width - 0.5) * 7;
+            const y = ((e.clientY - r.top) / r.height - 0.5) * -7;
+            card.style.transform = `perspective(900px) rotateX(${y}deg) rotateY(${x}deg) scale(1.012)`;
+          });
+        }, { passive: true });
+        card.addEventListener('mouseleave', () => {
+          if (raf) cancelAnimationFrame(raf);
+          card.style.transform = '';
+        }, { passive: true });
+      });
+
+      // ── IntersectionObserver: load pressure badge only when card enters view ─
+      if (_pressureObserver) _pressureObserver.disconnect();
+      _pressureObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          _pressureObserver.unobserve(entry.target);
+          const id = entry.target.dataset.pid;
+          request('/intelligence/pressure/' + id).then((p) => {
+            const el = document.getElementById('press-' + id);
+            if (!el) return;
+            el.innerHTML = `
+              <div class='pressure-dot pd-${p.heatLevel}'></div>
+              <span class='pressure-tag pt-${p.heatLevel}'>${p.heatLevel === 'critical' ? 'SOLD OUT' : p.heatLevel.toUpperCase()}</span>
+              <span class='pressure-msg'>${p.urgencyMessage}</span>
+              <span class='pressure-msg' style='margin-left:4px;opacity:.65'>· Last inquiry ${p.lastInquiryMinutesAgo}m ago</span>
+            `;
+          }).catch(() => {});
+        });
+      }, { rootMargin: '120px' });
+      results.querySelectorAll('[data-pid]').forEach(el => _pressureObserver.observe(el));
+    }
+
+    document.getElementById('meetType').addEventListener('change', (e) => {
+      if (!selectedCelebrity.name) return;
+      setMeetTemplate(e.target.value, selectedCelebrity.name);
+    });
+
+    document.getElementById('meetSend').onclick = async () => {
+      const status = document.getElementById('meetStatus');
+      const fullName = document.getElementById('meetName').value.trim();
+      const org = document.getElementById('meetOrg').value.trim();
+      const body = document.getElementById('meetBody').value.trim();
+      const mode = document.getElementById('meetType').value;
+
+      if (!selectedCelebrity.id) {
+        status.textContent = 'Choose a profile via “How to Meet” before sending.';
+        return;
+      }
+      if (!fullName || !org || !body) {
+        status.textContent = 'Add name, organization, and message details.';
+        return;
+      }
+
+      try {
+        const result = await request('/messages/send', {
+          method: 'POST',
+          body: JSON.stringify({
+            celebrityId: selectedCelebrity.id,
+            priority: mode === 'meet' ? 'Urgent' : 'Priority',
+            body: `[${mode === 'meet' ? 'How to Meet Request' : 'Representative Message'}]\nClient: ${fullName}\nOrganization: ${org}\nCelebrity: ${selectedCelebrity.name}\n\n${body}`,
+          }),
+        });
+        status.textContent = `Sent successfully. ${result.acknowledgement.body}`;
+      } catch (error) {
+        status.textContent = error.message + ' (login first)';
+      }
+    };
+
+    document.getElementById('compareBtn').onclick = async () => {
+      const out = document.getElementById('compareOut');
+      const ids = Array.from(shortlist);
+      if (!ids.length) {
+        out.textContent = 'Add at least one profile to run comparison.';
+        return;
+      }
+      try {
+        const result = await request('/intelligence/compare', {
+          method: 'POST',
+          body: JSON.stringify({ celebrityIds: ids }),
+        });
+        out.innerHTML = `
+          <p class='small'><b>Winner:</b> ${result.recommendation.winner.name}</p>
+          <p class='small'><b>Rationale:</b> ${result.recommendation.rationale}</p>
+          <p class='small'><b>Ranking:</b> ${result.compared.map((r, i) => `${i + 1}. ${r.name} (Score ${r.valueScore})`).join(' · ')}</p>
+        `;
+      } catch (error) {
+        out.textContent = error.message;
+      }
+    };
+
+    renderShortlistState();
+
+    await loadTicker();
+    await init();
+
+    // ── Celebrity Inquiry Form handler ───────────────────────────────────────
+    document.getElementById('celebInquiryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('inqSubmitBtn');
+      const msg = document.getElementById('inqMsg');
+      btn.disabled = true;
+      btn.textContent = 'Submitting…';
+      msg.textContent = '';
+      const payload = {
+        name:      document.getElementById('inqName').value.trim(),
+        email:     document.getElementById('inqEmail').value.trim(),
+        celebrity: document.getElementById('inqCelebrity').value.trim(),
+        eventType: document.getElementById('inqEventType').value,
+        date:      document.getElementById('inqDate').value,
+        message:   document.getElementById('inqMessage').value.trim(),
+      };
+      try {
+        const res = await request('/inquiry', { method: 'POST', body: JSON.stringify(payload) });
+        msg.style.color = '#9fe6b0';
+        msg.textContent = res.message || 'Request received. Our team will contact you within 48 hours.';
+        document.getElementById('celebInquiryForm').reset();
+      } catch (err) {
+        msg.style.color = '#e06060';
+        msg.textContent = 'Submission failed. Please try again or use the contact panel.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Celebrity Request';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset='UTF-8'>
+	<meta name='viewport' content='width=device-width,initial-scale=1'>
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://upload.wikimedia.org; connect-src 'self' http://localhost:4100; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta name='referrer' content='no-referrer'>
+	<title>Admin Dashboard | ALL TALENTS Agency</title>
+	<meta name="robots" content="noindex, nofollow">
+	<link rel='stylesheet' href='assets/styles.css'>
+</head>
+<body>
+	<div class='container' id='app'></div>
+	<script type='module'>
+		import { request, nav, loadTicker } from './assets/app.js';
+
+		const app = document.getElementById('app');
+		app.innerHTML = `
+			${nav('admin')}
+			<section class='card section stack'>
+				<p class='eyebrow'>Administrative Governance</p>
+				<h2>Executive Control Layer</h2>
+				<p class='lead'>This desk governs representation quality, booking governance, and service continuity. Use this layer to supervise strategic demand, enforce protocol standards, and maintain institutional consistency across all client-facing interactions.</p>
+			</section>
+
+			<section class='grid g4 section' id='portfolioKpis'>
+				<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
+				<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
+				<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
+				<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
+			</section>
+
+			<section class='grid g2 section' id='portfolioDetail'>
+				<div class='card stack' style='min-height:180px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
+				<div class='card stack' style='min-height:180px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
+			</section>
+
+			<section class='card section stack' id='revenueTimeline'></section>
+
+			<section class='card section stack'>
+				<p class='eyebrow'>Control Logic</p>
+				<div class='flow-grid'>
+					<article class='flow-step'>
+						<p class='num'>Domain 01</p>
+						<h4>Commercial Integrity</h4>
+						<p>Maintain pricing posture and qualification standards across high-value opportunities.</p>
+					</article>
+					<article class='flow-step'>
+						<p class='num'>Domain 02</p>
+						<h4>Service Discipline</h4>
+						<p>Review escalations and enforce response standards for premium client accounts.</p>
+					</article>
+					<article class='flow-step'>
+						<p class='num'>Domain 03</p>
+						<h4>Compliance Continuity</h4>
+						<p>Protect NDA-sensitive workflows and preserve auditable operational history.</p>
+					</article>
+				</div>
+			</section>
+
+			<section class='grid g3 section'>
+				<article class='card stack'>
+					<h3>Commercial Oversight</h3>
+					<p class='small muted'>Adjust pricing posture, demand visibility, and booking qualification thresholds to maintain portfolio integrity and value perception.</p>
+				</article>
+				<article class='card stack'>
+					<h3>Service Governance</h3>
+					<p class='small muted'>Review customer service panel submissions, triage escalation requests, and enforce response SLAs for premium clients and private offices.</p>
+				</article>
+				<article class='card stack'>
+					<h3>Risk & Compliance</h3>
+					<p class='small muted'>Monitor NDA-sensitive requests, security level declarations, and workflow audit continuity between inquiry and confirmed engagement.</p>
+				</article>
+			</section>
+		`;
+
+		await loadTicker();
+
+		// ── Live Portfolio Financial Dashboard ────────────────────────────
+		try {
+			const p = await request('/portfolio/summary');
+
+			const fmt = (n) => {
+				if (n >= 1e12) return `$${(n / 1e12).toFixed(2)}T`;
+				if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
+				if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+				return `$${n.toLocaleString()}`;
+			};
+
+			document.getElementById('portfolioKpis').innerHTML = [
+				['Total Managed Portfolio', fmt(p.totalManagedPortfolio), 'Lifetime agency value'],
+				['YTD Revenue', fmt(p.ytdRevenue), `+${p.yoyGrowth}% YoY growth`],
+				['Escrow Held', fmt(p.escrowHeld), 'Active contract reserves'],
+				['Portfolio Yield', `${p.portfolioYield}%`, 'Net annual return rate'],
+			].map(([label, value, sub]) => `
+				<div class='card stack'>
+					<p class='small muted' style='font-size:10px;letter-spacing:.1em;text-transform:uppercase'>${label}</p>
+					<div class='kpi'>${value}</div>
+					<p class='small muted' style='font-size:10px;opacity:.65'>${sub}</p>
+				</div>
+			`).join('');
+
+			// Category breakdown + top earners
+			const maxVol = Math.max(...p.categoryBreakdown.map(c => c.annualVolume));
+			document.getElementById('portfolioDetail').innerHTML = `
+				<div class='card stack'>
+					<p class='eyebrow'>Revenue by Category</p>
+					<h3>Portfolio Allocation</h3>
+					<p class='small muted'>Annual booking volume breakdown across all six talent verticals.</p>
+					<div style='margin-top:14px;display:grid;gap:10px'>
+						${p.categoryBreakdown.map(cat => `
+							<div>
+								<div style='display:flex;justify-content:space-between;margin-bottom:4px'>
+									<span class='small' style='font-weight:600'>${cat.category}</span>
+									<span class='small muted'>${fmt(cat.annualVolume)} · ${cat.shareOfPortfolio}% · avg deal ${fmt(cat.avgDealSize)}</span>
+								</div>
+								<div style='height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden'>
+									<div style='height:100%;border-radius:3px;background:linear-gradient(90deg,#d4af37,#f5e272);width:${Math.round((cat.annualVolume/maxVol)*100)}%;transition:width 1.2s cubic-bezier(.4,0,.2,1)'></div>
+								</div>
+							</div>
+						`).join('')}
+					</div>
+				</div>
+				<div class='card stack'>
+					<p class='eyebrow'>Top Revenue Earners</p>
+					<h3>Anchor Portfolio Assets</h3>
+					<p class='small muted'>Highest annual booking revenue contributors across the active roster.</p>
+					<div style='margin-top:14px;display:grid;gap:10px'>
+						${p.topEarners.map((e, i) => `
+							<div style='display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid rgba(212,175,55,.15);border-radius:10px;background:rgba(212,175,55,.03)'>
+								<div style='width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#efcf68,#d4af37);color:#111;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0'>${i + 1}</div>
+								<div style='flex:1;min-width:0'>
+									<p style='margin:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>${e.name}</p>
+									<p class='small muted' style='margin:0;font-size:10px'>${e.category} · ${e.region}</p>
+								</div>
+								<div style='text-align:right;flex-shrink:0'>
+									<p style='margin:0;font-size:13px;font-weight:700;color:#d4af37'>${fmt(e.annualRevenue)}</p>
+									<p class='small muted' style='margin:0;font-size:10px'>annual</p>
+								</div>
+							</div>
+						`).join('')}
+					</div>
+				</div>
+			`;
+
+			// Revenue timeline
+			const maxRev = Math.max(...p.revenueTimeline.map(r => r.revenue));
+			document.getElementById('revenueTimeline').innerHTML = `
+				<p class='eyebrow'>Revenue Timeline</p>
+				<h3>Agency Growth Trajectory</h3>
+				<p class='small muted'>Managed booking revenue across fiscal years. Total cumulative portfolio exceeds <strong style='color:#d4af37'>${fmt(p.totalManagedPortfolio)}</strong>.</p>
+				<div style='margin-top:18px;display:flex;align-items:flex-end;gap:8px;height:100px;overflow-x:auto;padding-bottom:28px;position:relative'>
+					${p.revenueTimeline.map((r, i) => {
+						const pct = Math.round((r.revenue / maxRev) * 100);
+						return `
+							<div style='flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative'>
+								<span style='font-size:9px;color:#d4af37;font-weight:700;letter-spacing:.03em;white-space:nowrap'>${fmt(r.revenue)}</span>
+								<div style='width:100%;background:linear-gradient(180deg,rgba(212,175,55,.9),rgba(212,175,55,.35));border-radius:4px 4px 0 0;height:${pct}px;transition:height 1.4s cubic-bezier(.4,0,.2,1);min-height:4px'></div>
+								<span style='position:absolute;bottom:-20px;font-size:9px;color:rgba(229,228,226,.5);letter-spacing:.04em'>${r.year}</span>
+							</div>
+						`;
+					}).join('')}
+				</div>
+				<div class='hr' style='margin-top:8px'></div>
+				<div style='display:flex;gap:24px;flex-wrap:wrap;margin-top:8px'>
+					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Active Contracts</p><p style='font-size:20px;font-weight:700;color:#d4af37;margin:2px 0'>${(p.activeContracts).toLocaleString()}</p></div>
+					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Avg Deal Size</p><p style='font-size:20px;font-weight:700;color:#d4af37;margin:2px 0'>${fmt(p.avgDealSize)}</p></div>
+					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Verified Roster</p><p style='font-size:20px;font-weight:700;color:#d4af37;margin:2px 0'>${p.totalRoster}</p></div>
+				</div>
+			`;
+
+		} catch (e) {
+			document.getElementById('portfolioKpis').innerHTML = `<div class='card' style='grid-column:1/-1'><p class='small muted'>Login as admin to view live portfolio financials. ${e.message}</p></div>`;
+		}
+	</script>
+</body>
+</html>
