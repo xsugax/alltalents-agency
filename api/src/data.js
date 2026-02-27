@@ -27,7 +27,7 @@ const NAMED = [
   ["c13", "Rihanna",            "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Rihanna_Fenty_2018.png/330px-Rihanna_Fenty_2018.png",                                                                                                                               1600000,  95,     97,  "Waitlist",   150.0,   "Grammy Award",          "low"],
   ["c14", "Lewis Hamilton",     "Sports",       "IMG",               "Europe",         "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Prime_Minister_Keir_Starmer_meets_Sir_Lewis_Hamilton_%2854566928382%29_%28cropped%29.jpg/330px-Prime_Minister_Keir_Starmer_meets_Sir_Lewis_Hamilton_%2854566928382%29_%28cropped%29.jpg", 980000, 90,   93,  "Limited",    33.5,    "FIA World Championship","low"],
   ["c15", "Virat Kohli",        "Sports",       "IMG",               "Asia",           "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Virat_Kohli_in_PMO_New_Delhi.jpg/330px-Virat_Kohli_in_PMO_New_Delhi.jpg",                                                                                                           850000,   92,     94,  "Open",       270.0,   "ICC Player of the Year","low"],
-  ["c16", "Margot Robbie",      "Film",         "CAA",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/SYDNEY%2C_AUSTRALIA_-_JANUARY_23_Margot_Robbie_arrives_at_the_Australian_Premiere_of_%27I%2C_Tonya%27_on_January_23%2C_2018_in_Sydney%2C_Australia_%282807488399%29_%28cropped_2%29.jpg/330px-thumbnail.jpg", 450000, 89, 91, "Open", 22.0,  "BAFTA Award",           "low"],
+  ["c16", "Margot Robbie",      "Film",         "CAA",               "Australia",  "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Margot_Robbie_2019_by_Glenn_Francis_%28cropped%29.jpg/330px-Margot_Robbie_2019_by_Glenn_Francis_%28cropped%29.jpg", 450000, 89, 91, "Open", 22.0,  "BAFTA Award",           "low"],
   // ── Newly added real celebrities (c17–c30) ──────────────────────────────────
   ["c17", "Chris Young",        "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Chris_young_.jpg/330px-Chris_young_.jpg",                                                                                                                                                                              280000,   78,     82,  "Open",       18.5,    "ACM Award",             "low"],
   ["c18", "Tyler Hynes",        "Film",         "Independent",       "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Tyler_Hynes_at_San_Diego_Comic_Con_2025.jpg/330px-Tyler_Hynes_at_San_Diego_Comic_Con_2025.jpg",                                                                                                                             150000,   72,     76,  "Open",       8.5,     "Canadian Screen Award", "low"],
@@ -55,7 +55,7 @@ const NAMED_EXTRA = {
   c6:  { netWorth: "$800M",   brandValue: "$680M",   eliteSignal: "The highest-paid actor on earth — 2025 Forbes #1. Every project he commits to exceeds $1B at the global box office." },
   c7:  { netWorth: "$175M",   brandValue: "$130M",   eliteSignal: "Oscar-winning actress and active UN global humanitarian. The definitive choice for executive-tier brand alignment with substance." },
   c8:  { netWorth: "$380M",   brandValue: "$270M",   eliteSignal: "A cultural icon with zero recorded controversy in 35 years. Trusted unconditionally across 180 countries and all demographics." },
-  c9:  { netWorth: "$310B",   brandValue: "$80B",    eliteSignal: "The wealthiest private individual on earth — Tesla, SpaceX, xAI combined. An engagement with Musk becomes a global news event within minutes." },
+  c9:  { netWorth: "$852B",   brandValue: "$80B",    eliteSignal: "The wealthiest private individual on earth — Tesla, SpaceX, xAI combined. An engagement with Musk becomes a global news event within minutes." },
   c10: { netWorth: "$200M",   brandValue: "$95M",    eliteSignal: "Cannes-celebrated actress, producer, and Kering Group board member. Two decades of multi-billion-dollar luxury brand partnerships." },
   c11: { netWorth: "$60M",    brandValue: "$250M",   eliteSignal: "Highest-earning young actress of her generation. Dune 2 + Challengers + Zendaya Beauty — reshaping culture for 3B+ Gen-Z consumers." },
   c12: { netWorth: "$1.6B",   brandValue: "$1.4B",   eliteSignal: "The first artist to become a billionaire entirely from music. The Eras Tour is the first concert tour to exceed $2B in revenue." },
@@ -351,8 +351,8 @@ const extRegionMap = [
   "North America","North America",
   // c63 Pedro Pascal-Latin America, c64 Ana de Armas-Latin America, c65 Penélope Cruz-Europe
   "Latin America","Latin America","Europe",
-  // c66 Chris Hemsworth-Europe, c67 Ryan Reynolds-N.America, c68 Nicole Kidman-Europe, c69 Hugh Jackman-Europe, c70 Cate Blanchett-Europe
-  "Europe","North America","Europe","Europe","Europe",
+  // c66 Chris Hemsworth-Australia, c67 Ryan Reynolds-N.America, c68 Nicole Kidman-Australia, c69 Hugh Jackman-Australia, c70 Cate Blanchett-Australia
+  "Australia","North America","Australia","Australia","Australia",
   // c71 Mindy Kaling-N.America, c72 Olivia Rodrigo-N.America, c73 Doja Cat-N.America, c74 Tyler the Creator-N.America
   "North America","North America","North America","North America",
   // c75 J Balvin-Latin America, c76 Camila Cabello-N.America, c77 Rosalía-Europe
@@ -469,7 +469,7 @@ const makeExtCelebrity = (i) => {
 const NEW_CELEBRITIES = [
   {
     id:"c101", name:"Matt Rife", verified:true, category:"Comedy", region:"North America",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Matt_Rife%2C_2021.jpg/330px-Matt_Rife%2C_2021.jpg",
+    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Matt_Rife%2C_2021.jpg/330px-Matt_Rife%2C_2021.jpg",
     startingPrice:85000, demandIndex:88, popularityScore:87, availability:"Open",
     availabilityWindowDays:14, socialReachMillions:42.0, agencyRepresentation:"CAA",
     awards:"Netflix Special — Natural Selection (2023)", riskIndex:"low",
@@ -479,7 +479,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c102", name:"Steven Tyler", verified:true, category:"Music", region:"North America",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Steven_Tyler_2012.jpg/330px-Steven_Tyler_2012.jpg",
+    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Steven_Tyler_by_Gage_Skidmore_3.jpg/330px-Steven_Tyler_by_Gage_Skidmore_3.jpg",
     startingPrice:380000, demandIndex:86, popularityScore:89, availability:"Limited",
     availabilityWindowDays:21, socialReachMillions:18.5, agencyRepresentation:"WME",
     awards:"Rock and Roll Hall of Fame (2001), Grammy Award", riskIndex:"low",
@@ -489,7 +489,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c103", name:"Joe Perry", verified:true, category:"Music", region:"North America",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Joe_Perry_2015.jpg/330px-Joe_Perry_2015.jpg",
+    portrait: "https://upload.wikimedia.org/wikipedia/en/thumb/6/63/Joe_Perry_2015.jpg/330px-Joe_Perry_2015.jpg",
     startingPrice:290000, demandIndex:82, popularityScore:86, availability:"Open",
     availabilityWindowDays:21, socialReachMillions:12.0, agencyRepresentation:"WME",
     awards:"Rock and Roll Hall of Fame (2001), Grammy Award", riskIndex:"low",
@@ -519,7 +519,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c106", name:"Suga (BTS)", verified:true, category:"Music", region:"Asia",
-    portrait: svgPortrait("Suga (BTS)", 106),
+    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/160217_Gaon_Chart_K-POP_Awards_Red_Carpet_BTS_Suga.jpg/330px-160217_Gaon_Chart_K-POP_Awards_Red_Carpet_BTS_Suga.jpg",
     startingPrice:600000, demandIndex:92, popularityScore:94, availability:"Open",
     availabilityWindowDays:30, socialReachMillions:46.0, agencyRepresentation:"HYBE",
     awards:"Billboard Music Award, Grammy Nomination", riskIndex:"low",
@@ -579,7 +579,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c112", name:"Lana Rhoades", verified:true, category:"Influencer", region:"North America",
-    portrait: svgPortrait("Lana Rhoades", 112),
+    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Lana_Rhoades_2-2017_%28cropped%29.jpg/330px-Lana_Rhoades_2-2017_%28cropped%29.jpg",
     startingPrice:75000, demandIndex:80, popularityScore:82, availability:"Open",
     availabilityWindowDays:14, socialReachMillions:20.0, agencyRepresentation:"Independent",
     awards:"iHeartRadio Podcast Award Nominee", riskIndex:"medium",
@@ -589,7 +589,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c113", name:"Riley Reid", verified:true, category:"Influencer", region:"North America",
-    portrait: svgPortrait("Riley Reid", 113),
+    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Riley_Reid_2019_by_Glenn_Francis.jpg/330px-Riley_Reid_2019_by_Glenn_Francis.jpg",
     startingPrice:80000, demandIndex:81, popularityScore:83, availability:"Open",
     availabilityWindowDays:14, socialReachMillions:18.0, agencyRepresentation:"Independent",
     awards:"AVN Award, XBIZ Award, FrontPage Media Personality", riskIndex:"medium",
@@ -599,7 +599,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c114", name:"Lisa (BLACKPINK)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Blackpink_Lisa_190621_3.png/330px-Blackpink_Lisa_190621_3.png",
+    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/20240314_Lisa_Manoban_07.jpg/330px-20240314_Lisa_Manoban_07.jpg",
     startingPrice:750000, demandIndex:96, popularityScore:97, availability:"Limited",
     availabilityWindowDays:30, socialReachMillions:110.0, agencyRepresentation:"LLOUD / RCA",
     awards:"MTV VMA Best K-pop (2022, 2024, 2025), Guinness World Records", riskIndex:"low",
@@ -609,7 +609,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c115", name:"Jennie Kim", verified:true, category:"Music", region:"Asia",
-    portrait: svgPortrait("Jennie Kim", 115),
+    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Kim_Jennie_%28%EA%B9%80%EC%A0%9C%EB%8B%88%29_05.jpg/330px-Kim_Jennie_%28%EA%B9%80%EC%A0%9C%EB%8B%88%29_05.jpg",
     startingPrice:680000, demandIndex:94, popularityScore:95, availability:"Limited",
     availabilityWindowDays:30, socialReachMillions:80.0, agencyRepresentation:"OA Entertainment",
     awards:"MTV VMA Best K-pop, Chanel House Ambassador", riskIndex:"low",
@@ -639,7 +639,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c118", name:"Lee Min-ho", verified:true, category:"Film", region:"Asia",
-    portrait: svgPortrait("Lee Min-ho", 118),
+    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Lee_Min-ho_in_December_2025.png/330px-Lee_Min-ho_in_December_2025.png",
     startingPrice:480000, demandIndex:90, popularityScore:92, availability:"Limited",
     availabilityWindowDays:21, socialReachMillions:32.0, agencyRepresentation:"MYM Entertainment",
     awards:"Korea Drama Awards Best Actor, KBS Drama Award", riskIndex:"low",
