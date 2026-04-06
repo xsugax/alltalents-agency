@@ -3,7 +3,7 @@
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://alltalents-agency.vercel.app; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name='referrer' content='no-referrer'>
   <title>Celebrity Talent Directory | 119+ Verified Stars — ALL TALENTS Agency</title>
   <!-- SEO: Primary Meta -->
@@ -16,11 +16,13 @@
   <meta property="og:title" content="Celebrity Talent Directory — 119+ Verified Stars | ALL TALENTS Agency">
   <meta property="og:description" content="Browse and book 119+ verified celebrities across music, film, sports, K-pop, comedy, and influencer categories worldwide.">
   <meta property="og:url" content="https://alltalents-agency.vercel.app/explorer.html">
-  <meta property="og:image" content="https://alltalents-agency.vercel.app/assets/og-preview.png">
+  <meta property="og:image" content="https://alltalents-agency.vercel.app/assets/og-preview.svg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Celebrity Talent Directory — ALL TALENTS Agency">
   <meta name="twitter:description" content="Search 119+ verified A-list celebrities. Filter by K-pop, Music, Film, Sports, Comedy & more.">
-  <link rel="canonical" href="https://alltalents-agency.vercel.app/explorer.html">
+  <link rel='canonical' href='https://alltalents-agency.vercel.app/explorer.html'>
+  <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
+  <link rel='shortcut icon' href='/assets/favicon.svg'>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -32,6 +34,37 @@
   }
   </script>
   <link rel='stylesheet' href='assets/styles.css'>
+  <style>
+    /* Explorer filter bar */
+    #search{background:rgba(148,180,216,.04);border:1px solid rgba(148,180,216,.2);color:#E6ECF4;transition:all .2s ease}
+    #search:focus{border-color:rgba(148,180,216,.65);box-shadow:0 0 0 3px rgba(148,180,216,.1);background:rgba(148,180,216,.07)}
+    #search::placeholder{color:rgba(230,236,244,.3)}
+    .filter-select{background:rgba(148,180,216,.04);border:1px solid rgba(148,180,216,.15);color:rgba(230,236,244,.8)}
+    .filter-select:focus{border-color:rgba(148,180,216,.5);outline:none}
+    /* Animated result count */
+    #resultsCount{transition:opacity .2s ease}
+    #resultsCount.rc-updating{opacity:.4}
+    /* Search KB shortcut hint */
+    .search-hint{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:10px;color:rgba(148,180,216,.35);pointer-events:none;font-family:monospace;border:1px solid rgba(148,180,216,.18);border-radius:4px;padding:2px 6px;letter-spacing:.04em;background:rgba(148,180,216,.04)}
+    .search-wrap{position:relative;flex:2;min-width:220px}
+    .search-wrap input{width:100%;box-sizing:border-box;padding-right:56px}
+    /* Category Pills — active filter visual feedback */
+    #resultsCount.has-filter{color:#94B4D8;font-weight:700}
+    /* Load more button */
+    #loadMoreBtn{background:rgba(148,180,216,.06);border:1px solid rgba(148,180,216,.22);color:#94B4D8;transition:all .22s ease}
+    #loadMoreBtn:hover{background:rgba(148,180,216,.14);border-color:rgba(148,180,216,.5);box-shadow:0 8px 24px rgba(148,180,216,.1)}
+    /* Empty state */
+    .empty-state{grid-column:1/-1;text-align:center;padding:72px 20px}
+    .empty-state-icon{font-size:48px;margin-bottom:16px;filter:grayscale(.4)}
+    /* Stagger card entrance */
+    @keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .celeb-card{animation:cardIn .32s ease both}
+    .celeb-card:nth-child(2){animation-delay:.04s}
+    .celeb-card:nth-child(3){animation-delay:.08s}
+    .celeb-card:nth-child(4){animation-delay:.12s}
+    .celeb-card:nth-child(5){animation-delay:.16s}
+    .celeb-card:nth-child(6){animation-delay:.20s}
+  </style>
 </head>
 <body>
   <div class='container' id='app'></div>
@@ -193,10 +226,10 @@
         <h2 style='font-size:clamp(26px,3.8vw,44px);font-weight:900;letter-spacing:-.02em;margin:0 0 10px'>Select Your Celebrity.<br>Claim Your Private Window.</h2>
         <p class='lead'>You have direct access to 119+ verified talents through Aurelux's authorized channel network. Tap any profile to open your private meeting portal — choose a venue, lock in your window, and initiate contact.</p>
         <div style='display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px'>
-          <input id='search' placeholder='🔍  Search by celebrity name…' style='flex:2;min-width:220px'>
-          <select id='category' style='flex:1;min-width:140px'><option>All</option><option>Film</option><option>Music</option><option>Sports</option><option>Fashion</option><option>Business</option><option>Influencer</option><option>Comedy</option><option>Entertainment</option></select>
-          <select id='region' style='flex:1;min-width:140px'><option>All</option><option>North America</option><option>Europe</option><option>Middle East</option><option>Asia</option><option>Latin America</option><option>Africa</option><option>Australia</option></select>
-          <select id='availability' style='flex:1;min-width:130px'><option>All</option><option>Open</option><option>Limited</option><option>Waitlist</option></select>
+          <div class='search-wrap'><input id='search' placeholder='Search by celebrity name… (Press / to focus)' style='flex:2;min-width:220px'><span class='search-hint'>/</span></div>
+          <select id='category' class='filter-select' style='flex:1;min-width:140px'><option>All</option><option>Film</option><option>Music</option><option>Sports</option><option>Fashion</option><option>Business</option><option>Influencer</option><option>Comedy</option><option>Entertainment</option></select>
+          <select id='region' class='filter-select' style='flex:1;min-width:140px'><option>All</option><option>North America</option><option>Europe</option><option>Middle East</option><option>Asia</option><option>Latin America</option><option>Africa</option><option>Australia</option></select>
+          <select id='availability' class='filter-select' style='flex:1;min-width:130px'><option>All</option><option>Open</option><option>Limited</option><option>Waitlist</option></select>
           <input id='date' type='date' style='flex:1;min-width:140px'>
           <button id='clearFilters' class='secondary' style='white-space:nowrap;padding:9px 16px;font-size:12px'>✕ Clear</button>
         </div>
@@ -336,6 +369,14 @@
       applyFilters();
     };
 
+    // '/' keyboard shortcut — focus search from anywhere
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        document.getElementById('search').focus();
+      }
+    });
+
     function setMeetTemplate(mode, celebrityName) {
       const textarea = document.getElementById('meetBody');
       if (mode === 'meet') {
@@ -418,11 +459,12 @@
         countEl.textContent = isFiltered
           ? `Showing ${data.length} of ${allCelebrities.length} talents`
           : `Showing all ${data.length} talents`;
+        countEl.classList.toggle('has-filter', !!isFiltered);
       }
 
       const results = document.getElementById('results');
       if (data.length === 0) {
-        results.innerHTML = `<div class='card' style='grid-column:1/-1;text-align:center;padding:60px 20px'><p style='font-size:36px;margin-bottom:12px'>🔍</p><h4 style='margin-bottom:8px'>No talents found</h4><p class='small muted'>No celebrities match your filters. Click <b>✕ Clear</b> to reset.</p></div>`;
+        results.innerHTML = `<div class='empty-state'><div class='empty-state-icon'>✦</div><h4 style='margin-bottom:8px;color:#94B4D8'>No talents found</h4><p class='small muted'>No celebrities match your current filters.</p><p class='small muted' style='margin-top:6px'>Try broadening your search or click <b>✕ Clear</b> to reset all filters.</p></div>`;
         return;
       }
 

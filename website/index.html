@@ -3,7 +3,7 @@
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://alltalents-agency.vercel.app; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>ALL TALENTS Agency | Book A-List Celebrities Worldwide</title>
 	<!-- SEO: Primary Meta -->
@@ -17,12 +17,12 @@
 	<meta property="og:title" content="ALL TALENTS Agency | Elite Celebrity Booking Platform">
 	<meta property="og:description" content="Book 119+ verified A-list celebrities for corporate events, brand campaigns, and exclusive appearances. Secure, confidential, globally managed.">
 	<meta property="og:url" content="https://alltalents-agency.vercel.app/">
-	<meta property="og:image" content="https://alltalents-agency.vercel.app/assets/og-preview.png">
+	<meta property="og:image" content="https://alltalents-agency.vercel.app/assets/og-preview.svg">
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="ALL TALENTS Agency | Elite Celebrity Booking">
 	<meta name="twitter:description" content="Book 119+ verified A-list celebrities worldwide. Secure, confidential, fully managed talent representation.">
-	<meta name="twitter:image" content="https://alltalents-agency.vercel.app/assets/og-preview.png">
+	<meta name="twitter:image" content="https://alltalents-agency.vercel.app/assets/og-preview.svg">
 	<!-- Canonical -->
 	<link rel="canonical" href="https://alltalents-agency.vercel.app/">
 	<!-- Structured Data -->
@@ -115,7 +115,7 @@
 				<h2 class='access-strip-title'>100 Verified Celebrities.<br>Direct Access. Right Now.</h2>
 				<p class='access-strip-sub'>Every talent on this platform is reachable through Aurelux's authorized private channels. Your qualification as a registered client unlocks exclusive meeting windows, direct representative outreach, and priority booking rights — unavailable anywhere else.</p>
 				<form id='heroSearch' style='display:flex;gap:0;margin:22px 0 24px;max-width:620px;width:100%' onsubmit='event.preventDefault(); const q = document.getElementById("heroSearchInput").value.trim(); if(q) window.location.href="explorer.html?search="+encodeURIComponent(q);'>
-					<input id='heroSearchInput' type='text' placeholder='Search for your favourite celebrity…' autocomplete='off' style='flex:1;border-radius:10px 0 0 10px;border:1.5px solid rgba(148,180,216,.55);border-right:none;background:rgba(255,255,255,.04);color:#f4e1a0;padding:15px 20px;font-size:14px;letter-spacing:.02em;outline:none;min-width:0;transition:border-color .2s' onfocus='this.style.borderColor="rgba(148,180,216,.9)"' onblur='this.style.borderColor="rgba(148,180,216,.55)"'>
+					<input id='heroSearchInput' type='text' placeholder='Search for your favourite celebrity…' autocomplete='off' style='flex:1;border-radius:10px 0 0 10px;border:1.5px solid rgba(148,180,216,.55);border-right:none;background:rgba(255,255,255,.04);color:#E6ECF4;padding:15px 20px;font-size:14px;letter-spacing:.02em;outline:none;min-width:0;transition:border-color .2s' onfocus='this.style.borderColor="rgba(148,180,216,.9)"' onblur='this.style.borderColor="rgba(148,180,216,.55)"'>
 					<button type='submit' style='background:linear-gradient(135deg,#94B4D8,#b8962e);color:#0b0b0b;border:none;padding:15px 28px;border-radius:0 10px 10px 0;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap'>Search &#x2192;</button>
 				</form>
 				<div style='display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px'>
