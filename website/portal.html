@@ -60,7 +60,7 @@
 								<defs>
 									<linearGradient id='gaugeGrad' x1='0' y1='1' x2='1' y2='0'>
 										<stop offset='0%' stop-color='#c49b2e'/>
-										<stop offset='100%' stop-color='#f5e272'/>
+										<stop offset='100%' stop-color='#C8DCEE'/>
 									</linearGradient>
 								</defs>
 								<circle cx='65' cy='65' r='50' class='gauge-ring-bg' stroke-width='9'
@@ -128,7 +128,7 @@
 								<span class='badge'>${b.status}</span>
 							</div>
 							<p class='small muted'>${b.eventType} · ${b.date || 'Date TBD'} · ${b.location} · Security: ${b.securityLevel}</p>
-							<p class='small muted'>Quote: <b style='color:#d4af37'>$${b.pricing.finalQuote.toLocaleString()}</b> · Escrow: $${b.pricing.escrow.toLocaleString()}</p>
+							<p class='small muted'>Quote: <b style='color:#94B4D8'>$${b.pricing.finalQuote.toLocaleString()}</b> · Escrow: $${b.pricing.escrow.toLocaleString()}</p>
 							<p class='eyebrow' style='margin-top:8px'>Engagement Phase Tracker</p>
 							${renderPhaseTimeline(b.status)}
 						</div>

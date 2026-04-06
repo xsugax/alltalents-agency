@@ -115,7 +115,7 @@
 									<span class='small muted'>${fmt(cat.annualVolume)} · ${cat.shareOfPortfolio}% · avg deal ${fmt(cat.avgDealSize)}</span>
 								</div>
 								<div style='height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden'>
-									<div style='height:100%;border-radius:3px;background:linear-gradient(90deg,#d4af37,#f5e272);width:${Math.round((cat.annualVolume/maxVol)*100)}%;transition:width 1.2s cubic-bezier(.4,0,.2,1)'></div>
+									<div style='height:100%;border-radius:3px;background:linear-gradient(90deg,#94B4D8,#C8DCEE);width:${Math.round((cat.annualVolume/maxVol)*100)}%;transition:width 1.2s cubic-bezier(.4,0,.2,1)'></div>
 								</div>
 							</div>
 						`).join('')}
@@ -127,14 +127,14 @@
 					<p class='small muted'>Highest annual booking revenue contributors across the active roster.</p>
 					<div style='margin-top:14px;display:grid;gap:10px'>
 						${p.topEarners.map((e, i) => `
-							<div style='display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid rgba(212,175,55,.15);border-radius:10px;background:rgba(212,175,55,.03)'>
-								<div style='width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#efcf68,#d4af37);color:#111;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0'>${i + 1}</div>
+							<div style='display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid rgba(148,180,216,.15);border-radius:10px;background:rgba(148,180,216,.03)'>
+								<div style='width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#BAD0EC,#94B4D8);color:#111;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0'>${i + 1}</div>
 								<div style='flex:1;min-width:0'>
 									<p style='margin:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>${e.name}</p>
 									<p class='small muted' style='margin:0;font-size:10px'>${e.category} · ${e.region}</p>
 								</div>
 								<div style='text-align:right;flex-shrink:0'>
-									<p style='margin:0;font-size:13px;font-weight:700;color:#d4af37'>${fmt(e.annualRevenue)}</p>
+									<p style='margin:0;font-size:13px;font-weight:700;color:#94B4D8'>${fmt(e.annualRevenue)}</p>
 									<p class='small muted' style='margin:0;font-size:10px'>annual</p>
 								</div>
 							</div>
@@ -148,14 +148,14 @@
 			document.getElementById('revenueTimeline').innerHTML = `
 				<p class='eyebrow'>Revenue Timeline</p>
 				<h3>Agency Growth Trajectory</h3>
-				<p class='small muted'>Managed booking revenue across fiscal years. Total cumulative portfolio exceeds <strong style='color:#d4af37'>${fmt(p.totalManagedPortfolio)}</strong>.</p>
+				<p class='small muted'>Managed booking revenue across fiscal years. Total cumulative portfolio exceeds <strong style='color:#94B4D8'>${fmt(p.totalManagedPortfolio)}</strong>.</p>
 				<div style='margin-top:18px;display:flex;align-items:flex-end;gap:8px;height:100px;overflow-x:auto;padding-bottom:28px;position:relative'>
 					${p.revenueTimeline.map((r, i) => {
 						const pct = Math.round((r.revenue / maxRev) * 100);
 						return `
 							<div style='flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative'>
-								<span style='font-size:9px;color:#d4af37;font-weight:700;letter-spacing:.03em;white-space:nowrap'>${fmt(r.revenue)}</span>
-								<div style='width:100%;background:linear-gradient(180deg,rgba(212,175,55,.9),rgba(212,175,55,.35));border-radius:4px 4px 0 0;height:${pct}px;transition:height 1.4s cubic-bezier(.4,0,.2,1);min-height:4px'></div>
+								<span style='font-size:9px;color:#94B4D8;font-weight:700;letter-spacing:.03em;white-space:nowrap'>${fmt(r.revenue)}</span>
+								<div style='width:100%;background:linear-gradient(180deg,rgba(148,180,216,.9),rgba(148,180,216,.35));border-radius:4px 4px 0 0;height:${pct}px;transition:height 1.4s cubic-bezier(.4,0,.2,1);min-height:4px'></div>
 								<span style='position:absolute;bottom:-20px;font-size:9px;color:rgba(229,228,226,.5);letter-spacing:.04em'>${r.year}</span>
 							</div>
 						`;
@@ -163,9 +163,9 @@
 				</div>
 				<div class='hr' style='margin-top:8px'></div>
 				<div style='display:flex;gap:24px;flex-wrap:wrap;margin-top:8px'>
-					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Active Contracts</p><p style='font-size:20px;font-weight:700;color:#d4af37;margin:2px 0'>${(p.activeContracts).toLocaleString()}</p></div>
-					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Avg Deal Size</p><p style='font-size:20px;font-weight:700;color:#d4af37;margin:2px 0'>${fmt(p.avgDealSize)}</p></div>
-					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Verified Roster</p><p style='font-size:20px;font-weight:700;color:#d4af37;margin:2px 0'>${p.totalRoster}</p></div>
+					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Active Contracts</p><p style='font-size:20px;font-weight:700;color:#94B4D8;margin:2px 0'>${(p.activeContracts).toLocaleString()}</p></div>
+					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Avg Deal Size</p><p style='font-size:20px;font-weight:700;color:#94B4D8;margin:2px 0'>${fmt(p.avgDealSize)}</p></div>
+					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Verified Roster</p><p style='font-size:20px;font-weight:700;color:#94B4D8;margin:2px 0'>${p.totalRoster}</p></div>
 				</div>
 			`;
 

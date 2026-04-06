@@ -19,3 +19,4 @@ build/
 
 # Windows path artifacts
 desktop.ini
+.vercel

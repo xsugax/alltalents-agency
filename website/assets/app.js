@@ -99,7 +99,7 @@ export function buildCryptoPaymentHTML(uid = 'cp') {
       <div class='pay-tab pt-active' data-tab='wire' data-uid='${uid}'>🏦 Wire / Bank</div>
       <div class='pay-tab pt-crypto' data-tab='crypto' data-uid='${uid}'>₿ Cryptocurrency</div>
     </div>
-    <div id='${uid}-wire' style='padding:12px 14px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;margin-bottom:14px'>
+    <div id='${uid}-wire' style='padding:12px 14px;background:rgba(148,180,216,.04);border:1px solid rgba(148,180,216,.15);border-radius:10px;margin-bottom:14px'>
       <p class='small' style='font-weight:700;color:var(--gold);margin-bottom:4px'>Wire Transfer / Bank Escrow</p>
       <p class='small muted' style='font-size:10.5px;line-height:1.6'>Payment details issued after booking confirmation via encrypted portal. SWIFT/IBAN and routing numbers released under NDA. Escrow cleared within 2 banking days.</p>
     </div>
