@@ -11,38 +11,38 @@ const svgPortrait = (name, index) => {
 
 // ── Named roster: category / agency / region / price locked to real data ──────
 const NAMED = [
-  // id,  name,                 category,      agency,              region,           portrait (Wikipedia CDN),                                                                                                                                                                                                                         price,    demand, pop, availability, reach,   awards,                  risk
-  ["c1",  "Beyoncé",            "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Beyonc%C3%A9_-_Tottenham_Hotspur_Stadium_-_1st_June_2023_%2810_of_118%29_%2852946364598%29_%28best_crop%29.jpg/330px-Beyonc%C3%A9_-_Tottenham_Hotspur_Stadium_-_1st_June_2023_%2810_of_118%29_%2852946364598%29_%28best_crop%29.jpg", 2100000,  98,     99,  "Limited",    260.0,   "Grammy Award",          "low"],
-  ["c2",  "Leonardo DiCaprio",  "Film",         "CAA",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/LeoPTABFI191125-28_%28cropped%29.jpg/330px-LeoPTABFI191125-28_%28cropped%29.jpg",                                                                                                   520000,   88,     92,  "Open",       95.0,    "Academy Award",         "low"],
-  ["c3",  "Cristiano Ronaldo",  "Sports",       "Gestifute / CAA",   "Europe",         "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Cristiano_Ronaldo_2275_%28cropped%29.jpg/330px-Cristiano_Ronaldo_2275_%28cropped%29.jpg",                                                                                            1200000,  97,     98,  "Limited",    640.0,   "Ballon d'Or",           "low"],
-  ["c4",  "Kim Kardashian",     "Influencer",   "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Kim_Kardashian_West_2014.jpg/330px-Kim_Kardashian_West_2014.jpg",                                                                                                                    480000,   85,     88,  "Open",       364.0,   "Emmy Award",            "medium"],
-  ["c5",  "Drake",              "Music",        "CAA",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Drake_at_The_Carter_Effect_2017_%2836818935200%29_%28cropped%29.jpg/330px-Drake_at_The_Carter_Effect_2017_%2836818935200%29_%28cropped%29.jpg",                                      1050000,  93,     95,  "Waitlist",   145.0,   "Grammy Award",          "low"],
-  ["c6",  "Dwayne Johnson",     "Film",         "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Dwayne_Johnson-1809_%28cropped%29.jpg/330px-Dwayne_Johnson-1809_%28cropped%29.jpg",                                                                                                  1500000,  96,     97,  "Limited",    389.0,   "People's Choice Award", "low"],
-  ["c7",  "Charlize Theron",    "Film",         "CAA",               "Africa",         "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Charlize-theron-IMG_6045.jpg/330px-Charlize-theron-IMG_6045.jpg",                                                                                                                    310000,   78,     84,  "Open",       42.0,    "Academy Award",         "low"],
-  ["c8",  "Keanu Reeves",       "Film",         "CAA",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Keanu_Reeves_at_TIFF_2025_02_%28Cropped%29.jpg/330px-Keanu_Reeves_at_TIFF_2025_02_%28Cropped%29.jpg",                                                                               290000,   82,     86,  "Open",       38.0,    "MTV Movie Award",       "low"],
-  ["c9",  "Elon Musk",          "Business",     "Independent",       "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Elon_Musk_-_54820081119_%28cropped%29.jpg/330px-Elon_Musk_-_54820081119_%28cropped%29.jpg",                                                                                         2500000,  91,     89,  "Waitlist",   200.0,   "Forbes Innovator",      "high"],
-  ["c10", "Salma Hayek",        "Film",         "CAA",               "Latin America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/MKr383631_Salma_Hayek_%28Women_In_Motion%2C_Cannes_2025%29_crop.jpg/330px-MKr383631_Salma_Hayek_%28Women_In_Motion%2C_Cannes_2025%29_crop.jpg",                                     250000,   76,     82,  "Open",       26.0,    "Cannes Award",          "low"],
-  ["c11", "Zendaya",            "Film",         "CAA",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Zendaya_-_2019_by_Glenn_Francis.jpg/330px-Zendaya_-_2019_by_Glenn_Francis.jpg",                                                                                                     420000,   94,     96,  "Limited",    184.0,   "Emmy Award",            "low"],
-  ["c12", "Taylor Swift",       "Music",        "UTA",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Taylor_Swift_at_the_2023_MTV_Video_Music_Awards_%283%29.png/330px-Taylor_Swift_at_the_2023_MTV_Video_Music_Awards_%283%29.png",                                                      1800000,  99,     99,  "Waitlist",   282.0,   "Grammy Award",          "low"],
-  ["c13", "Rihanna",            "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Rihanna_Fenty_2018.png/330px-Rihanna_Fenty_2018.png",                                                                                                                               1600000,  95,     97,  "Waitlist",   150.0,   "Grammy Award",          "low"],
-  ["c14", "Lewis Hamilton",     "Sports",       "IMG",               "Europe",         "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Prime_Minister_Keir_Starmer_meets_Sir_Lewis_Hamilton_%2854566928382%29_%28cropped%29.jpg/330px-Prime_Minister_Keir_Starmer_meets_Sir_Lewis_Hamilton_%2854566928382%29_%28cropped%29.jpg", 980000, 90,   93,  "Limited",    33.5,    "FIA World Championship","low"],
-  ["c15", "Virat Kohli",        "Sports",       "IMG",               "Asia",           "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Virat_Kohli_in_PMO_New_Delhi.jpg/330px-Virat_Kohli_in_PMO_New_Delhi.jpg",                                                                                                           850000,   92,     94,  "Open",       270.0,   "ICC Player of the Year","low"],
-  ["c16", "Margot Robbie",      "Film",         "CAA",               "Australia",  "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Margot_Robbie_2019_by_Glenn_Francis_%28cropped%29.jpg/330px-Margot_Robbie_2019_by_Glenn_Francis_%28cropped%29.jpg", 450000, 89, 91, "Open", 22.0,  "BAFTA Award",           "low"],
+  // id,  name,                 category,      agency,              region,           portrait (local /assets/portraits/),                                                                                                                                                                                                                         price,    demand, pop, availability, reach,   awards,                  risk
+  ["c1",  "Beyoncé",            "Music",        "WME",               "North America",  "/assets/portraits/c1.jpg", 2100000,  98,     99,  "Limited",    260.0,   "Grammy Award",          "low"],
+  ["c2",  "Leonardo DiCaprio",  "Film",         "CAA",               "North America",  "/assets/portraits/c2.jpg",                                                                                                   520000,   88,     92,  "Open",       95.0,    "Academy Award",         "low"],
+  ["c3",  "Cristiano Ronaldo",  "Sports",       "Gestifute / CAA",   "Europe",         "/assets/portraits/c3.jpg",                                                                                            1200000,  97,     98,  "Limited",    640.0,   "Ballon d'Or",           "low"],
+  ["c4",  "Kim Kardashian",     "Influencer",   "WME",               "North America",  "/assets/portraits/c4.jpg",                                                                                                                    480000,   85,     88,  "Open",       364.0,   "Emmy Award",            "medium"],
+  ["c5",  "Drake",              "Music",        "CAA",               "North America",  "/assets/portraits/c5.jpg",                                      1050000,  93,     95,  "Waitlist",   145.0,   "Grammy Award",          "low"],
+  ["c6",  "Dwayne Johnson",     "Film",         "WME",               "North America",  "/assets/portraits/c6.jpg",                                                                                                  1500000,  96,     97,  "Limited",    389.0,   "People's Choice Award", "low"],
+  ["c7",  "Charlize Theron",    "Film",         "CAA",               "Africa",         "/assets/portraits/c7.jpg",                                                                                                                    310000,   78,     84,  "Open",       42.0,    "Academy Award",         "low"],
+  ["c8",  "Keanu Reeves",       "Film",         "CAA",               "North America",  "/assets/portraits/c8.jpg",                                                                               290000,   82,     86,  "Open",       38.0,    "MTV Movie Award",       "low"],
+  ["c9",  "Elon Musk",          "Business",     "Independent",       "North America",  "/assets/portraits/c9.jpg",                                                                                         2500000,  91,     89,  "Waitlist",   200.0,   "Forbes Innovator",      "high"],
+  ["c10", "Salma Hayek",        "Film",         "CAA",               "Latin America",  "/assets/portraits/c10.jpg",                                     250000,   76,     82,  "Open",       26.0,    "Cannes Award",          "low"],
+  ["c11", "Zendaya",            "Film",         "CAA",               "North America",  "/assets/portraits/c11.jpg",                                                                                                     420000,   94,     96,  "Limited",    184.0,   "Emmy Award",            "low"],
+  ["c12", "Taylor Swift",       "Music",        "UTA",               "North America",  "/assets/portraits/c12.png",                                                      1800000,  99,     99,  "Waitlist",   282.0,   "Grammy Award",          "low"],
+  ["c13", "Rihanna",            "Music",        "WME",               "North America",  "/assets/portraits/c13.png",                                                                                                                               1600000,  95,     97,  "Waitlist",   150.0,   "Grammy Award",          "low"],
+  ["c14", "Lewis Hamilton",     "Sports",       "IMG",               "Europe",         "/assets/portraits/c14.jpg", 980000, 90,   93,  "Limited",    33.5,    "FIA World Championship","low"],
+  ["c15", "Virat Kohli",        "Sports",       "IMG",               "Asia",           "/assets/portraits/c15.jpg",                                                                                                           850000,   92,     94,  "Open",       270.0,   "ICC Player of the Year","low"],
+  ["c16", "Margot Robbie",      "Film",         "CAA",               "Australia",  "/assets/portraits/c16.jpg", 450000, 89, 91, "Open", 22.0,  "BAFTA Award",           "low"],
   // ── Newly added real celebrities (c17–c30) ──────────────────────────────────
-  ["c17", "Chris Young",        "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Chris_young_.jpg/330px-Chris_young_.jpg",                                                                                                                                                                              280000,   78,     82,  "Open",       18.5,    "ACM Award",             "low"],
-  ["c18", "Tyler Hynes",        "Film",         "Independent",       "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Tyler_Hynes_at_San_Diego_Comic_Con_2025.jpg/330px-Tyler_Hynes_at_San_Diego_Comic_Con_2025.jpg",                                                                                                                             150000,   72,     76,  "Open",       8.5,     "Canadian Screen Award", "low"],
-  ["c19", "Joe Bonamassa",      "Music",        "Independent",       "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Joe_Bonamassa_-_2013_World_Tour_-_Meistersingerhalle_Nuernberg_-_11-03-2013_%28-31534407%29.jpg/330px-Joe_Bonamassa_-_2013_World_Tour_-_Meistersingerhalle_Nuernberg_-_11-03-2013_%28-31534407%29.jpg",                    185000,   80,     83,  "Open",       12.0,    "Billboard Blues #1",    "low"],
-  ["c20", "Boz Scaggs",         "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Boz_Scaggs_-_Coral_Springs%2C_FL_-_22886393275.jpg/330px-Boz_Scaggs_-_Coral_Springs%2C_FL_-_22886393275.jpg",                                                                                                              220000,   75,     78,  "Open",       6.5,     "Grammy Award",          "low"],
-  ["c21", "Robert Earl Keen",   "Music",        "Independent",       "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Robert_Earl_Keen_at_the_Redneck_Country_Club%2C_June_30%2C_2018_MG_1357_%2841334326940%29_%28cropped%29.jpg/330px-Robert_Earl_Keen_at_the_Redneck_Country_Club%2C_June_30%2C_2018_MG_1357_%2841334326940%29_%28cropped%29.jpg",145000,   70,     74,  "Open",       4.2,     "Americana Award",       "low"],
-  ["c22", "Zach Bryan",         "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Zach_Bryan_performing_at_Crypto.com_Arena_on_23_Aug_2023_%28cropped%29.jpg/330px-Zach_Bryan_performing_at_Crypto.com_Arena_on_23_Aug_2023_%28cropped%29.jpg",                                                             380000,   92,     93,  "Limited",    34.0,    "Grammy Award",          "low"],
-  ["c23", "Lainey Wilson",      "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Lainey_Wilson_2024.jpg/330px-Lainey_Wilson_2024.jpg",                                                                                                                                                                  290000,   88,     90,  "Open",       22.5,    "CMA Award",             "low"],
-  ["c24", "Chris Stapleton",    "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Chris_Stapleton_Concert_%2848519730107%29_%28cropped%29.jpg/330px-Chris_Stapleton_Concert_%2848519730107%29_%28cropped%29.jpg",                                                                                           420000,   90,     91,  "Limited",    8.8,     "Grammy Award",          "low"],
-  ["c25", "Sofia Vergara",      "Film",         "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Sof%C3%ADa_Vergara_2019_by_Glenn_Francis.jpg/330px-Sof%C3%ADa_Vergara_2019_by_Glenn_Francis.jpg",                                                                                                                        350000,   86,     88,  "Open",       34.5,    "SAG Award Nominee",     "low"],
-  ["c26", "Emma Watson",        "Film",         "CAA",               "Europe",         "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Emma_Watson_2013.jpg/330px-Emma_Watson_2013.jpg",                                                                                                                                                                        310000,   87,     89,  "Open",       72.0,    "BAFTA Rising Star",     "low"],
-  ["c27", "Kate Beckinsale",    "Film",         "CAA",               "Europe",         "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Kate_Beckinsale_%2829907748884%29_%28cropped2%29.jpg/330px-Kate_Beckinsale_%2829907748884%29_%28cropped2%29.jpg",                                                                                                            280000,   82,     85,  "Open",       19.5,    "Saturn Award",          "low"],
-  ["c28", "Jennifer Aniston",   "Film",         "CAA",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/JenniferAnistonHWoFFeb2012.jpg/330px-JenniferAnistonHWoFFeb2012.jpg",                                                                                                                                                    500000,   89,     91,  "Waitlist",   41.5,    "Emmy Award",            "low"],
-  ["c29", "Eva Green",          "Film",         "CAA",               "Europe",         "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/EVA_GREEN_CESAR_2020.jpg/330px-EVA_GREEN_CESAR_2020.jpg",                                                                                                                                                                290000,   84,     87,  "Open",       11.2,    "BAFTA Rising Star",     "low"],
-  ["c30", "Morgan Wallen",      "Music",        "WME",               "North America",  "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Morgan_Wallen_performing_at_Bank_of_America_Stadium.png/330px-Morgan_Wallen_performing_at_Bank_of_America_Stadium.png",                                                                                               650000,   93,     94,  "Limited",    22.0,    "ACM Award",             "low"],
+  ["c17", "Chris Young",        "Music",        "WME",               "North America",  "/assets/portraits/c17.jpg",                                                                                                                                                                              280000,   78,     82,  "Open",       18.5,    "ACM Award",             "low"],
+  ["c18", "Tyler Hynes",        "Film",         "Independent",       "North America",  "/assets/portraits/c18.jpg",                                                                                                                             150000,   72,     76,  "Open",       8.5,     "Canadian Screen Award", "low"],
+  ["c19", "Joe Bonamassa",      "Music",        "Independent",       "North America",  "/assets/portraits/c19.jpg",                    185000,   80,     83,  "Open",       12.0,    "Billboard Blues #1",    "low"],
+  ["c20", "Boz Scaggs",         "Music",        "WME",               "North America",  "/assets/portraits/c20.jpg",                                                                                                              220000,   75,     78,  "Open",       6.5,     "Grammy Award",          "low"],
+  ["c21", "Robert Earl Keen",   "Music",        "Independent",       "North America",  "/assets/portraits/c21.jpg",145000,   70,     74,  "Open",       4.2,     "Americana Award",       "low"],
+  ["c22", "Zach Bryan",         "Music",        "WME",               "North America",  "/assets/portraits/c22.jpg",                                                             380000,   92,     93,  "Limited",    34.0,    "Grammy Award",          "low"],
+  ["c23", "Lainey Wilson",      "Music",        "WME",               "North America",  "/assets/portraits/c23.jpg",                                                                                                                                                                  290000,   88,     90,  "Open",       22.5,    "CMA Award",             "low"],
+  ["c24", "Chris Stapleton",    "Music",        "WME",               "North America",  "/assets/portraits/c24.jpg",                                                                                           420000,   90,     91,  "Limited",    8.8,     "Grammy Award",          "low"],
+  ["c25", "Sofia Vergara",      "Film",         "WME",               "North America",  "/assets/portraits/c25.jpg",                                                                                                                        350000,   86,     88,  "Open",       34.5,    "SAG Award Nominee",     "low"],
+  ["c26", "Emma Watson",        "Film",         "CAA",               "Europe",         "/assets/portraits/c26.jpg",                                                                                                                                                                        310000,   87,     89,  "Open",       72.0,    "BAFTA Rising Star",     "low"],
+  ["c27", "Kate Beckinsale",    "Film",         "CAA",               "Europe",         "/assets/portraits/c27.jpg",                                                                                                            280000,   82,     85,  "Open",       19.5,    "Saturn Award",          "low"],
+  ["c28", "Jennifer Aniston",   "Film",         "CAA",               "North America",  "/assets/portraits/c28.jpg",                                                                                                                                                    500000,   89,     91,  "Waitlist",   41.5,    "Emmy Award",            "low"],
+  ["c29", "Eva Green",          "Film",         "CAA",               "Europe",         "/assets/portraits/c29.jpg",                                                                                                                                                                290000,   84,     87,  "Open",       11.2,    "BAFTA Rising Star",     "low"],
+  ["c30", "Morgan Wallen",      "Music",        "WME",               "North America",  "/assets/portraits/c30.png",                                                                                               650000,   93,     94,  "Limited",    22.0,    "ACM Award",             "low"],
 ];
 
 // ── Elite intelligence + accurate 2026 net worths ────────────────────────────
@@ -212,78 +212,78 @@ const namedCelebrities = NAMED.map(([id, name, category, agency, region, portrai
   ...(NAMED_EXTRA[id] || { netWorth: "Confidential", brandValue: "Confidential", eliteSignal: "Verified elite talent with confirmed representation and exclusive availability windows." }),
 }));
 
-// ── Extended roster portraits — Wikipedia CDN real celebrity portraits (c31–c100) ──
+// ── Extended roster portraits — self-hosted local portraits (c31–c100) ──
 const EXT_PORTRAITS = [
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Idris_Elba_A_House_of_Dynamite-21_%28cropped%29.jpg/330px-Idris_Elba_A_House_of_Dynamite-21_%28cropped%29.jpg',          // c31 Idris Elba
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Viola_Davis_at_the_Air_Premiere_at_SXSW_%28cropped%29.jpg/330px-Viola_Davis_at_the_Air_Premiere_at_SXSW_%28cropped%29.jpg', // c32 Viola Davis
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Michael_B_Jordan_-_Sinners.jpg/330px-Michael_B_Jordan_-_Sinners.jpg',                                                      // c33 Michael B. Jordan
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Lupita_Nyong%27o_by_Gage_Skidmore_4.jpg/330px-Lupita_Nyong%27o_by_Gage_Skidmore_4.jpg',                                   // c34 Lupita Nyong'o
-  'https://upload.wikimedia.org/wikipedia/commons/4/45/Priyanka_Chopra_at_Bulgary_launch%2C_2024_%28cropped%29.jpg',                                                                      // c35 Priyanka Chopra
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Shah_Rukh_Khan_graces_the_launch_of_the_new_Santro.jpg/330px-Shah_Rukh_Khan_graces_the_launch_of_the_new_Santro.jpg',      // c36 Shah Rukh Khan
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Deepika_Padukone_2025_%281%29.png/330px-Deepika_Padukone_2025_%281%29.png',                                                 // c37 Deepika Padukone
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Lionel_Messi_NE_Revolution_Inter_Miami_7.9.25-178.jpg/330px-Lionel_Messi_NE_Revolution_Inter_Miami_7.9.25-178.jpg',        // c38 Lionel Messi
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/LeBron_James_%2851959977144%29_%28cropped2%29.jpg/330px-LeBron_James_%2851959977144%29_%28cropped2%29.jpg',                 // c39 LeBron James
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Serena_Williams_at_the_2025_International_Tennis_Hall_of_Fame_Induction_Ceremony_Press_Conference_%28cropped%29.jpg/330px-Serena_Williams_at_the_2025_International_Tennis_Hall_of_Fame_Induction_Ceremony_Press_Conference_%28cropped%29.jpg', // c40 Serena Williams
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/NaomiOsaka-smile-2020_%28cropped_tight%29.png/330px-NaomiOsaka-smile-2020_%28cropped_tight%29.png',                        // c41 Naomi Osaka
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Simone_Biles_National_Team_2024.jpg/330px-Simone_Biles_National_Team_2024.jpg',                                            // c42 Simone Biles
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2023-11-16_Gala_de_los_Latin_Grammy%2C_03_%28cropped%2902.jpg/330px-2023-11-16_Gala_de_los_Latin_Grammy%2C_03_%28cropped%2902.jpg', // c43 Shakira
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Bad_Bunny_2019_by_Glenn_Francis_%28cropped%29.jpg/330px-Bad_Bunny_2019_by_Glenn_Francis_%28cropped%29.jpg',                 // c44 Bad Bunny
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Jennifer_Lopez_at_the_2025_Sundance_Film_Festival_%28cropped_3%29.jpg/330px-Jennifer_Lopez_at_the_2025_Sundance_Film_Festival_%28cropped_3%29.jpg', // c45 Jennifer Lopez
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/2023-11-16_Gala_de_los_Latin_Grammy%2C_20_%28Maluma%29.jpg/330px-2023-11-16_Gala_de_los_Latin_Grammy%2C_20_%28Maluma%29.jpg', // c46 Maluma
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Michelle_Yeoh-2268.jpg/330px-Michelle_Yeoh-2268.jpg',                                                                        // c47 Michelle Yeoh
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Jason_Momoa_%2843055621224%29_%28cropped%29.jpg/330px-Jason_Momoa_%2843055621224%29_%28cropped%29.jpg',                      // c48 Jason Momoa
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Dua_Lipa-69798_%28cropped%29.jpg/330px-Dua_Lipa-69798_%28cropped%29.jpg',                                                   // c49 Dua Lipa
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Ed_Sheeran-6886_%28cropped%29.jpg/330px-Ed_Sheeran-6886_%28cropped%29.jpg',                                                 // c50 Ed Sheeran
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Ariana_Grande_promoting_Wicked_%282024%29.jpg/330px-Ariana_Grande_promoting_Wicked_%282024%29.jpg',                         // c51 Ariana Grande
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/BillieEilishO2140725-39_-_54665577407_%28cropped%29.jpg/330px-BillieEilishO2140725-39_-_54665577407_%28cropped%29.jpg',     // c52 Billie Eilish
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/HarryStylesWembley170623_%2865_of_93%29_%2852982678051%29_%28cropped_2%29.jpg/330px-HarryStylesWembley170623_%2865_of_93%29_%2852982678051%29_%28cropped_2%29.jpg', // c53 Harry Styles
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Adele_2016.jpg/330px-Adele_2016.jpg',                                                                                        // c54 Adele
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/BrunoMars24KMagicWorldTourLive_%28cropped%29.jpg/330px-BrunoMars24KMagicWorldTourLive_%28cropped%29.jpg',                    // c55 Bruno Mars
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/The_Weeknd_Portrait_by_Brian_Ziff.jpg/330px-The_Weeknd_Portrait_by_Brian_Ziff.jpg',                                         // c56 The Weeknd
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Cardi_B_March_2024.png/330px-Cardi_B_March_2024.png',                                                                        // c57 Cardi B
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Nicki_Minaj_2025_%283x4_cropped%29.jpg/330px-Nicki_Minaj_2025_%283x4_cropped%29.jpg',                                       // c58 Nicki Minaj
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/TechCrunch_Disrupt_San_Francisco_2019_-_Day_1_%2848834070763%29_%28cropped%29.jpg/330px-TechCrunch_Disrupt_San_Francisco_2019_-_Day_1_%2848834070763%29_%28cropped%29.jpg', // c59 Will Smith
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Denzel_Washington_at_the_2025_Cannes_Film_Festival.jpg/330px-Denzel_Washington_at_the_2025_Cannes_Film_Festival.jpg',        // c60 Denzel Washington
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Angela_Basset_at_the_2025_Cannes_Film_Festival_04_%28cropped%29.jpg/330px-Angela_Basset_at_the_2025_Cannes_Film_Festival_04_%28cropped%29.jpg', // c61 Angela Bassett
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Kerry_Washington_in_%282024%29_%28cropped%29.jpg/330px-Kerry_Washington_in_%282024%29_%28cropped%29.jpg',                    // c62 Kerry Washington
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Pedro_Pascal_at_the_2025_Cannes_Film_Festival_04.jpg/330px-Pedro_Pascal_at_the_2025_Cannes_Film_Festival_04.jpg',             // c63 Pedro Pascal
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Ana_de_Armas_%2854462619561%29_%28cropped_3%29.jpg/330px-Ana_de_Armas_%2854462619561%29_%28cropped_3%29.jpg',                // c64 Ana de Armas
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Goyas_2024_-_Pen%C3%A9lope_Cruz-2_%28cropped%29.jpg/330px-Goyas_2024_-_Pen%C3%A9lope_Cruz-2_%28cropped%29.jpg',             // c65 Penélope Cruz
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Chris_Hemsworth_-_Crime_101.jpg/330px-Chris_Hemsworth_-_Crime_101.jpg',                                                      // c66 Chris Hemsworth
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Deadpool_2_Japan_Premiere_Red_Carpet_Ryan_Reynolds_%28cropped%29.jpg/330px-Deadpool_2_Japan_Premiere_Red_Carpet_Ryan_Reynolds_%28cropped%29.jpg', // c67 Ryan Reynolds
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Nicole_Kidman-66059_%28cropped%29.jpg/330px-Nicole_Kidman-66059_%28cropped%29.jpg',                                          // c68 Nicole Kidman
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Hugh_Jackman_by_Gage_Skidmore_3.jpg/330px-Hugh_Jackman_by_Gage_Skidmore_3.jpg',                                             // c69 Hugh Jackman
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Cate_Blanchett-63298_%28cropped_2%29.jpg/330px-Cate_Blanchett-63298_%28cropped_2%29.jpg',                                   // c70 Cate Blanchett
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Mindy_Kaling_by_Claire_Leahy_%28cropped%29.jpg/330px-Mindy_Kaling_by_Claire_Leahy_%28cropped%29.jpg',                       // c71 Mindy Kaling
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Glasto2025-546_%28cropped%29_%282%29.jpg/330px-Glasto2025-546_%28cropped%29_%282%29.jpg',                                    // c72 Olivia Rodrigo
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Doja_Cat_x_Amazon1.1_%28cropped%29.jpg/330px-Doja_Cat_x_Amazon1.1_%28cropped%29.jpg',                                       // c73 Doja Cat
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Tyler_the_Creator_%2852163761341%29_%28cropped%29.jpg/330px-Tyler_the_Creator_%2852163761341%29_%28cropped%29.jpg',           // c74 Tyler, the Creator
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/J_Balvin_BTTR_Tour_Photo_January_2025.jpg/330px-J_Balvin_BTTR_Tour_Photo_January_2025.jpg',                                  // c75 J Balvin
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Camila_Cabello_AMAs_2019.png/330px-Camila_Cabello_AMAs_2019.png',                                                            // c76 Camila Cabello
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/2023-11-16_Gala_de_los_Latin_Grammy%2C_27_%28cropped%29.jpg/330px-2023-11-16_Gala_de_los_Latin_Grammy%2C_27_%28cropped%29.jpg', // c77 Rosalía
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Jackie_Chan.jpg/330px-Jackie_Chan.jpg',                                                                                       // c78 Jackie Chan
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Mahershala_Ali_by_Gage_Skidmore_%28cropped%29.jpg/330px-Mahershala_Ali_by_Gage_Skidmore_%28cropped%29.jpg',                  // c79 Mahershala Ali
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/-Hidden_Figures-_Film_Celebration_%28NHQ201612100020%29_%28cropped%29.jpg/330px--Hidden_Figures-_Film_Celebration_%28NHQ201612100020%29_%28cropped%29.jpg', // c80 Taraji P. Henson
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Vin_Diesel_by_Gage_Skidmore_2.jpg/330px-Vin_Diesel_by_Gage_Skidmore_2.jpg',                                                 // c81 Vin Diesel
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Tom_Holland_during_pro-am_Wentworth_golf_club_2023-2.jpg/330px-Tom_Holland_during_pro-am_Wentworth_golf_club_2023-2.jpg',    // c82 Tom Holland
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Untold_2024_-Burna_Boy_%2853927293629%29_%28cropped%29.jpg/330px-Untold_2024_-Burna_Boy_%2853927293629%29_%28cropped%29.jpg', // c83 Burna Boy
-  'https://upload.wikimedia.org/wikipedia/commons/d/d3/Wizkid_at_Iyanya%27s_album_launch_concert%2C_2013_%28Cropped%29.png',                                                               // c84 Wizkid
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/EltonDocBFILFF101024_%284_of_17%29_%28cropped%29.jpg/330px-EltonDocBFILFF101024_%284_of_17%29_%28cropped%29.jpg',             // c85 Elton John
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/MaccaLyricsRFH051121_%2815_of_18%29_%28updated%29_%28cropped%29.jpg/330px-MaccaLyricsRFH051121_%2815_of_18%29_%28updated%29_%28cropped%29.jpg', // c86 Paul McCartney
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Roger_Federer_2015_%28cropped%29.jpg/330px-Roger_Federer_2015_%28cropped%29.jpg',                                            // c87 Roger Federer
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Rafael_Nadal_en_2024_%28cropped%29.jpg/330px-Rafael_Nadal_en_2024_%28cropped%29.jpg',                                        // c88 Rafael Nadal
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Trevor_Noah_%2853554114243%29_%28portrait_crop%29.jpg/330px-Trevor_Noah_%2853554114243%29_%28portrait_crop%29.jpg',           // c89 Trevor Noah
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Novak_Djokovic_2024_Paris_Olympics.jpg/330px-Novak_Djokovic_2024_Paris_Olympics.jpg',                                        // c90 Novak Djokovic
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Post_Malone_July_2021_%28cropped%29.jpg/330px-Post_Malone_July_2021_%28cropped%29.jpg',                                      // c91 Post Malone
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/KendrickSZASPurs230725-19_-_54683179509_%28cropped%29_%28cropped%29.jpg/330px-KendrickSZASPurs230725-19_-_54683179509_%28cropped%29_%28cropped%29.jpg', // c92 SZA
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Megan_Thee_Stallion_Adweek_pose.jpg/330px-Megan_Thee_Stallion_Adweek_pose.jpg',                                              // c93 Megan Thee Stallion
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Kevin_Hart_2014_%28cropped_2%29.jpg/330px-Kevin_Hart_2014_%28cropped_2%29.jpg',                                              // c94 Kevin Hart
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Indian_actor_Amitabh_Bachchan.jpg/330px-Indian_actor_Amitabh_Bachchan.jpg',                                                  // c95 Amitabh Bachchan
-  'https://upload.wikimedia.org/wikipedia/commons/3/32/Ranveer_Singh_in_2023_%281%29_%28cropped%29.jpg',                                                                                   // c96 Ranveer Singh
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Alia_Bhatt_at_Berlinale_2022_Ausschnitt.jpg/330px-Alia_Bhatt_at_Berlinale_2022_Ausschnitt.jpg',                              // c97 Alia Bhatt
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Zayn_Wiki_%28cropped%29.jpg/330px-Zayn_Wiki_%28cropped%29.jpg',                                                               // c98 Zayn Malik
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Eddie_Murphy_by_David_Shankbone.jpg/330px-Eddie_Murphy_by_David_Shankbone.jpg',                                              // c99 Eddie Murphy
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Whoopi_Goldberg_Springsteen-71_%28cropped%29.jpg/330px-Whoopi_Goldberg_Springsteen-71_%28cropped%29.jpg',                    // c100 Whoopi Goldberg
+  '/assets/portraits/c31.jpg',          // c31 Idris Elba
+  '/assets/portraits/c32.jpg', // c32 Viola Davis
+  '/assets/portraits/c33.jpg',                                                      // c33 Michael B. Jordan
+  '/assets/portraits/c34.jpg',                                   // c34 Lupita Nyong'o
+  '/assets/portraits/c35.jpg',                                                                      // c35 Priyanka Chopra
+  '/assets/portraits/c36.jpg',      // c36 Shah Rukh Khan
+  '/assets/portraits/c37.png',                                                 // c37 Deepika Padukone
+  '/assets/portraits/c38.jpg',        // c38 Lionel Messi
+  '/assets/portraits/c39.jpg',                 // c39 LeBron James
+  '/assets/portraits/c40.jpg', // c40 Serena Williams
+  '/assets/portraits/c41.png',                        // c41 Naomi Osaka
+  '/assets/portraits/c42.jpg',                                            // c42 Simone Biles
+  '/assets/portraits/c43.jpg', // c43 Shakira
+  '/assets/portraits/c44.jpg',                 // c44 Bad Bunny
+  '/assets/portraits/c45.jpg', // c45 Jennifer Lopez
+  '/assets/portraits/c46.jpg', // c46 Maluma
+  '/assets/portraits/c47.jpg',                                                                        // c47 Michelle Yeoh
+  '/assets/portraits/c48.jpg',                      // c48 Jason Momoa
+  '/assets/portraits/c49.jpg',                                                   // c49 Dua Lipa
+  '/assets/portraits/c50.jpg',                                                 // c50 Ed Sheeran
+  '/assets/portraits/c51.jpg',                         // c51 Ariana Grande
+  '/assets/portraits/c52.jpg',     // c52 Billie Eilish
+  '/assets/portraits/c53.jpg', // c53 Harry Styles
+  '/assets/portraits/c54.jpg',                                                                                        // c54 Adele
+  '/assets/portraits/c55.jpg',                    // c55 Bruno Mars
+  '/assets/portraits/c56.jpg',                                         // c56 The Weeknd
+  '/assets/portraits/c57.png',                                                                        // c57 Cardi B
+  '/assets/portraits/c58.jpg',                                       // c58 Nicki Minaj
+  '/assets/portraits/c59.jpg', // c59 Will Smith
+  '/assets/portraits/c60.jpg',        // c60 Denzel Washington
+  '/assets/portraits/c61.jpg', // c61 Angela Bassett
+  '/assets/portraits/c62.jpg',                    // c62 Kerry Washington
+  '/assets/portraits/c63.jpg',             // c63 Pedro Pascal
+  '/assets/portraits/c64.jpg',                // c64 Ana de Armas
+  '/assets/portraits/c65.jpg',             // c65 Penélope Cruz
+  '/assets/portraits/c66.jpg',                                                      // c66 Chris Hemsworth
+  '/assets/portraits/c67.jpg', // c67 Ryan Reynolds
+  '/assets/portraits/c68.jpg',                                          // c68 Nicole Kidman
+  '/assets/portraits/c69.jpg',                                             // c69 Hugh Jackman
+  '/assets/portraits/c70.jpg',                                   // c70 Cate Blanchett
+  '/assets/portraits/c71.jpg',                       // c71 Mindy Kaling
+  '/assets/portraits/c72.jpg',                                    // c72 Olivia Rodrigo
+  '/assets/portraits/c73.jpg',                                       // c73 Doja Cat
+  '/assets/portraits/c74.jpg',           // c74 Tyler, the Creator
+  '/assets/portraits/c75.jpg',                                  // c75 J Balvin
+  '/assets/portraits/c76.png',                                                            // c76 Camila Cabello
+  '/assets/portraits/c77.jpg', // c77 Rosalía
+  '/assets/portraits/c78.jpg',                                                                                       // c78 Jackie Chan
+  '/assets/portraits/c79.jpg',                  // c79 Mahershala Ali
+  '/assets/portraits/c80.jpg', // c80 Taraji P. Henson
+  '/assets/portraits/c81.jpg',                                                 // c81 Vin Diesel
+  '/assets/portraits/c82.jpg',    // c82 Tom Holland
+  '/assets/portraits/c83.jpg', // c83 Burna Boy
+  '/assets/portraits/c84.png',                                                               // c84 Wizkid
+  '/assets/portraits/c85.jpg',             // c85 Elton John
+  '/assets/portraits/c86.jpg', // c86 Paul McCartney
+  '/assets/portraits/c87.jpg',                                            // c87 Roger Federer
+  '/assets/portraits/c88.jpg',                                        // c88 Rafael Nadal
+  '/assets/portraits/c89.jpg',           // c89 Trevor Noah
+  '/assets/portraits/c90.jpg',                                        // c90 Novak Djokovic
+  '/assets/portraits/c91.jpg',                                      // c91 Post Malone
+  '/assets/portraits/c92.jpg', // c92 SZA
+  '/assets/portraits/c93.jpg',                                              // c93 Megan Thee Stallion
+  '/assets/portraits/c94.jpg',                                              // c94 Kevin Hart
+  '/assets/portraits/c95.jpg',                                                  // c95 Amitabh Bachchan
+  '/assets/portraits/c96.jpg',                                                                                   // c96 Ranveer Singh
+  '/assets/portraits/c97.jpg',                              // c97 Alia Bhatt
+  '/assets/portraits/c98.jpg',                                                               // c98 Zayn Malik
+  '/assets/portraits/c99.jpg',                                              // c99 Eddie Murphy
+  '/assets/portraits/c100.jpg',                    // c100 Whoopi Goldberg
 ];
 
 // ── Per-celebrity accurate metadata for c31–c100 (index 0–69) ────────────────
@@ -469,7 +469,7 @@ const makeExtCelebrity = (i) => {
 const NEW_CELEBRITIES = [
   {
     id:"c101", name:"Matt Rife", verified:true, category:"Comedy", region:"North America",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Matt_Rife%2C_2021.jpg/330px-Matt_Rife%2C_2021.jpg",
+    portrait: "/assets/portraits/c101.jpg",
     startingPrice:85000, demandIndex:88, popularityScore:87, availability:"Open",
     availabilityWindowDays:14, socialReachMillions:42.0, agencyRepresentation:"CAA",
     awards:"Netflix Special — Natural Selection (2023)", riskIndex:"low",
@@ -479,7 +479,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c102", name:"Steven Tyler", verified:true, category:"Music", region:"North America",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Steven_Tyler_by_Gage_Skidmore_3.jpg/330px-Steven_Tyler_by_Gage_Skidmore_3.jpg",
+    portrait: "/assets/portraits/c102.jpg",
     startingPrice:380000, demandIndex:86, popularityScore:89, availability:"Limited",
     availabilityWindowDays:21, socialReachMillions:18.5, agencyRepresentation:"WME",
     awards:"Rock and Roll Hall of Fame (2001), Grammy Award", riskIndex:"low",
@@ -489,7 +489,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c103", name:"Joe Perry", verified:true, category:"Music", region:"North America",
-    portrait: "https://upload.wikimedia.org/wikipedia/en/thumb/6/63/Joe_Perry_2015.jpg/330px-Joe_Perry_2015.jpg",
+    portrait: "/assets/portraits/c103.jpg",
     startingPrice:290000, demandIndex:82, popularityScore:86, availability:"Open",
     availabilityWindowDays:21, socialReachMillions:12.0, agencyRepresentation:"WME",
     awards:"Rock and Roll Hall of Fame (2001), Grammy Award", riskIndex:"low",
@@ -499,7 +499,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c104", name:"RM (BTS)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/RM_at_W_Korea_Love_Your_W%2C_November_2023.jpg/330px-RM_at_W_Korea_Love_Your_W%2C_November_2023.jpg",
+    portrait: "/assets/portraits/c104.jpg",
     startingPrice:620000, demandIndex:93, popularityScore:95, availability:"Limited",
     availabilityWindowDays:30, socialReachMillions:48.0, agencyRepresentation:"HYBE",
     awards:"Billboard Music Award, American Music Award, GRAMMY Nomination", riskIndex:"low",
@@ -509,7 +509,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c105", name:"Jin (BTS)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/BTS_Jin_at_Maison_Fred%2C_13_March_2025_04.png/330px-BTS_Jin_at_Maison_Fred%2C_13_March_2025_04.png",
+    portrait: "/assets/portraits/c105.png",
     startingPrice:580000, demandIndex:91, popularityScore:93, availability:"Open",
     availabilityWindowDays:30, socialReachMillions:44.0, agencyRepresentation:"HYBE",
     awards:"Billboard Music Award, MTV EMA", riskIndex:"low",
@@ -519,7 +519,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c106", name:"Suga (BTS)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/160217_Gaon_Chart_K-POP_Awards_Red_Carpet_BTS_Suga.jpg/330px-160217_Gaon_Chart_K-POP_Awards_Red_Carpet_BTS_Suga.jpg",
+    portrait: "/assets/portraits/c106.jpg",
     startingPrice:600000, demandIndex:92, popularityScore:94, availability:"Open",
     availabilityWindowDays:30, socialReachMillions:46.0, agencyRepresentation:"HYBE",
     awards:"Billboard Music Award, Grammy Nomination", riskIndex:"low",
@@ -529,7 +529,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c107", name:"J-Hope (BTS)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/J-Hope_at_W_Korea_Breast_Cancer_Campaign%2C_15_October_2025.png/330px-J-Hope_at_W_Korea_Breast_Cancer_Campaign%2C_15_October_2025.png",
+    portrait: "/assets/portraits/c107.png",
     startingPrice:590000, demandIndex:91, popularityScore:93, availability:"Open",
     availabilityWindowDays:30, socialReachMillions:44.0, agencyRepresentation:"HYBE",
     awards:"Billboard Music Award, Grand Bell Award", riskIndex:"low",
@@ -539,7 +539,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c108", name:"Jimin (BTS)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Jimin_on_the_way_to_SBS_Radio%2C_31_March_2023_%282%29.jpg/330px-Jimin_on_the_way_to_SBS_Radio%2C_31_March_2023_%282%29.jpg",
+    portrait: "/assets/portraits/c108.jpg",
     startingPrice:620000, demandIndex:94, popularityScore:96, availability:"Limited",
     availabilityWindowDays:30, socialReachMillions:50.0, agencyRepresentation:"HYBE",
     awards:"Billboard Hot 100 #1, Music Bank Trophy, Grammy Nomination", riskIndex:"low",
@@ -549,7 +549,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c109", name:"V (BTS)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/BTS%27s_V_20251004_04.jpg/330px-BTS%27s_V_20251004_04.jpg",
+    portrait: "/assets/portraits/c109.jpg",
     startingPrice:620000, demandIndex:93, popularityScore:95, availability:"Limited",
     availabilityWindowDays:30, socialReachMillions:52.0, agencyRepresentation:"HYBE",
     awards:"Billboard Music Award, CELINE Global Ambassador", riskIndex:"low",
@@ -559,7 +559,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c110", name:"Jungkook (BTS)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Jung_Kook_of_BTS%2C_February_12%2C_2026_%281%29.png/330px-Jung_Kook_of_BTS%2C_February_12%2C_2026_%281%29.png",
+    portrait: "/assets/portraits/c110.png",
     startingPrice:650000, demandIndex:95, popularityScore:97, availability:"Limited",
     availabilityWindowDays:30, socialReachMillions:55.0, agencyRepresentation:"HYBE",
     awards:"Billboard Hot 100, Seven hit #1 in 100+ countries, Calvin Klein Global Ambassador", riskIndex:"low",
@@ -569,7 +569,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c111", name:"Mia Khalifa", verified:true, category:"Influencer", region:"North America",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Mia_Khalifa_in_2019.png",
+    portrait: "/assets/portraits/c111.png",
     startingPrice:95000, demandIndex:84, popularityScore:86, availability:"Open",
     availabilityWindowDays:14, socialReachMillions:28.0, agencyRepresentation:"Independent",
     awards:"Viral Media Personality, Aries Fashion Campaign", riskIndex:"medium",
@@ -579,7 +579,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c112", name:"Lana Rhoades", verified:true, category:"Influencer", region:"North America",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Lana_Rhoades_2-2017_%28cropped%29.jpg/330px-Lana_Rhoades_2-2017_%28cropped%29.jpg",
+    portrait: "/assets/portraits/c112.jpg",
     startingPrice:75000, demandIndex:80, popularityScore:82, availability:"Open",
     availabilityWindowDays:14, socialReachMillions:20.0, agencyRepresentation:"Independent",
     awards:"iHeartRadio Podcast Award Nominee", riskIndex:"medium",
@@ -589,7 +589,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c113", name:"Riley Reid", verified:true, category:"Influencer", region:"North America",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Riley_Reid_2019_by_Glenn_Francis.jpg/330px-Riley_Reid_2019_by_Glenn_Francis.jpg",
+    portrait: "/assets/portraits/c113.jpg",
     startingPrice:80000, demandIndex:81, popularityScore:83, availability:"Open",
     availabilityWindowDays:14, socialReachMillions:18.0, agencyRepresentation:"Independent",
     awards:"AVN Award, XBIZ Award, FrontPage Media Personality", riskIndex:"medium",
@@ -599,7 +599,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c114", name:"Lisa (BLACKPINK)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/20240314_Lisa_Manoban_07.jpg/330px-20240314_Lisa_Manoban_07.jpg",
+    portrait: "/assets/portraits/c114.jpg",
     startingPrice:750000, demandIndex:96, popularityScore:97, availability:"Limited",
     availabilityWindowDays:30, socialReachMillions:110.0, agencyRepresentation:"LLOUD / RCA",
     awards:"MTV VMA Best K-pop (2022, 2024, 2025), Guinness World Records", riskIndex:"low",
@@ -609,7 +609,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c115", name:"Jennie Kim", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Kim_Jennie_%28%EA%B9%80%EC%A0%9C%EB%8B%88%29_05.jpg/330px-Kim_Jennie_%28%EA%B9%80%EC%A0%9C%EB%8B%88%29_05.jpg",
+    portrait: "/assets/portraits/c115.jpg",
     startingPrice:680000, demandIndex:94, popularityScore:95, availability:"Limited",
     availabilityWindowDays:30, socialReachMillions:80.0, agencyRepresentation:"OA Entertainment",
     awards:"MTV VMA Best K-pop, Chanel House Ambassador", riskIndex:"low",
@@ -619,7 +619,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c116", name:"IU (Lee Ji-eun)", verified:true, category:"Music", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/IU_at_Blue_Dragon_Series_Awards_on_18072025_%2810%29.png/330px-IU_at_Blue_Dragon_Series_Awards_on_18072025_%2810%29.png",
+    portrait: "/assets/portraits/c116.png",
     startingPrice:520000, demandIndex:91, popularityScore:93, availability:"Limited",
     availabilityWindowDays:21, socialReachMillions:35.0, agencyRepresentation:"EDAM Entertainment",
     awards:"Melon Music Award, Golden Disc Award, Daesang (Grand Prize × 8)", riskIndex:"low",
@@ -629,7 +629,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c117", name:"Park Seo-joon", verified:true, category:"Film", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Park_Seo-joon_for_Marie_Claire_Korea%2C_2023_%281%29.jpg/330px-Park_Seo-joon_for_Marie_Claire_Korea%2C_2023_%281%29.jpg",
+    portrait: "/assets/portraits/c117.jpg",
     startingPrice:350000, demandIndex:87, popularityScore:89, availability:"Open",
     availabilityWindowDays:21, socialReachMillions:22.0, agencyRepresentation:"Awesome ENT",
     awards:"Baeksang Arts Award Nominee, Asia Artist Award", riskIndex:"low",
@@ -639,7 +639,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c118", name:"Lee Min-ho", verified:true, category:"Film", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Lee_Min-ho_in_December_2025.png/330px-Lee_Min-ho_in_December_2025.png",
+    portrait: "/assets/portraits/c118.png",
     startingPrice:480000, demandIndex:90, popularityScore:92, availability:"Limited",
     availabilityWindowDays:21, socialReachMillions:32.0, agencyRepresentation:"MYM Entertainment",
     awards:"Korea Drama Awards Best Actor, KBS Drama Award", riskIndex:"low",
@@ -649,7 +649,7 @@ const NEW_CELEBRITIES = [
   },
   {
     id:"c119", name:"Song Joong-ki", verified:true, category:"Film", region:"Asia",
-    portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Song_Joong-ki_at_Style_Icon_Asia_2016.jpg/330px-Song_Joong-ki_at_Style_Icon_Asia_2016.jpg",
+    portrait: "/assets/portraits/c119.jpg",
     startingPrice:420000, demandIndex:88, popularityScore:90, availability:"Open",
     availabilityWindowDays:21, socialReachMillions:25.0, agencyRepresentation:"HISTORY D&C",
     awards:"Baeksang Arts Award Best Actor, Grand Bell Award", riskIndex:"low",
