@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://alltalents-agency.vercel.app; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>ALL TALENTS Agency | Book A-List Celebrities Worldwide</title>
 	<!-- SEO: Primary Meta -->
@@ -32,7 +32,7 @@
 		"@type": "Organization",
 		"name": "ALL TALENTS Agency",
 		"url": "https://alltalents-agency.vercel.app",
-		"description": "Elite celebrity booking and talent representation platform — 119+ verified celebrities worldwide.",
+		"description": "Elite celebrity booking and talent representation platform â€” 119+ verified celebrities worldwide.",
 		"contactPoint": { "@type": "ContactPoint", "contactType": "Talent Booking", "availableLanguage": "English" },
 		"potentialAction": {
 			"@type": "SearchAction",
@@ -45,7 +45,7 @@
 </head>
 <body>
 	<div class='container' id='app'></div>
-	<button id='floatMsgBtn' class='floating-msg-btn' title='Open Messaging'>💬</button>
+	<button id='floatMsgBtn' class='floating-msg-btn' title='Open Messaging'>ðŸ’¬</button>
 	<section id='floatMsgPanel' class='floating-msg-panel'>
 		<h4>Representation Chat</h4>
 		<p class='hint'>Live desk for the featured profile. Login to send.</p>
@@ -70,7 +70,7 @@
 
 		let featuredCelebrity = { id: '', name: '' };
 
-		// ── Typewriter utility ──────────────────────────
+		// â”€â”€ Typewriter utility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 		async function typeText(el, text, speed = 22) {
 			el.textContent = '';
 			for (let i = 0; i < text.length; i++) {
@@ -113,9 +113,9 @@
 			<section class='access-strip section'>
 				<div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(148,180,216,.5);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);background:rgba(148,180,216,.06);margin-bottom:18px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0'></span>Live Access Status</div>
 				<h2 class='access-strip-title'>100 Verified Celebrities.<br>Direct Access. Right Now.</h2>
-				<p class='access-strip-sub'>Every talent on this platform is reachable through Aurelux's authorized private channels. Your qualification as a registered client unlocks exclusive meeting windows, direct representative outreach, and priority booking rights — unavailable anywhere else.</p>
+				<p class='access-strip-sub'>Every talent on this platform is reachable through Aurelux's authorized private channels. Your qualification as a registered client unlocks exclusive meeting windows, direct representative outreach, and priority booking rights â€” unavailable anywhere else.</p>
 				<form id='heroSearch' style='display:flex;gap:0;margin:22px 0 24px;max-width:620px;width:100%' onsubmit='event.preventDefault(); const q = document.getElementById("heroSearchInput").value.trim(); if(q) window.location.href="explorer.html?search="+encodeURIComponent(q);'>
-					<input id='heroSearchInput' type='text' placeholder='Search for your favourite celebrity…' autocomplete='off' style='flex:1;border-radius:10px 0 0 10px;border:1.5px solid rgba(148,180,216,.55);border-right:none;background:rgba(255,255,255,.04);color:#E6ECF4;padding:15px 20px;font-size:14px;letter-spacing:.02em;outline:none;min-width:0;transition:border-color .2s' onfocus='this.style.borderColor="rgba(148,180,216,.9)"' onblur='this.style.borderColor="rgba(148,180,216,.55)"'>
+					<input id='heroSearchInput' type='text' placeholder='Search for your favourite celebrityâ€¦' autocomplete='off' style='flex:1;border-radius:10px 0 0 10px;border:1.5px solid rgba(148,180,216,.55);border-right:none;background:rgba(255,255,255,.04);color:#E6ECF4;padding:15px 20px;font-size:14px;letter-spacing:.02em;outline:none;min-width:0;transition:border-color .2s' onfocus='this.style.borderColor="rgba(148,180,216,.9)"' onblur='this.style.borderColor="rgba(148,180,216,.55)"'>
 					<button type='submit' style='background:linear-gradient(135deg,#94B4D8,#b8962e);color:#0b0b0b;border:none;padding:15px 28px;border-radius:0 10px 10px 0;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap'>Search &#x2192;</button>
 				</form>
 				<div style='display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px'>
@@ -127,19 +127,19 @@
 					${[1,2,3,4].map(()=>`<div class='window-card' style='height:88px;background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.05)'></div>`).join('')}
 				</div>
 				<div style='margin-top:18px;text-align:center'>
-					<a href='explorer.html'><button class='primary' style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase'>Explore All Access Windows →</button></a>
+					<a href='explorer.html'><button class='primary' style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase'>Explore All Access Windows â†’</button></a>
 				</div>
 			</section>
 			<section class='crowd-hero section'>
-				<div class='crowd-hero-label'>New Feature — Crowd Access</div>
+				<div class='crowd-hero-label'>New Feature â€” Crowd Access</div>
 				<h2 style='margin-bottom:10px'>Can't Afford Solo Private Access?<br><span>Join a Group. Share the Moment.</span></h2>
-				<p class='access-strip-sub'>Crowd Booking lets you join a verified group at the celebrity's <em>next real event</em> — concerts, premieres, paddocks, brand days. Same icon, same room. Drastically lower entry point with installment payment plans. Slots are limited and fill fast.</p>
+				<p class='access-strip-sub'>Crowd Booking lets you join a verified group at the celebrity's <em>next real event</em> â€” concerts, premieres, paddocks, brand days. Same icon, same room. Drastically lower entry point with installment payment plans. Slots are limited and fill fast.</p>
 				<div style='margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px' id='crowdTeaserGrid'>
 					${[1,2,3].map(()=>`<div class='crowd-event-card' style='height:80px;background:rgba(255,255,255,.02);border-color:rgba(159,230,176,.08)'></div>`).join('')}
 				</div>
 				<div style='margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;align-items:center'>
-					<a href='crowdbooking.html'><button style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(135deg,rgba(159,230,176,.2),rgba(159,230,176,.07));border:1px solid rgba(159,230,176,.5);color:#9fe6b0;border-radius:10px;cursor:pointer'>👥 View All Crowd Events →</button></a>
-					<span class='small muted'>From $1,800 /person · Pay in 3 or 6 installments</span>
+					<a href='crowdbooking.html'><button style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(135deg,rgba(159,230,176,.2),rgba(159,230,176,.07));border:1px solid rgba(159,230,176,.5);color:#9fe6b0;border-radius:10px;cursor:pointer'>ðŸ‘¥ View All Crowd Events â†’</button></a>
+					<span class='small muted'>From $1,800 /person Â· Pay in 3 or 6 installments</span>
 				</div>
 			</section>
 			<section class='card section stack'>
@@ -228,7 +228,7 @@
 		document.getElementById('homeType').value = 'meet';
 		setHomeTemplate('meet', featured[0].name);
 
-		// ── Cinematic Rotating Hero ──────────────────────────
+		// â”€â”€ Cinematic Rotating Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 		let heroIdx = 0;
 		let heroTimer = null;
 		let heroProg = null;
@@ -238,7 +238,7 @@
 			const fmtP = p => p >= 1e6 ? `$${(p/1e6).toFixed(1)}M` : `$${Math.round(p/1000)}K`;
 			const slides = featured.map((c, i) => `
 				<div class='hero-slide${i === 0 ? ' hs-active' : ''}' data-idx='${i}'>
-					<p class='eyebrow'>Featured Profile · ${i + 1} of ${featured.length} &nbsp;·&nbsp; ${c.category}</p>
+					<p class='eyebrow'>Featured Profile Â· ${i + 1} of ${featured.length} &nbsp;Â·&nbsp; ${c.category}</p>
 					<h1 class='headline'>${c.name}</h1>
 					${c.eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:rgba(229,228,226,.65);font-style:italic;margin:0 0 10px;border-left:2px solid rgba(148,180,216,.5);padding-left:12px'>${c.eliteSignal}</p>` : ''}
 					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px'>
@@ -247,16 +247,16 @@
 						<span class='small'><span class='muted'>Private Access</span> <strong style='color:var(--accent)'>${fmtP(c.startingPrice)}</strong></span>
 						<span class='small'><span class='muted'>Agency</span> <strong style='color:var(--accent)'>${c.agencyRepresentation}</strong></span>
 					</div>
-					<p class='small muted'>${c.availability === 'Open' ? '✦ Accepting qualified outreach now.' : c.availability === 'Limited' ? '⚠ Limited access windows — act within 48h.' : '● Waitlist only — secure your slot.'}</p>
+					<p class='small muted'>${c.availability === 'Open' ? 'âœ¦ Accepting qualified outreach now.' : c.availability === 'Limited' ? 'âš  Limited access windows â€” act within 48h.' : 'â— Waitlist only â€” secure your slot.'}</p>
 					<div style='margin-top:12px;display:flex;gap:10px;flex-wrap:wrap'>
-						<a href='explorer.html'><button class='primary' style='width:auto;padding:10px 22px'>⚡ Access Private Profile →</button></a>
+						<a href='explorer.html'><button class='primary' style='width:auto;padding:10px 22px'>âš¡ Access Private Profile â†’</button></a>
 						<a href='booking.html?id=${c.id}'><button class='secondary' style='width:auto;padding:10px 22px'>Start Private Engagement</button></a>
 					</div>
 				</div>
 			`).join('');
 			// Sizer: invisible copy of first slide keeps track height stable during transitions
 			const sizer = `<div class='hero-slide hero-slide-sizer' aria-hidden='true'>
-					<p class='eyebrow'>Featured Profile · 1 of ${featured.length} · ${featured[0].category}</p>
+					<p class='eyebrow'>Featured Profile Â· 1 of ${featured.length} Â· ${featured[0].category}</p>
 					<h1 class='headline'>${featured[0].name}</h1>
 					${featured[0].eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:rgba(229,228,226,.65);font-style:italic;margin:0 0 10px;border-left:2px solid rgba(148,180,216,.5);padding-left:12px'>${featured[0].eliteSignal}</p>` : ''}
 					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px'>
@@ -265,9 +265,9 @@
 						<span class='small'><span class='muted'>Private Access</span> <strong style='color:var(--accent)'>$${(featured[0].startingPrice/1e6).toFixed(1)}M</strong></span>
 						<span class='small'><span class='muted'>Agency</span> <strong style='color:var(--accent)'>${featured[0].agencyRepresentation}</strong></span>
 					</div>
-					<p class='small muted'>✦ Accepting qualified outreach now.</p>
+					<p class='small muted'>âœ¦ Accepting qualified outreach now.</p>
 					<div style='margin-top:12px;display:flex;gap:10px;flex-wrap:wrap'>
-						<button class='primary' style='width:auto;padding:10px 22px'>⚡ Access Private Profile →</button>
+						<button class='primary' style='width:auto;padding:10px 22px'>âš¡ Access Private Profile â†’</button>
 						<button class='secondary' style='width:auto;padding:10px 22px'>Start Private Engagement</button>
 					</div>
 				</div>`;
@@ -325,15 +325,15 @@
 			['Verified Celebrities', payload.metrics.verifiedCelebrities],
 		].map(([name, value]) => `<div class='card'><div class='small muted'>${name}</div><div class='kpi'>${value}</div></div>`).join('');
 
-		// ── Populate "Direct Access Windows" strip ──────────
+		// â”€â”€ Populate "Direct Access Windows" strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 		const fmtPH = p => p >= 1e6 ? `$${(p/1e6).toFixed(1)}M` : `$${Math.round(p/1000)}K`;
 		const windowGrid = document.getElementById('windowGrid');
 		if (windowGrid) {
 			windowGrid.innerHTML = featured.slice(0, 4).map(c => `
 				<div class='window-card' onclick="window.location.href='explorer.html'" style='display:flex;flex-direction:column;gap:6px'>
-					<div class='wc-avail ${c.availability === "Open" ? "wa-open" : "wa-limited"}'>● ${c.availability === "Open" ? "OPEN WINDOW" : c.availability === "Waitlist" ? "WAITLIST" : "LIMITED WINDOW"}</div>
+					<div class='wc-avail ${c.availability === "Open" ? "wa-open" : "wa-limited"}'>â— ${c.availability === "Open" ? "OPEN WINDOW" : c.availability === "Waitlist" ? "WAITLIST" : "LIMITED WINDOW"}</div>
 					<div class='wc-name'>${c.name}</div>
-					<div class='wc-meta'>${c.category} · ${c.region}</div>
+					<div class='wc-meta'>${c.category} Â· ${c.region}</div>
 					<div style='display:flex;gap:10px;flex-wrap:wrap;margin-top:2px'>
 						${c.netWorth ? `<span style='font-size:10px;color:rgba(148,180,216,.7)'>${c.netWorth} est. worth</span>` : ''}
 						<span style='font-size:10px;color:rgba(229,228,226,.4)'>${c.socialReachMillions}M reach</span>
@@ -344,10 +344,10 @@
 		}
 
 		document.getElementById('bpCelebrity').innerHTML = featured
-			.map((item) => `<option value='${item.id}'>${item.name} · $${item.startingPrice.toLocaleString()}</option>`)
+			.map((item) => `<option value='${item.id}'>${item.name} Â· $${item.startingPrice.toLocaleString()}</option>`)
 			.join('');
 
-		// ── Populate Crowd Teaser Grid ──────────────────────────
+		// â”€â”€ Populate Crowd Teaser Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 		try {
 			const crowdEvts = await request('/crowd-events');
 			const teaserGrid = document.getElementById('crowdTeaserGrid');
@@ -365,7 +365,7 @@
 					<div class='crowd-event-card' onclick="window.location.href='crowdbooking.html'" style='cursor:pointer;padding:16px'>
 						<div class='ce-event-type'>${ev.eventType ?? 'Event'}</div>
 						<div class='ce-title' style='font-size:13px;margin:6px 0 4px'>${ev.eventTitle}</div>
-						<div class='ce-meta' style='font-size:11px;margin-bottom:8px'>${ev.name} · ${ev.city}</div>
+						<div class='ce-meta' style='font-size:11px;margin-bottom:8px'>${ev.name} Â· ${ev.city}</div>
 						<div class='ce-slot-bar' style='height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin-bottom:6px'>
 							<div class='ce-slot-fill' style='height:100%;border-radius:3px;width:${soldPct}%;background:${urgency};transition:width .8s ease'></div>
 						</div>
@@ -387,7 +387,7 @@
 					<div class='flow-step'><p class='num'>Waitlist Pressure</p><h4>${pulse.metrics.topWaitlistPressure}</h4><p>Profiles currently in waitlist state.</p></div>
 				</div>
 				<div class='hr'></div>
-				<p class='small muted'><b>Top Demand Profiles:</b> ${pulse.top.map((t) => `${t.name} (${t.demandIndex}%)`).join(' · ')}</p>
+				<p class='small muted'><b>Top Demand Profiles:</b> ${pulse.top.map((t) => `${t.name} (${t.demandIndex}%)`).join(' Â· ')}</p>
 			`;
 		} catch {
 			document.getElementById('pulseBody').textContent = 'Market pulse unavailable.';
@@ -429,7 +429,7 @@
 				await typeText(replyBubble.querySelector('.cb-msg'), result.acknowledgement.body, 20);
 			} catch (error) {
 				typingBubble.remove();
-				addBubble(thread, 'desk', error.message + ' — login first to send.');
+				addBubble(thread, 'desk', error.message + ' â€” login first to send.');
 			}
 		};
 
@@ -450,8 +450,8 @@
 				out.innerHTML = `
 					<p class='small'><b>Blueprint:</b> ${response.blueprintId}</p>
 					<p class='small'><b>Recommendation:</b> ${response.strategy.recommendation}</p>
-					<p class='small'><b>Scores:</b> Fit ${response.scores.fitScore} · Pressure ${response.scores.pressureScore} · Budget ${response.scores.budgetAlignment} · Exclusivity ${response.scores.exclusivityIndex}</p>
-					<p class='small'><b>Execution Plan:</b> ${response.executionPlan.join(' → ')}</p>
+					<p class='small'><b>Scores:</b> Fit ${response.scores.fitScore} Â· Pressure ${response.scores.pressureScore} Â· Budget ${response.scores.budgetAlignment} Â· Exclusivity ${response.scores.exclusivityIndex}</p>
+					<p class='small'><b>Execution Plan:</b> ${response.executionPlan.join(' â†’ ')}</p>
 				`;
 			} catch (error) {
 				out.textContent = error.message + ' (login first for AI strategy generation)';

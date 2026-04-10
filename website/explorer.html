@@ -1,24 +1,24 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://alltalents-agency.vercel.app; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name='referrer' content='no-referrer'>
-  <title>Celebrity Talent Directory | 119+ Verified Stars — ALL TALENTS Agency</title>
+  <title>Celebrity Talent Directory | 119+ Verified Stars â€” ALL TALENTS Agency</title>
   <!-- SEO: Primary Meta -->
-  <meta name="description" content="Search 119+ verified A-list celebrities — musicians, film stars, athletes, K-pop idols (BTS, BLACKPINK), influencers, and comedians. Filter by category, region, and availability for any event.">
+  <meta name="description" content="Search 119+ verified A-list celebrities â€” musicians, film stars, athletes, K-pop idols (BTS, BLACKPINK), influencers, and comedians. Filter by category, region, and availability for any event.">
   <meta name="keywords" content="celebrity directory, search celebrity talent, A-list stars, K-pop booking, BTS members, BLACKPINK Lisa Jennie, Korean actors, celebrity for hire, talent search, influencer booking">
   <meta name="robots" content="index, follow">
   <meta name="author" content="ALL TALENTS Agency">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ALL TALENTS Agency">
-  <meta property="og:title" content="Celebrity Talent Directory — 119+ Verified Stars | ALL TALENTS Agency">
+  <meta property="og:title" content="Celebrity Talent Directory â€” 119+ Verified Stars | ALL TALENTS Agency">
   <meta property="og:description" content="Browse and book 119+ verified celebrities across music, film, sports, K-pop, comedy, and influencer categories worldwide.">
   <meta property="og:url" content="https://alltalents-agency.vercel.app/explorer.html">
   <meta property="og:image" content="https://alltalents-agency.vercel.app/assets/og-preview.svg">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Celebrity Talent Directory — ALL TALENTS Agency">
+  <meta name="twitter:title" content="Celebrity Talent Directory â€” ALL TALENTS Agency">
   <meta name="twitter:description" content="Search 119+ verified A-list celebrities. Filter by K-pop, Music, Film, Sports, Comedy & more.">
   <link rel='canonical' href='https://alltalents-agency.vercel.app/explorer.html'>
   <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
@@ -48,7 +48,7 @@
     .search-hint{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:10px;color:rgba(148,180,216,.35);pointer-events:none;font-family:monospace;border:1px solid rgba(148,180,216,.18);border-radius:4px;padding:2px 6px;letter-spacing:.04em;background:rgba(148,180,216,.04)}
     .search-wrap{position:relative;flex:2;min-width:220px}
     .search-wrap input{width:100%;box-sizing:border-box;padding-right:56px}
-    /* Category Pills — active filter visual feedback */
+    /* Category Pills â€” active filter visual feedback */
     #resultsCount.has-filter{color:#94B4D8;font-weight:700}
     /* Load more button */
     #loadMoreBtn{background:rgba(148,180,216,.06);border:1px solid rgba(148,180,216,.22);color:#94B4D8;transition:all .22s ease}
@@ -70,11 +70,11 @@
   <div class='container' id='app'></div>
   <div id='dossierBack' class='dossier-back' style='display:none'></div>
 
-  <!-- ── DIRECT ACCESS PORTAL ─────────────────────────── -->
+  <!-- â”€â”€ DIRECT ACCESS PORTAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <div id='accessPortal' class='access-portal-back'>
     <div class='ap-glow-bg'></div>
     <div class='ap-scanlines'></div>
-    <button class='ap-close-btn' id='apClose'>Close ✕</button>
+    <button class='ap-close-btn' id='apClose'>Close âœ•</button>
     <div class='ap-inner'>
       <div class='ap-portrait-col' id='apPortraitCol'>
         <img class='ap-portrait-img' id='apPortraitImg' src='' alt=''>
@@ -83,7 +83,7 @@
     </div>
   </div>
 
-  <button id='floatMsgBtn' class='floating-msg-btn' title='Open Messaging'>💬</button>
+  <button id='floatMsgBtn' class='floating-msg-btn' title='Open Messaging'>ðŸ’¬</button>
   <section id='floatMsgPanel' class='floating-msg-panel'>
     <h4>Messaging Management</h4>
     <p class='hint'>Use this right-corner concierge panel for How-to-Meet requests and representative outreach.</p>
@@ -111,7 +111,7 @@
     const celebMap = new Map();
     let allCelebrities = []; // perf: fetched once, filtered client-side
 
-    // ── ACCESS PORTAL ───────────────────────────────────────
+    // â”€â”€ ACCESS PORTAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const portal = document.getElementById('accessPortal');
     const apCloseBtn = document.getElementById('apClose');
     function closePortal() { portal.classList.remove('ap-open'); document.body.style.overflow = ''; }
@@ -120,11 +120,11 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePortal(); });
 
     const VENUES = [
-      { icon: '🛥', name: 'Monaco Yacht',  loc: 'Port Hercule, Monaco' },
-      { icon: '🏙', name: 'NYC Penthouse', loc: 'Midtown Manhattan, NY' },
-      { icon: '🏰', name: 'Dubai Palace',  loc: 'Palm Jumeirah, Dubai' },
-      { icon: '🏡', name: 'London Estate', loc: 'Mayfair, London' },
-      { icon: '🗼', name: 'Paris Riviera', loc: 'Champs-Élysées, Paris' },
+      { icon: 'ðŸ›¥', name: 'Monaco Yacht',  loc: 'Port Hercule, Monaco' },
+      { icon: 'ðŸ™', name: 'NYC Penthouse', loc: 'Midtown Manhattan, NY' },
+      { icon: 'ðŸ°', name: 'Dubai Palace',  loc: 'Palm Jumeirah, Dubai' },
+      { icon: 'ðŸ¡', name: 'London Estate', loc: 'Mayfair, London' },
+      { icon: 'ðŸ—¼', name: 'Paris Riviera', loc: 'Champs-Ã‰lysÃ©es, Paris' },
     ];
     function genDates() {
       const arr = []; const d = new Date(); d.setDate(d.getDate() + 4);
@@ -140,8 +140,8 @@
       const venueHtml = VENUES.map((v, i) => `<div class='ap-venue' data-vi='${i}'><div class='ap-venue-icon'>${v.icon}</div><div class='ap-venue-name'>${v.name}</div><div class='ap-venue-loc'>${v.loc}</div></div>`).join('');
       const dateHtml = dates.map((d, i) => `<div class='ap-day' data-di='${i}'><div class='ap-day-num'>${d.day}</div><div class='ap-day-month'>${d.month}</div><div class='ap-day-status ds-${d.status}'>${d.label}</div></div>`).join('');
       const brief = [
-        { label: 'Est. Net Worth',  value: c.netWorth || '—' },
-        { label: 'Brand Value',     value: c.brandValue || '—' },
+        { label: 'Est. Net Worth',  value: c.netWorth || 'â€”' },
+        { label: 'Brand Value',     value: c.brandValue || 'â€”' },
         { label: 'Global Reach',    value: c.socialReachMillions + 'M' },
         { label: 'Availability',    value: c.availability },
       ];
@@ -149,19 +149,19 @@
       document.getElementById('apPortraitImg').src = c.portrait;
       document.getElementById('apPortraitImg').alt = c.name;
       document.getElementById('apContentCol').innerHTML = `
-        <div class='ap-stamp'><div class='ap-stamp-dot'></div>Aurelux Private Access — Authorized Channel</div>
+        <div class='ap-stamp'><div class='ap-stamp-dot'></div>Aurelux Private Access â€” Authorized Channel</div>
         <h1 class='ap-celeb-name'>${c.name}</h1>
-        <p class='ap-celeb-meta'>${c.category} &nbsp;·&nbsp; ${c.region} &nbsp;·&nbsp; ${c.agencyRepresentation}</p>
+        <p class='ap-celeb-meta'>${c.category} &nbsp;Â·&nbsp; ${c.region} &nbsp;Â·&nbsp; ${c.agencyRepresentation}</p>
         <p style='font-size:12.5px;line-height:1.6;color:rgba(229,228,226,.72);font-style:italic;margin:0 0 18px;padding:12px 14px;border-left:2px solid rgba(148,180,216,.5);background:rgba(148,180,216,.04);border-radius:0 8px 8px 0'>"${c.eliteSignal}"</p>
-        <div class='ap-live-status'><div class='ap-live-dot'></div>Direct meeting access LIVE for qualified clients — closes in 72h</div>
+        <div class='ap-live-status'><div class='ap-live-dot'></div>Direct meeting access LIVE for qualified clients â€” closes in 72h</div>
         <div class='ap-brief-row'>${briefHtml}</div>
         <div class='ap-divider'></div>
         <p class='ap-section-label'>Select Your Private Venue</p>
         <div class='ap-venues'>${venueHtml}</div>
         <p class='ap-section-label'>Choose Exclusive Window</p>
         <div class='ap-dates'>${dateHtml}</div>
-        <button class='ap-confirm-btn' id='apConfirmBtn'>⚡ &nbsp;Initiate Private Access Protocol</button>
-        <p class='ap-price-note'>From $${c.startingPrice.toLocaleString()} &nbsp;·&nbsp; NDA standard &nbsp;·&nbsp; Escrow protected</p>
+        <button class='ap-confirm-btn' id='apConfirmBtn'>âš¡ &nbsp;Initiate Private Access Protocol</button>
+        <p class='ap-price-note'>From $${c.startingPrice.toLocaleString()} &nbsp;Â·&nbsp; NDA standard &nbsp;Â·&nbsp; Escrow protected</p>
       `;
       document.querySelectorAll('.ap-venue').forEach(el => {
         el.onclick = () => { document.querySelectorAll('.ap-venue').forEach(v => v.classList.remove('av-sel')); el.classList.add('av-sel'); };
@@ -174,12 +174,12 @@
       document.body.style.overflow = 'hidden';
     }
 
-    // ── Dossier Modal ───────────────────────────
+    // â”€â”€ Dossier Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const dossierBack = document.getElementById('dossierBack');
     dossierBack.addEventListener('click', (e) => { if (e.target === dossierBack) dossierBack.style.display = 'none'; });
 
     async function openDossier(id) {
-      dossierBack.innerHTML = `<div class='dossier-modal'><button class='dossier-close' id='dClose'>Close ✕</button><div id='dossierContent'><p class='small muted'>Loading classified profile...</p></div></div>`;
+      dossierBack.innerHTML = `<div class='dossier-modal'><button class='dossier-close' id='dClose'>Close âœ•</button><div id='dossierContent'><p class='small muted'>Loading classified profile...</p></div></div>`;
       dossierBack.style.display = 'flex';
       document.getElementById('dClose').onclick = () => { dossierBack.style.display = 'none'; };
       try {
@@ -189,14 +189,14 @@
           <div class='dossier-header'>
             <img class='dossier-portrait' src='${cel.portrait}' alt='${cel.name}'>
             <div>
-              <p class='eyebrow'>${cel.category} · ${cel.region}</p>
+              <p class='eyebrow'>${cel.category} Â· ${cel.region}</p>
               <h2 style='margin:4px 0'>${cel.name}</h2>
               <p class='small muted'>Private Strategic Briefing File</p>
             </div>
           </div>
           <div class='dossier-meta-grid'>
             <div class='dossier-meta-item'><div class='dmk'>Media Authority</div><div class='dmv'>${d.mediaAuthorityScore}/99</div></div>
-            <div class='dossier-meta-item'><div class='dmk'>Leverage Level</div><div class='dmv'>${d.negotiationLeverage.split('—')[0].trim()}</div></div>
+            <div class='dossier-meta-item'><div class='dmk'>Leverage Level</div><div class='dmv'>${d.negotiationLeverage.split('â€”')[0].trim()}</div></div>
             <div class='dossier-meta-item'><div class='dmk'>Optimal Lead Time</div><div class='dmv'>${d.optimalLeadTime}</div></div>
             <div class='dossier-meta-item'><div class='dmk'>Recommended Venue</div><div class='dmv'>${d.recommendedVenue}</div></div>
           </div>
@@ -210,7 +210,7 @@
             <p class='small muted' style='margin-top:8px'><b>NDA Status:</b> ${d.ndaStatus}</p>
           </div>
           <div style='margin-top:16px;display:flex;gap:10px'>
-            <a href='booking.html?id=${cel.id}' style='flex:1'><button class='primary' style='width:100%'>Initiate Engagement →</button></a>
+            <a href='booking.html?id=${cel.id}' style='flex:1'><button class='primary' style='width:100%'>Initiate Engagement â†’</button></a>
           </div>
         `;
       } catch (err) {
@@ -222,19 +222,19 @@
     app.innerHTML = `
       ${nav('explorer')}
       <section class='glass card section' style='border-color:rgba(148,180,216,.35);box-shadow:0 0 60px rgba(148,180,216,.07),0 22px 50px rgba(0,0,0,.35)'>
-        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(159,230,176,.4);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#9fe6b0;background:rgba(159,230,176,.05);margin-bottom:14px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:#9fe6b0;display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Private Access Zone — Session Authorized</div>
+        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(159,230,176,.4);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#9fe6b0;background:rgba(159,230,176,.05);margin-bottom:14px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:#9fe6b0;display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Private Access Zone â€” Session Authorized</div>
         <h2 style='font-size:clamp(26px,3.8vw,44px);font-weight:900;letter-spacing:-.02em;margin:0 0 10px'>Select Your Celebrity.<br>Claim Your Private Window.</h2>
-        <p class='lead'>You have direct access to 119+ verified talents through Aurelux's authorized channel network. Tap any profile to open your private meeting portal — choose a venue, lock in your window, and initiate contact.</p>
+        <p class='lead'>You have direct access to 119+ verified talents through Aurelux's authorized channel network. Tap any profile to open your private meeting portal â€” choose a venue, lock in your window, and initiate contact.</p>
         <div style='display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px'>
-          <div class='search-wrap'><input id='search' placeholder='Search by celebrity name… (Press / to focus)' style='flex:2;min-width:220px'><span class='search-hint'>/</span></div>
+          <div class='search-wrap'><input id='search' placeholder='Search by celebrity nameâ€¦ (Press / to focus)' style='flex:2;min-width:220px'><span class='search-hint'>/</span></div>
           <select id='category' class='filter-select' style='flex:1;min-width:140px'><option>All</option><option>Film</option><option>Music</option><option>Sports</option><option>Fashion</option><option>Business</option><option>Influencer</option><option>Comedy</option><option>Entertainment</option></select>
           <select id='region' class='filter-select' style='flex:1;min-width:140px'><option>All</option><option>North America</option><option>Europe</option><option>Middle East</option><option>Asia</option><option>Latin America</option><option>Africa</option><option>Australia</option></select>
           <select id='availability' class='filter-select' style='flex:1;min-width:130px'><option>All</option><option>Open</option><option>Limited</option><option>Waitlist</option></select>
           <input id='date' type='date' style='flex:1;min-width:140px'>
-          <button id='clearFilters' class='secondary' style='white-space:nowrap;padding:9px 16px;font-size:12px'>✕ Clear</button>
+          <button id='clearFilters' class='secondary' style='white-space:nowrap;padding:9px 16px;font-size:12px'>âœ• Clear</button>
         </div>
         <div style='display:flex;align-items:center;padding:6px 2px;border-top:1px solid rgba(255,255,255,.07)'>
-          <p id='resultsCount' class='small muted' style='margin:0'>Loading talents…</p>
+          <p id='resultsCount' class='small muted' style='margin:0'>Loading talentsâ€¦</p>
         </div>
       </section>
       <section class='card section stack'>
@@ -298,7 +298,7 @@
             <div style='flex:1;min-width:180px;display:flex;flex-direction:column;gap:5px'>
               <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>EVENT TYPE</label>
               <select id='inqEventType' style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
-                <option value=''>Select event type…</option>
+                <option value=''>Select event typeâ€¦</option>
                 <option>Corporate Keynote</option>
                 <option>Brand Endorsement</option>
                 <option>Private Performance</option>
@@ -316,7 +316,7 @@
           </div>
           <div style='display:flex;flex-direction:column;gap:5px'>
             <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>ADDITIONAL DETAILS</label>
-            <textarea id='inqMessage' rows='4' placeholder='Budget range, location, audience size, any specific requests…' style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);resize:vertical'></textarea>
+            <textarea id='inqMessage' rows='4' placeholder='Budget range, location, audience size, any specific requestsâ€¦' style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);resize:vertical'></textarea>
           </div>
           <div style='display:flex;align-items:center;gap:16px;flex-wrap:wrap'>
             <button type='submit' id='inqSubmitBtn' class='primary' style='min-width:200px'>Submit Celebrity Request</button>
@@ -336,7 +336,7 @@
     }
 
     const filters = { search: '', category: 'All', region: 'All', availability: 'All' };
-    // ── Pre-fill filters from URL params (e.g. explorer.html?search=Beyonce&category=Music) ──
+    // â”€â”€ Pre-fill filters from URL params (e.g. explorer.html?search=Beyonce&category=Music) â”€â”€
     const _urlParams = new URLSearchParams(window.location.search);
     ['search', 'category', 'region', 'availability'].forEach((key) => {
       const val = _urlParams.get(key);
@@ -346,7 +346,7 @@
         if (el) el.value = val;
       }
     });
-    // ── debounced search; instant selects ────────────────────────────────────
+    // â”€â”€ debounced search; instant selects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let _searchDebounce;
     document.getElementById('search').addEventListener('input', () => {
       filters.search = document.getElementById('search').value;
@@ -369,7 +369,7 @@
       applyFilters();
     };
 
-    // '/' keyboard shortcut — focus search from anywhere
+    // '/' keyboard shortcut â€” focus search from anywhere
     document.addEventListener('keydown', (e) => {
       if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
         e.preventDefault();
@@ -386,7 +386,7 @@
       }
     }
 
-    // ── Waitlist Reservation Modal ─────────────────────────
+    // â”€â”€ Waitlist Reservation Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const wlBack = document.createElement('div');
     wlBack.className = 'wl-modal-back';
     wlBack.style.display = 'none';
@@ -419,11 +419,11 @@
           if (el) el.textContent = `${h}:${m}:${s}`; else clearInterval(tick);
         }, 1000);
       } catch (err) {
-        document.getElementById('wlContent').innerHTML = `<p class='small muted'>${err.message} — login first.</p><button class='wl-close' onclick='document.querySelector(".wl-modal-back").style.display="none"'>Close</button>`;
+        document.getElementById('wlContent').innerHTML = `<p class='small muted'>${err.message} â€” login first.</p><button class='wl-close' onclick='document.querySelector(".wl-modal-back").style.display="none"'>Close</button>`;
       }
     }
 
-    // ── One-time fetch (single API call for all celebrities) ─────────────────
+    // â”€â”€ One-time fetch (single API call for all celebrities) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     async function init() {
       try {
         const res = await request('/celebrities');
@@ -431,11 +431,11 @@
         allCelebrities.forEach(c => celebMap.set(c.id, c));
         applyFilters();
       } catch(err) {
-        document.getElementById('results').innerHTML = `<div class='card' style='grid-column:1/-1;text-align:center;padding:40px'><p class='muted'>Unable to load profiles — API unavailable.</p></div>`;
+        document.getElementById('results').innerHTML = `<div class='card' style='grid-column:1/-1;text-align:center;padding:40px'><p class='muted'>Unable to load profiles â€” API unavailable.</p></div>`;
       }
     }
 
-    // ── Client-side filtering (zero API calls) ────────────────────────────────
+    // â”€â”€ Client-side filtering (zero API calls) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let _filteredData = [], _page = 1;
     const PAGE_SIZE = 24;
     function applyFilters() {
@@ -449,7 +449,7 @@
       renderCards();
     }
 
-    // ── Render cards: paginated (24/page), delegated handlers, lazy pressure ──
+    // â”€â”€ Render cards: paginated (24/page), delegated handlers, lazy pressure â”€â”€
     let _pressureObserver = null, _tiltSetup = false, _clickSetup = false;
     function renderCards() {
       const data = _filteredData;
@@ -464,7 +464,7 @@
 
       const results = document.getElementById('results');
       if (data.length === 0) {
-        results.innerHTML = `<div class='empty-state'><div class='empty-state-icon'>✦</div><h4 style='margin-bottom:8px;color:#94B4D8'>No talents found</h4><p class='small muted'>No celebrities match your current filters.</p><p class='small muted' style='margin-top:6px'>Try broadening your search or click <b>✕ Clear</b> to reset all filters.</p></div>`;
+        results.innerHTML = `<div class='empty-state'><div class='empty-state-icon'>âœ¦</div><h4 style='margin-bottom:8px;color:#94B4D8'>No talents found</h4><p class='small muted'>No celebrities match your current filters.</p><p class='small muted' style='margin-top:6px'>Try broadening your search or click <b>âœ• Clear</b> to reset all filters.</p></div>`;
         return;
       }
 
@@ -478,32 +478,32 @@
             <img src='${c.portrait}' alt='${c.name}' loading='lazy' decoding='async'/>
             <div class='celeb-portrait-fade'></div>
             <div class='celeb-portrait-badges'>
-              <span class='celeb-verified-badge'>✦ Verified</span>
+              <span class='celeb-verified-badge'>âœ¦ Verified</span>
               <span class='celeb-avail-badge cab-${c.availability.toLowerCase()}'>${c.availability}</span>
             </div>
             <div class='celeb-portrait-name'>
               <h3>${c.name}</h3>
-              <div class='cn-sub'>${c.category} &nbsp;·&nbsp; ${c.region}</div>
+              <div class='cn-sub'>${c.category} &nbsp;Â·&nbsp; ${c.region}</div>
             </div>
           </div>
           <div class='celeb-card-body'>
-            <div class='pressure-bar' id='press-${c.id}' data-pid='${c.id}'><div class='pressure-dot pd-normal'></div><span class='pressure-msg'>Reading demand signal…</span></div>
+            <div class='pressure-bar' id='press-${c.id}' data-pid='${c.id}'><div class='pressure-dot pd-normal'></div><span class='pressure-msg'>Reading demand signalâ€¦</span></div>
             <div class='celeb-stat-bar' style='margin-top:10px'>
-              <div class='celeb-stat'><div class='cs-label'>Est. Net Worth</div><div class='cs-value'>${c.netWorth || '—'}</div></div>
+              <div class='celeb-stat'><div class='cs-label'>Est. Net Worth</div><div class='cs-value'>${c.netWorth || 'â€”'}</div></div>
               <div class='celeb-stat'><div class='cs-label'>Global Reach</div><div class='cs-value'>${c.socialReachMillions}M</div></div>
-              <div class='celeb-stat'><div class='cs-label'>Brand Value</div><div class='cs-value'>${c.brandValue || '—'}</div></div>
+              <div class='celeb-stat'><div class='cs-label'>Brand Value</div><div class='cs-value'>${c.brandValue || 'â€”'}</div></div>
             </div>
             <p class='celeb-signal'>"${c.eliteSignal}"</p>
-            <p class='celeb-price-tag'>Private access from &thinsp;<strong>${fmtP(c.startingPrice)}</strong>&thinsp; · ${c.agencyRepresentation} · NDA default</p>
+            <p class='celeb-price-tag'>Private access from &thinsp;<strong>${fmtP(c.startingPrice)}</strong>&thinsp; Â· ${c.agencyRepresentation} Â· NDA default</p>
             <div class='celeb-actions'>
-              <button class='meet-direct-btn' data-a='portal' data-id='${c.id}'>⚡ &nbsp;Meet ${c.name.split(' ')[0]} Privately →</button>
-              <button class='crowd-mini-btn' data-a='crowd' data-id='${c.id}'>👥 &nbsp;Join Crowd Event →</button>
+              <button class='meet-direct-btn' data-a='portal' data-id='${c.id}'>âš¡ &nbsp;Meet ${c.name.split(' ')[0]} Privately â†’</button>
+              <button class='crowd-mini-btn' data-a='crowd' data-id='${c.id}'>ðŸ‘¥ &nbsp;Join Crowd Event â†’</button>
               <div class='celeb-sub-actions'>
                 <button data-a='check' data-id='${c.id}'>Availability Window</button>
                 <button class='secondary' data-a='dossier' data-id='${c.id}'>Private Dossier</button>
-                <button class='secondary' data-a='shortlist' data-id='${c.id}'>${shortlist.has(c.id) ? '★ Shortlisted' : '☆ VIP Shortlist'}</button>
+                <button class='secondary' data-a='shortlist' data-id='${c.id}'>${shortlist.has(c.id) ? 'â˜… Shortlisted' : 'â˜† VIP Shortlist'}</button>
                 ${c.availability === 'Waitlist'
-                  ? `<button class='secondary' data-a='wl-reserve' data-id='${c.id}' data-name='${c.name}' style='border-color:rgba(240,195,107,.5);color:#f0c36b'>⏱ Reserve Slot</button>`
+                  ? `<button class='secondary' data-a='wl-reserve' data-id='${c.id}' data-name='${c.name}' style='border-color:rgba(240,195,107,.5);color:#f0c36b'>â± Reserve Slot</button>`
                   : `<button class='secondary' data-a='set-meet' data-id='${c.id}' data-name='${c.name}'>How to Meet</button>`}
               </div>
             </div>
@@ -521,7 +521,7 @@
         results.appendChild(tmpl.content);
       }
 
-      // ── One delegated click handler (set once, survives innerHTML changes) ──
+      // â”€â”€ One delegated click handler (set once, survives innerHTML changes) â”€â”€
       if (!_clickSetup) {
         _clickSetup = true;
         results.addEventListener('click', (e) => {
@@ -558,12 +558,12 @@
             shortlist.add(id);
           }
           renderShortlistState();
-          btn.textContent = shortlist.has(id) ? '★ Shortlisted' : '☆ VIP Shortlist';
+          btn.textContent = shortlist.has(id) ? 'â˜… Shortlisted' : 'â˜† VIP Shortlist';
         }
       });
       }
 
-      // ── One delegated tilt (set once, works for all cards incl. new pages) ──
+      // â”€â”€ One delegated tilt (set once, works for all cards incl. new pages) â”€â”€
       if (!_tiltSetup) {
         _tiltSetup = true;
         let _tRaf, _tCard;
@@ -589,7 +589,7 @@
         }, { passive: true });
       }
 
-      // ── IntersectionObserver for pressure badges (created once, new cards only) ─
+      // â”€â”€ IntersectionObserver for pressure badges (created once, new cards only) â”€
       if (!_pressureObserver) {
         _pressureObserver = new IntersectionObserver((entries) => {
           entries.forEach((entry) => {
@@ -603,7 +603,7 @@
                 <div class='pressure-dot pd-${p.heatLevel}'></div>
                 <span class='pressure-tag pt-${p.heatLevel}'>${p.heatLevel === 'critical' ? 'SOLD OUT' : p.heatLevel.toUpperCase()}</span>
                 <span class='pressure-msg'>${p.urgencyMessage}</span>
-                <span class='pressure-msg' style='margin-left:4px;opacity:.65'>· Last inquiry ${p.lastInquiryMinutesAgo}m ago</span>
+                <span class='pressure-msg' style='margin-left:4px;opacity:.65'>Â· Last inquiry ${p.lastInquiryMinutesAgo}m ago</span>
               `;
             }).catch(() => {});
           });
@@ -626,7 +626,7 @@
       const mode = document.getElementById('meetType').value;
 
       if (!selectedCelebrity.id) {
-        status.textContent = 'Choose a profile via “How to Meet” before sending.';
+        status.textContent = 'Choose a profile via â€œHow to Meetâ€ before sending.';
         return;
       }
       if (!fullName || !org || !body) {
@@ -664,7 +664,7 @@
         out.innerHTML = `
           <p class='small'><b>Winner:</b> ${result.recommendation.winner.name}</p>
           <p class='small'><b>Rationale:</b> ${result.recommendation.rationale}</p>
-          <p class='small'><b>Ranking:</b> ${result.compared.map((r, i) => `${i + 1}. ${r.name} (Score ${r.valueScore})`).join(' · ')}</p>
+          <p class='small'><b>Ranking:</b> ${result.compared.map((r, i) => `${i + 1}. ${r.name} (Score ${r.valueScore})`).join(' Â· ')}</p>
         `;
       } catch (error) {
         out.textContent = error.message;
@@ -676,13 +676,13 @@
     await loadTicker();
     await init();
 
-    // ── Celebrity Inquiry Form handler ───────────────────────────────────────
+    // â”€â”€ Celebrity Inquiry Form handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     document.getElementById('celebInquiryForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('inqSubmitBtn');
       const msg = document.getElementById('inqMsg');
       btn.disabled = true;
-      btn.textContent = 'Submitting…';
+      btn.textContent = 'Submittingâ€¦';
       msg.textContent = '';
       const payload = {
         name:      document.getElementById('inqName').value.trim(),
@@ -708,3 +708,4 @@
   </script>
 </body>
 </html>
+

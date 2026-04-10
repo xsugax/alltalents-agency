@@ -1,7 +1,7 @@
-// Auto-detect API endpoint: localhost in dev, production URL on live domain
+// Auto-detect API endpoint: localhost in dev, Render backend in production
 const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:4100/api'
-  : '/api'; // Production: API is co-hosted on the same domain at /api/*
+  : 'https://ata-h0yo.onrender.com/api';
 // Override by setting window.ATA_API_URL before this script loads
 const _API = window.ATA_API_URL || API;
 

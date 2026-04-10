@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://alltalents-agency.vercel.app; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>Private Booking | ALL TALENTS Agency</title>
 	<meta name="robots" content="noindex, nofollow">
@@ -53,7 +53,7 @@
 			return `
 				<div class='avail-cal'>
 					<p class='eyebrow'>Availability Pulse Calendar</p>
-					<p class='small muted'>30-day forward window for <b>${celebrity.name}</b> · Status: <b>${celebrity.availability}</b> · Open window: ${celebrity.availabilityWindowDays} days</p>
+					<p class='small muted'>30-day forward window for <b>${celebrity.name}</b> Â· Status: <b>${celebrity.availability}</b> Â· Open window: ${celebrity.availabilityWindowDays} days</p>
 					<div class='cal-legend'>
 						<span class='legend-open'>Open</span>
 						<span class='legend-limited'>Limited</span>
@@ -124,7 +124,7 @@
 			document.getElementById('simQuote').textContent = `$${projected.toLocaleString()}`;
 			document.getElementById('simEscrow').textContent = `$${escrow.toLocaleString()}`;
 			document.getElementById('simImpact').textContent = `${impact}/100`;
-			document.getElementById('simQuoteHint').textContent = `${adjust}% pricing sensitivity · ${security} security`; 
+			document.getElementById('simQuoteHint').textContent = `${adjust}% pricing sensitivity Â· ${security} security`; 
 			document.getElementById('simImpactHint').textContent = impact >= 80 ? 'High-visibility premium scenario' : impact >= 60 ? 'Strong strategic scenario' : 'Controlled baseline scenario';
 		};
 
@@ -152,7 +152,7 @@
 						timelineDays: 21,
 					}),
 				});
-				out.innerHTML = `<b>${strategy.blueprintId}</b> · ${strategy.strategy.recommendation} · Exclusivity ${strategy.scores.exclusivityIndex} · Security lane: ${security}.`;
+				out.innerHTML = `<b>${strategy.blueprintId}</b> Â· ${strategy.strategy.recommendation} Â· Exclusivity ${strategy.scores.exclusivityIndex} Â· Security lane: ${security}.`;
 			} catch (error) {
 				out.textContent = error.message + ' (login first)';
 			}
@@ -176,7 +176,7 @@
 					}),
 				});
 				const payLabel = payMethod === 'wire' ? 'Wire Transfer' : payMethod.toUpperCase();
-				document.getElementById('msg').innerHTML = `✅ Submission accepted. Booking <b>${r.booking.id.slice(0,8)}</b> · Contract <b>${r.booking.contractId}</b> · Payment via <b>${payLabel}</b>.`;
+				document.getElementById('msg').innerHTML = `âœ… Submission accepted. Booking <b>${r.booking.id.slice(0,8)}</b> Â· Contract <b>${r.booking.contractId}</b> Â· Payment via <b>${payLabel}</b>.`;
 			} catch (e) {
 				document.getElementById('msg').textContent = e.message + ' (login first)';
 			}

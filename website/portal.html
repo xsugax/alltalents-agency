@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://alltalents-agency.vercel.app; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>Client Portal | ALL TALENTS Agency</title>
 	<meta name="robots" content="noindex, nofollow">
@@ -34,7 +34,7 @@
 			const activeIdx = PHASES.findIndex(p => p === currentStatus);
 			const nodes = PHASES.map((phase, i) => {
 				const cls = i < activeIdx ? 'ph-done' : i === activeIdx ? 'ph-active' : '';
-				const dot = i < activeIdx ? '✓' : i + 1;
+				const dot = i < activeIdx ? 'âœ“' : i + 1;
 				return `<div class='phase-node ${cls}'><div class='phase-dot'>${dot}</div><div class='phase-lbl'>${phase}</div></div>`;
 			}).join('');
 			return `<div class='phase-strip'>${nodes}</div>`;
@@ -75,7 +75,7 @@
 							</svg>
 							<span class='tier-pill'>${standing.tier}</span>
 						</div>
-						${standing.nextTier ? `<p class='standing-next'>📈 ${standing.nextTierThreshold - standing.score} more points to reach <b>${standing.nextTier}</b> tier</p>` : `<p class='standing-next'>✦ Maximum tier achieved — Sovereign access active.</p>`}
+						${standing.nextTier ? `<p class='standing-next'>ðŸ“ˆ ${standing.nextTierThreshold - standing.score} more points to reach <b>${standing.nextTier}</b> tier</p>` : `<p class='standing-next'>âœ¦ Maximum tier achieved â€” Sovereign access active.</p>`}
 					</div>
 					<div class='card stack'>
 						<p class='eyebrow'>Active Privileges</p>
@@ -84,7 +84,7 @@
 							${standing.privileges.map(p => `<li>${p}</li>`).join('')}
 						</ul>
 						<div class='hr' style='margin:10px 0'></div>
-						<p class='small muted'>Score breakdown: Base 42 · Bookings +${standing.breakdown.bookingContribution} · Messages +${standing.breakdown.messageContribution} · Role +${standing.breakdown.roleBonus}</p>
+						<p class='small muted'>Score breakdown: Base 42 Â· Bookings +${standing.breakdown.bookingContribution} Â· Messages +${standing.breakdown.messageContribution} Â· Role +${standing.breakdown.roleBonus}</p>
 					</div>
 				</div>`;
 			})();
@@ -129,8 +129,8 @@
 								<div><p class='eyebrow'>Contract ${b.contractId}</p><h4 style='margin:4px 0'>${b.celebrityName}</h4></div>
 								<span class='badge'>${b.status}</span>
 							</div>
-							<p class='small muted'>${b.eventType} · ${b.date || 'Date TBD'} · ${b.location} · Security: ${b.securityLevel}</p>
-							<p class='small muted'>Quote: <b style='color:#94B4D8'>$${b.pricing.finalQuote.toLocaleString()}</b> · Escrow: $${b.pricing.escrow.toLocaleString()}</p>
+							<p class='small muted'>${b.eventType} Â· ${b.date || 'Date TBD'} Â· ${b.location} Â· Security: ${b.securityLevel}</p>
+							<p class='small muted'>Quote: <b style='color:#94B4D8'>$${b.pricing.finalQuote.toLocaleString()}</b> Â· Escrow: $${b.pricing.escrow.toLocaleString()}</p>
 							<p class='eyebrow' style='margin-top:8px'>Engagement Phase Tracker</p>
 							${renderPhaseTimeline(b.status)}
 						</div>
