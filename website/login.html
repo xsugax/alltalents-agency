@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>Secure Access | ALL TALENTS Agency</title>
 	<meta name="robots" content="noindex, nofollow">
@@ -11,7 +11,7 @@
 	<link rel='shortcut icon' href='/assets/favicon.svg'>
 	<link rel='stylesheet' href='assets/styles.css'>
 	<style>
-		/* Login page â€” full-viewport cinematic gate */
+		/* Login page - full-viewport cinematic gate */
 		html,body{height:100%;margin:0}
 		.login-page{min-height:100vh;display:flex;align-items:stretch;background:var(--bg)}
 		.login-left{flex:1;display:none;position:relative;overflow:hidden;background:#050914}
@@ -79,7 +79,7 @@
 <body>
 	<div class='login-page'>
 
-		<!-- Left â€” atmospheric brand panel -->
+		<!-- Left - atmospheric brand panel -->
 		<div class='login-left'>
 			<div class='login-left-bg'></div>
 			<div class='login-left-grid'></div>
@@ -92,20 +92,20 @@
 					</div>
 				</div>
 				<h1 class='login-headline'>Private Access.<br><span>Executive</span><br>Precision.</h1>
-				<p class='login-tagline'>Enter the authorized channel for celebrity representation, secure booking workflows, and direct talent outreach â€” built for serious clients worldwide.</p>
+				<p class='login-tagline'>Enter the authorized channel for celebrity representation, secure booking workflows, and direct talent outreach - built for serious clients worldwide.</p>
 				<div class='login-trust-row'>
-					<div class='login-trust-item'><div class='login-trust-icon'>ðŸ”’</div><span>Role-gated sessions with JWT authorization</span></div>
-					<div class='login-trust-item'><div class='login-trust-icon'>ðŸŒ</div><span>119+ verified celebrities across 8 categories</span></div>
-					<div class='login-trust-item'><div class='login-trust-icon'>ðŸ“‹</div><span>NDA-default engagements Â· Escrow-protected</span></div>
-					<div class='login-trust-item'><div class='login-trust-icon'>âš¡</div><span>48h representative response Â· Zero-gap booking</span></div>
+					<div class='login-trust-item'><div class='login-trust-icon'></div><span>Role-gated sessions with JWT authorization</span></div>
+					<div class='login-trust-item'><div class='login-trust-icon'></div><span>119+ verified celebrities across 8 categories</span></div>
+					<div class='login-trust-item'><div class='login-trust-icon'></div><span>NDA-default engagements - Escrow-protected</span></div>
+					<div class='login-trust-item'><div class='login-trust-icon'>-</div><span>48h representative response - Zero-gap booking</span></div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Right â€” auth form -->
+		<!-- Right - auth form -->
 		<div class='login-right'>
 			<div class='login-right-bg'></div>
-			<a class='login-back' href='index.html'>â† Back to Platform</a>
+			<a class='login-back' href='index.html'>- Back to Platform</a>
 			<div class='login-form-wrap'>
 				<div class='login-gate-label'><div class='login-gate-dot'></div>Secure Access Gateway</div>
 				<h2 class='login-form-title'>Client Authentication</h2>
@@ -117,15 +117,15 @@
 				</div>
 				<div class='login-field'>
 					<label>Password</label>
-					<input id='password' type='password' placeholder='â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢' value='Client@123' autocomplete='current-password'>
+					<input id='password' type='password' placeholder='----------' value='Client@123' autocomplete='current-password'>
 				</div>
-				<button class='login-submit' id='loginBtn'>Authenticate Session â†’</button>
+				<button class='login-submit' id='loginBtn'>Authenticate Session -</button>
 				<div class='login-msg' id='loginMsg'></div>
 
 				<div class='login-divider'></div>
 
 				<div class='login-demo-block'>
-					<div class='login-demo-title'>Demo Credential Profiles â€” click to fill</div>
+					<div class='login-demo-title'>Demo Credential Profiles - click to fill</div>
 					<div class='login-demo-row' data-email='client@aurelux.com' data-pass='Client@123'>
 						<span class='login-demo-email'>client@aurelux.com</span>
 						<span class='login-demo-role role-client'>Client</span>
@@ -167,7 +167,7 @@
 				return;
 			}
 			btn.disabled = true;
-			btn.textContent = 'Authenticatingâ€¦';
+			btn.textContent = 'Authenticating-';
 			msg.className = 'login-msg';
 			try {
 				const r = await request('/auth/login', {
@@ -175,7 +175,7 @@
 					body: JSON.stringify({ email, password }),
 				});
 				setAuth(r.token, r.user);
-				msg.textContent = `Session active â€” authenticated as ${r.user.role}. Redirectingâ€¦`;
+				msg.textContent = `Session active - authenticated as ${r.user.role}. Redirecting-`;
 				msg.className = 'login-msg lm-success';
 				setTimeout(() => {
 					const dest = r.user.role === 'admin' ? 'admin.html' : r.user.role === 'manager' ? 'portal.html' : 'explorer.html';
@@ -185,7 +185,7 @@
 				msg.textContent = e.message || 'Authentication failed. Please check your credentials.';
 				msg.className = 'login-msg lm-error';
 				btn.disabled = false;
-				btn.textContent = 'Authenticate Session â†’';
+				btn.textContent = 'Authenticate Session -';
 			}
 		}
 

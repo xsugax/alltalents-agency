@@ -2,53 +2,50 @@
   "version": 2,
   "name": "alltalents-agency",
   "builds": [
-    { "src": "website/**", "use": "@vercel/static" }
+    {
+      "src": "website/**",
+      "use": "@vercel/static"
+    }
   ],
   "routes": [
-    { "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|webp|webmanifest))", "dest": "/website/$1" },
-    { "src": "/(index|explorer|booking|crowdbooking|login|portal|admin)\\.html", "dest": "/website/$1.html" },
-    { "src": "/", "dest": "/website/index.html" },
-    { "src": "/(.*)", "dest": "/website/$1" }
+    {
+      "src": "/(.+\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|webp))",
+      "dest": "/website/$1"
+    },
+    {
+      "src": "/(index|explorer|booking|crowdbooking|login|portal|admin)\\.html",
+      "dest": "/website/$1.html"
+    },
+    {
+      "src": "/",
+      "dest": "/website/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/website/$1"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" }
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
       ]
     },
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    }
-  ]
-}
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" },
-        { "key": "Server", "value": "ATA/2.1" }
-      ]
-    },
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     }
   ]

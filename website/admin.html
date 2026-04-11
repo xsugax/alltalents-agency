@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>Admin Dashboard | ALL TALENTS Agency</title>
 	<meta name="robots" content="noindex, nofollow">
@@ -78,7 +78,7 @@
 
 		await loadTicker();
 
-		// â”€â”€ Live Portfolio Financial Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+		// -- Live Portfolio Financial Dashboard ----------------------------
 		try {
 			const p = await request('/portfolio/summary');
 
@@ -114,7 +114,7 @@
 							<div>
 								<div style='display:flex;justify-content:space-between;margin-bottom:4px'>
 									<span class='small' style='font-weight:600'>${cat.category}</span>
-									<span class='small muted'>${fmt(cat.annualVolume)} Â· ${cat.shareOfPortfolio}% Â· avg deal ${fmt(cat.avgDealSize)}</span>
+									<span class='small muted'>${fmt(cat.annualVolume)} - ${cat.shareOfPortfolio}% - avg deal ${fmt(cat.avgDealSize)}</span>
 								</div>
 								<div style='height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden'>
 									<div style='height:100%;border-radius:3px;background:linear-gradient(90deg,#94B4D8,#C8DCEE);width:${Math.round((cat.annualVolume/maxVol)*100)}%;transition:width 1.2s cubic-bezier(.4,0,.2,1)'></div>
@@ -133,7 +133,7 @@
 								<div style='width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#BAD0EC,#94B4D8);color:#111;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0'>${i + 1}</div>
 								<div style='flex:1;min-width:0'>
 									<p style='margin:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>${e.name}</p>
-									<p class='small muted' style='margin:0;font-size:10px'>${e.category} Â· ${e.region}</p>
+									<p class='small muted' style='margin:0;font-size:10px'>${e.category} - ${e.region}</p>
 								</div>
 								<div style='text-align:right;flex-shrink:0'>
 									<p style='margin:0;font-size:13px;font-weight:700;color:#94B4D8'>${fmt(e.annualRevenue)}</p>

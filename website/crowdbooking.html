@@ -1,22 +1,22 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name='referrer' content='no-referrer'>
-  <title>Celebrity Events Tickets | Attend Exclusive VIP Experiences â€” ALL TALENTS Agency</title>
+  <title>Celebrity Events Tickets | Attend Exclusive VIP Experiences - ALL TALENTS Agency</title>
   <!-- SEO: Primary Meta -->
-  <meta name="description" content="Buy crowd access tickets to exclusive celebrity events â€” VIP concerts, gala dinners, and private appearances. Flexible payment plans. Join world-famous celebrities at unforgettable events.">
+  <meta name="description" content="Buy crowd access tickets to exclusive celebrity events - VIP concerts, gala dinners, and private appearances. Flexible payment plans. Join world-famous celebrities at unforgettable events.">
   <meta name="keywords" content="celebrity event tickets, VIP celebrity experience, exclusive celebrity events, celebrity concert tickets, star-studded gala, celebrity meet and greet, crowd booking">
   <meta name="robots" content="index, follow">
   <meta name="author" content="ALL TALENTS Agency">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Exclusive Celebrity Events â€” ALL TALENTS Agency">
+  <meta property="og:title" content="Exclusive Celebrity Events - ALL TALENTS Agency">
   <meta property="og:description" content="Attend private concerts, galas, and VIP events alongside world-famous celebrities. Flexible payment plans available.">
   <meta property="og:url" content="https://alltalents-agency.vercel.app/crowdbooking.html">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Attend Exclusive Celebrity Events â€” ALL TALENTS Agency">
+  <meta name="twitter:title" content="Attend Exclusive Celebrity Events - ALL TALENTS Agency">
   <meta name="twitter:description" content="VIP crowd access to private celebrity events worldwide. Concerts, galas, and exclusive appearances.">
   <link rel="canonical" href="https://alltalents-agency.vercel.app/crowdbooking.html">
   <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
@@ -26,7 +26,7 @@
 <body>
   <div class='container' id='app'></div>
 
-  <!-- â”€â”€ CROWD CONFIRM MODAL â”€â”€â”€ -->
+  <!-- -- CROWD CONFIRM MODAL --- -->
   <div id='crowdModalBack' class='crowd-modal-back'>
     <div class='crowd-modal' id='crowdModalContent'></div>
   </div>
@@ -52,7 +52,7 @@
       <section class='crowd-hero section'>
         <div class='crowd-hero-label'>Live Crowd Events</div>
         <h2>Join a Group.<br><span>Access an Icon.</span></h2>
-        <p class='lead' style='max-width:620px;margin:10px 0 0'>Private celebrity access â€” without the private price tag. Join a curated group of qualified clients and attend the <em>same real event</em> as your chosen celebrity. Concerts, premieres, paddocks, brand studios. Real access. Shared investment.</p>
+        <p class='lead' style='max-width:620px;margin:10px 0 0'>Private celebrity access - without the private price tag. Join a curated group of qualified clients and attend the <em>same real event</em> as your chosen celebrity. Concerts, premieres, paddocks, brand studios. Real access. Shared investment.</p>
         <div class='crowd-how'>
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 01</p>
@@ -72,7 +72,7 @@
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 04</p>
             <h4>Attend & Experience</h4>
-            <p>Show up. Be in the room. Your slot guarantees the listed access items â€” photo, signed item, backstage or VIP tier.</p>
+            <p>Show up. Be in the room. Your slot guarantees the listed access items - photo, signed item, backstage or VIP tier.</p>
           </div>
         </div>
       </section>
@@ -81,7 +81,7 @@
         <div style='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px'>
           <div>
             <p class='eyebrow'>Upcoming Verified Events</p>
-            <p class='small muted' style='margin-top:2px'>All events NDA-protected Â· Escrow-secured Â· Slot codes issued 14 days before</p>
+            <p class='small muted' style='margin-top:2px'>All events NDA-protected - Escrow-secured - Slot codes issued 14 days before</p>
           </div>
           <div style='display:flex;gap:8px;flex-wrap:wrap'>
             <select id='filterCat' style='width:auto;padding:8px 12px;font-size:11px'>
@@ -110,8 +110,8 @@
       <section class='card section' style='text-align:center;padding:32px'>
         <p class='eyebrow'>Prefer Exclusive Private Access?</p>
         <h3 style='margin:8px 0 8px'>Book a Sole Private Meeting</h3>
-        <p class='small muted' style='max-width:480px;margin:0 auto 16px'>Crowd Access is designed for maximum value. If your engagement requires total privacy, a sole event, or sovereign-tier presence â€” explore private bookings in Explorer.</p>
-        <a href='explorer.html'><button class='primary' style='width:auto;padding:12px 28px;font-size:11px;letter-spacing:.08em;text-transform:uppercase'>Open Explorer â†’</button></a>
+        <p class='small muted' style='max-width:480px;margin:0 auto 16px'>Crowd Access is designed for maximum value. If your engagement requires total privacy, a sole event, or sovereign-tier presence - explore private bookings in Explorer.</p>
+        <a href='explorer.html'><button class='primary' style='width:auto;padding:12px 28px;font-size:11px;letter-spacing:.08em;text-transform:uppercase'>Open Explorer -</button></a>
       </section>
     `;
 
@@ -122,7 +122,7 @@
       const res = await request('/crowd-events');
       allEvents = res.data;
     } catch(e) {
-      document.getElementById('eventsGrid').innerHTML = `<div class='card' style='grid-column:1/-1;padding:40px;text-align:center'><p class='muted'>Unable to load events â€” API unavailable.</p></div>`;
+      document.getElementById('eventsGrid').innerHTML = `<div class='card' style='grid-column:1/-1;padding:40px;text-align:center'><p class='muted'>Unable to load events - API unavailable.</p></div>`;
       return;
     }
 
@@ -153,13 +153,13 @@
             <div class='ce-header'>
               <div class='ce-event-type'>${ev.eventType}</div>
               <div class='ce-title'>${ev.eventTitle}</div>
-              <div class='ce-meta'>ðŸ“ ${ev.city} &nbsp;Â·&nbsp; ðŸ“… ${fmtDate(ev.date)} &nbsp;Â·&nbsp; ${ev.name}</div>
+              <div class='ce-meta'> ${ev.city} &nbsp;-&nbsp;  ${fmtDate(ev.date)} &nbsp;-&nbsp; ${ev.name}</div>
             </div>
             <div class='ce-body'>
               <div class='ce-slots'>
                 <div class='ce-slots-top'>
                   <span class='ce-slots-label'>Slots Claimed</span>
-                  <span class='ce-slots-count'>${isFull ? 'âŒ SOLD OUT' : `${avail} of ${ev.slots} remaining`}</span>
+                  <span class='ce-slots-count'>${isFull ? '- SOLD OUT' : `${avail} of ${ev.slots} remaining`}</span>
                 </div>
                 <div class='ce-slot-bar'><div class='ce-slot-fill${pct >= 80 ? " sf-critical" : ""}' style='width:${pct}%'></div></div>
               </div>
@@ -171,9 +171,9 @@
                 </div>
                 <p class='small muted' style='margin:3px 0 8px;font-size:10px'>Regular price ${fmtPrice(ev.pricePerSlot)} per slot</p>
                 <div class='ce-plans'>
-                  <span class='ce-plan-pill cp-full cp-sel' data-ev='${ev.id}' data-plan='full'>ðŸ’³ Pay in Full â€” ${fmtPrice(fullPrice)}</span>
-                  ${plan3 ? `<span class='ce-plan-pill' data-ev='${ev.id}' data-plan='3-pay'>3 Ã— ${fmtPrice(plan3.monthly)}/mo</span>` : ''}
-                  ${plan6 ? `<span class='ce-plan-pill' data-ev='${ev.id}' data-plan='6-pay'>6 Ã— ${fmtPrice(plan6.monthly)}/mo</span>` : ''}
+                  <span class='ce-plan-pill cp-full cp-sel' data-ev='${ev.id}' data-plan='full'> Pay in Full - ${fmtPrice(fullPrice)}</span>
+                  ${plan3 ? `<span class='ce-plan-pill' data-ev='${ev.id}' data-plan='3-pay'>3  ${fmtPrice(plan3.monthly)}/mo</span>` : ''}
+                  ${plan6 ? `<span class='ce-plan-pill' data-ev='${ev.id}' data-plan='6-pay'>6  ${fmtPrice(plan6.monthly)}/mo</span>` : ''}
                 </div>
               </div>
 
@@ -181,7 +181,7 @@
                 ${ev.includes.map(i => `<span>${i}</span>`).join('')}
               </div>
 
-              <button class='ce-join-btn' data-ev='${ev.id}' ${isFull ? 'disabled' : ''}>${isFull ? 'âŒ Fully Claimed' : 'ðŸ‘¥ &nbsp;Claim My Slot â†’'}</button>
+              <button class='ce-join-btn' data-ev='${ev.id}' ${isFull ? 'disabled' : ''}>${isFull ? '- Fully Claimed' : ' &nbsp;Claim My Slot -'}</button>
             </div>
           </div>
         `;
@@ -239,10 +239,10 @@
       const planLabel = isFullPay ? 'Full Payment (5% discount applied)' : plan === '3-pay' ? '3-Month Installment Plan' : '6-Month Installment Plan';
 
       modalContent.innerHTML = `
-        <button onclick="document.getElementById('crowdModalBack').classList.remove('cm-open')" style='position:absolute;top:14px;right:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(229,228,226,.5);font-size:11px;padding:6px 14px;border-radius:8px;cursor:pointer;width:auto;letter-spacing:.06em;text-transform:uppercase'>Close âœ•</button>
+        <button onclick="document.getElementById('crowdModalBack').classList.remove('cm-open')" style='position:absolute;top:14px;right:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(229,228,226,.5);font-size:11px;padding:6px 14px;border-radius:8px;cursor:pointer;width:auto;letter-spacing:.06em;text-transform:uppercase'>Close -</button>
         <p class='eyebrow' style='color:#9fe6b0'>Claim Your Slot</p>
         <h3 style='margin:8px 0 4px;font-size:19px'>${ev.eventTitle}</h3>
-        <p class='small muted'>ðŸ“ ${ev.city} &nbsp;Â·&nbsp; ðŸ“… ${new Date(ev.date + 'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})} &nbsp;Â·&nbsp; ${ev.name}</p>
+        <p class='small muted'> ${ev.city} &nbsp;-&nbsp;  ${new Date(ev.date + 'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})} &nbsp;-&nbsp; ${ev.name}</p>
         <div style='margin:16px 0;padding:14px;background:rgba(159,230,176,.05);border:1px solid rgba(159,230,176,.2);border-radius:12px'>
           <div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px'>
             <span class='small muted'>Payment Plan</span>
@@ -263,7 +263,7 @@
           <div id='cm-pay-wrap'></div>
         </div>
         <p class='small muted' style='font-size:10.5px;line-height:1.5;margin-bottom:14px;padding:10px;background:rgba(255,255,255,.03);border-radius:8px'>By claiming this slot you agree to a standard NDA, confirm your identity as a registered client, and acknowledge the escrow payment terms. Credentials are issued 14 days before the event.</p>
-        <button id='cmConfirmBtn' style='width:100%;padding:16px;background:linear-gradient(135deg,rgba(159,230,176,.25),rgba(159,230,176,.1));border:1px solid rgba(159,230,176,.5);color:#9fe6b0;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;border-radius:12px;cursor:pointer'>âœ“ &nbsp;Confirm & Secure My Slot</button>
+        <button id='cmConfirmBtn' style='width:100%;padding:16px;background:linear-gradient(135deg,rgba(159,230,176,.25),rgba(159,230,176,.1));border:1px solid rgba(159,230,176,.5);color:#9fe6b0;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;border-radius:12px;cursor:pointer'>- &nbsp;Confirm & Secure My Slot</button>
         <p id='cmStatus' class='small muted' style='text-align:center;margin-top:8px'></p>
       `;
       modalBack.classList.add('cm-open');
@@ -282,10 +282,10 @@
           const payLabel = payMethod === 'wire' ? 'Wire Transfer' : payMethod.toUpperCase();
           modalContent.innerHTML = `
             <div style='text-align:center;padding:10px 0'>
-              <div style='font-size:48px;margin-bottom:12px'>ðŸŽŸ</div>
+              <div style='font-size:48px;margin-bottom:12px'></div>
               <p class='eyebrow' style='color:#9fe6b0'>Slot Secured</p>
               <h3 style='margin:8px 0 4px'>${ev.eventTitle}</h3>
-              <p class='small muted' style='margin-bottom:14px'>${ev.city} &nbsp;Â·&nbsp; ${ev.name}</p>
+              <p class='small muted' style='margin-bottom:14px'>${ev.city} &nbsp;-&nbsp; ${ev.name}</p>
               <div class='crowd-slot-code'>${res.booking.slotCode}</div>
               <p class='small muted' style='font-size:11px;margin-bottom:6px'>${res.message}</p>
               <div style='display:inline-block;margin:8px 0 10px;padding:7px 18px;background:rgba(247,147,26,.08);border:1px solid rgba(247,147,26,.25);border-radius:8px;font-size:11px;color:#f7931a;font-weight:700'>
@@ -300,8 +300,8 @@
           if (idx >= 0) allEvents[idx].claimed++;
           renderEvents(getFiltered());
         } catch(err) {
-          btn.disabled = false; btn.textContent = 'âœ“ Confirm & Secure My Slot';
-          status.textContent = err.message + ' â€” please login first.';
+          btn.disabled = false; btn.textContent = '- Confirm & Secure My Slot';
+          status.textContent = err.message + ' - please login first.';
           status.style.color = '#f08080';
         }
       };
