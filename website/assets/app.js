@@ -39,7 +39,6 @@ export function nav(active){
   <a class="${active==='crowd'?'active':''}" href="crowdbooking.html" style="${active==='crowd'?'':'border-color:rgba(159,230,176,.35);color:#9fe6b0'}">👥 Crowd Access</a>
   <a class="${active==='booking'?'active':''}" href="booking.html">Booking</a>
   <a class="${active==='portal'?'active':''}" href="portal.html">Portal</a>
-  <a class="${active==='admin'?'active':''}" href="admin.html">Admin</a>
   <a class="${active==='login'?'active':''}" href="login.html">Login</a>
   </nav></header>
   <div class="ticker-outer"><div class="ticker-track" id="tickerTrack"><span class="tick-item muted">Loading market intelligence...</span></div></div>`;
