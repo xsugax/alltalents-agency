@@ -45,26 +45,42 @@
 </head>
 <body>
 	<div class='container' id='app'></div>
-	<button id='floatMsgBtn' class='floating-msg-btn' title='Open Messaging'></button>
-	<section id='floatMsgPanel' class='floating-msg-panel'>
-		<h4>Representation Chat</h4>
-		<p class='hint'>Live desk for the featured profile. Login to send.</p>
-		<div id='chatThread' class='chat-thread'></div>
-		<div class='floating-msg-grid'>
-			<input id='homeTarget' readonly placeholder='Featured profile'>
-			<div class='floating-msg-row'>
-				<input id='homeName' placeholder='Your full name'>
-				<input id='homeOrg' placeholder='Organization'>
+	<button id='floatMsgBtn' class='floating-msg-btn' title='Open Concierge Desk' style='position:relative'>
+		<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' width='22' height='22'>
+			<path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/>
+		</svg>
+		<span class='fmb-badge'></span>
+	</button>
+	<div id='floatMsgPanel' class='floating-msg-panel'>
+		<div class='fmp-header'>
+			<div class='fmp-avatar'>ATA</div>
+			<div class='fmp-agent-info'>
+				<div class='fmp-agent-name'>Concierge Desk</div>
+				<div class='fmp-agent-status'><span class='fmp-online-dot'></span>Live Representation Desk</div>
 			</div>
-			<select id='homeType'>
-				<option value='meet'>How to Meet</option>
-				<option value='msg'>Representative Message</option>
-			</select>
-			<textarea id='homeBody' rows='3' placeholder='Write your request'></textarea>
-			<button id='homeSend' class='primary'>Send via Secure Channel</button>
-			<p id='homeStatus' class='small muted'></p>
+			<button class='fmp-close' id='fmpClose' aria-label='Close'>&#x2715;</button>
 		</div>
-	</section>
+		<div class='fmp-body'>
+			<div id='chatThread' class='chat-thread' style='margin-bottom:14px'></div>
+			<div class='floating-msg-grid'>
+				<div><span class='fmp-label'>Featured Profile</span><input id='homeTarget' readonly placeholder='Loads automatically\u2026'></div>
+				<div class='floating-msg-row'>
+					<div><span class='fmp-label'>Full Name</span><input id='homeName' placeholder='Your name'></div>
+					<div><span class='fmp-label'>Organization</span><input id='homeOrg' placeholder='Company'></div>
+				</div>
+				<div><span class='fmp-label'>Request Type</span>
+					<select id='homeType'>
+						<option value='meet'>How to Meet</option>
+						<option value='msg'>Representative Message</option>
+					</select>
+				</div>
+				<div><span class='fmp-label'>Message</span><textarea id='homeBody' rows='3' placeholder='Describe your request\u2026'></textarea></div>
+				<button id='homeSend' class='primary'>Send via Secure Channel &#x2192;</button>
+				<p id='homeStatus' class='small muted' style='text-align:center'></p>
+			</div>
+		</div>
+		<div class='fmp-footer'>Encrypted &middot; NDA-default &middot; ALL TALENTS Agency</div>
+	</div>
 	<script type='module'>
 		import { request, nav, loadTicker } from './assets/app.js';
 
@@ -208,6 +224,7 @@
 		const panel = document.getElementById('floatMsgPanel');
 		const btn = document.getElementById('floatMsgBtn');
 		btn.onclick = () => panel.classList.toggle('open');
+		document.getElementById('fmpClose').onclick = () => panel.classList.remove('open');
 
 		function setHomeTemplate(mode, celebrityName) {
 			const textarea = document.getElementById('homeBody');
