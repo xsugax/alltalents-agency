@@ -225,19 +225,22 @@
         <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(159,230,176,.4);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#9fe6b0;background:rgba(159,230,176,.05);margin-bottom:14px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:#9fe6b0;display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Private Access Zone - Session Authorized</div>
         <h2 style='font-size:clamp(26px,3.8vw,44px);font-weight:900;letter-spacing:-.02em;margin:0 0 10px'>Select Your Celebrity.<br>Claim Your Private Window.</h2>
         <p class='lead'>You have direct access to 119+ verified talents through Aurelux's authorized channel network. Tap any profile to open your private meeting portal - choose a venue, lock in your window, and initiate contact.</p>
-        <div style='display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px'>
-          <div class='search-wrap'><input id='search' placeholder='Search by celebrity name- (Press / to focus)' style='flex:2;min-width:220px'><span class='search-hint'>/</span></div>
+        <div style='display:flex;gap:10px;align-items:center;margin-bottom:8px'>
+          <div class='search-wrap' style='flex:1'><input id='search' placeholder='Search celebrities…' style='width:100%'><span class='search-hint'>/</span></div>
+          <button class='mob-filter-expand' id='filterToggle'>Filters ▾</button>
+        </div>
+        <div class='filter-selects' id='filterSelects'>
           <select id='category' class='filter-select' style='flex:1;min-width:140px'><option>All</option><option>Film</option><option>Music</option><option>Sports</option><option>Fashion</option><option>Business</option><option>Influencer</option><option>Comedy</option><option>Entertainment</option></select>
           <select id='region' class='filter-select' style='flex:1;min-width:140px'><option>All</option><option>North America</option><option>Europe</option><option>Middle East</option><option>Asia</option><option>Latin America</option><option>Africa</option><option>Australia</option></select>
           <select id='availability' class='filter-select' style='flex:1;min-width:130px'><option>All</option><option>Open</option><option>Limited</option><option>Waitlist</option></select>
           <input id='date' type='date' style='flex:1;min-width:140px'>
-          <button id='clearFilters' class='secondary' style='white-space:nowrap;padding:9px 16px;font-size:12px'>- Clear</button>
+          <button id='clearFilters' class='secondary' style='white-space:nowrap;padding:9px 16px;font-size:12px'>Clear</button>
         </div>
         <div style='display:flex;align-items:center;padding:6px 2px;border-top:1px solid rgba(255,255,255,.07)'>
           <p id='resultsCount' class='small muted' style='margin:0'>Loading talents-</p>
         </div>
       </section>
-      <section class='card section stack'>
+      <section class='card section stack mob-hidden-section'>
         <p class='eyebrow'>Engagement Logic</p>
         <div class='flow-grid'>
           <article class='flow-step'>
@@ -257,7 +260,7 @@
           </article>
         </div>
       </section>
-      <section class='card section stack'>
+      <section class='card section stack mob-hidden-section'>
         <p class='eyebrow'>VIP Decision Engine</p>
         <h3>Smart Shortlist Comparison</h3>
         <p class='small muted'>Add up to 5 profiles from the grid and run an instant value-to-risk ranking.</p>
@@ -329,6 +332,14 @@
     const panel = document.getElementById('floatMsgPanel');
     const btn = document.getElementById('floatMsgBtn');
     btn.onclick = () => panel.classList.toggle('open');
+
+    // Mobile: filter panel toggle
+    document.getElementById('filterToggle')?.addEventListener('click', () => {
+      const row = document.getElementById('filterSelects');
+      const tog = document.getElementById('filterToggle');
+      const isOpen = row?.classList.toggle('mob-open');
+      if (tog) tog.textContent = isOpen ? 'Filters ▴' : 'Filters ▾';
+    });
 
     function renderShortlistState() {
       const ids = Array.from(shortlist);
@@ -487,24 +498,27 @@
             </div>
           </div>
           <div class='celeb-card-body'>
-            <div class='pressure-bar' id='press-${c.id}' data-pid='${c.id}'><div class='pressure-dot pd-normal'></div><span class='pressure-msg'>Reading demand signal-</span></div>
-            <div class='celeb-stat-bar' style='margin-top:10px'>
-              <div class='celeb-stat'><div class='cs-label'>Est. Net Worth</div><div class='cs-value'>${c.netWorth || '-'}</div></div>
-              <div class='celeb-stat'><div class='cs-label'>Global Reach</div><div class='cs-value'>${c.socialReachMillions}M</div></div>
-              <div class='celeb-stat'><div class='cs-label'>Brand Value</div><div class='cs-value'>${c.brandValue || '-'}</div></div>
-            </div>
-            <p class='celeb-signal'>"${c.eliteSignal}"</p>
-            <p class='celeb-price-tag'>Private access from &thinsp;<strong>${fmtP(c.startingPrice)}</strong>&thinsp; - ${c.agencyRepresentation} - NDA default</p>
-            <div class='celeb-actions'>
-              <button class='meet-direct-btn' data-a='portal' data-id='${c.id}'>- &nbsp;Meet ${c.name.split(' ')[0]} Privately -</button>
-              <button class='crowd-mini-btn' data-a='crowd' data-id='${c.id}'> &nbsp;Join Crowd Event -</button>
-              <div class='celeb-sub-actions'>
-                <button data-a='check' data-id='${c.id}'>Availability Window</button>
-                <button class='secondary' data-a='dossier' data-id='${c.id}'>Private Dossier</button>
-                <button class='secondary' data-a='shortlist' data-id='${c.id}'>${shortlist.has(c.id) ? '- Shortlisted' : '- VIP Shortlist'}</button>
-                ${c.availability === 'Waitlist'
-                  ? `<button class='secondary' data-a='wl-reserve' data-id='${c.id}' data-name='${c.name}' style='border-color:rgba(240,195,107,.5);color:#f0c36b'>- Reserve Slot</button>`
-                  : `<button class='secondary' data-a='set-meet' data-id='${c.id}' data-name='${c.name}'>How to Meet</button>`}
+            <button class='meet-direct-btn' data-a='portal' data-id='${c.id}'>- &nbsp;Meet ${c.name.split(' ')[0]} Privately -</button>
+            <button class='mob-see-more-btn' data-a='expand'>Details &amp; actions &#x25BE;</button>
+            <div class='celeb-card-extra'>
+              <div class='pressure-bar' id='press-${c.id}' data-pid='${c.id}' style='margin-top:10px'><div class='pressure-dot pd-normal'></div><span class='pressure-msg'>Reading demand signal-</span></div>
+              <div class='celeb-stat-bar' style='margin-top:10px'>
+                <div class='celeb-stat'><div class='cs-label'>Est. Net Worth</div><div class='cs-value'>${c.netWorth || '-'}</div></div>
+                <div class='celeb-stat'><div class='cs-label'>Global Reach</div><div class='cs-value'>${c.socialReachMillions}M</div></div>
+                <div class='celeb-stat'><div class='cs-label'>Brand Value</div><div class='cs-value'>${c.brandValue || '-'}</div></div>
+              </div>
+              <p class='celeb-signal'>"${c.eliteSignal}"</p>
+              <p class='celeb-price-tag'>Private access from &thinsp;<strong>${fmtP(c.startingPrice)}</strong>&thinsp; - ${c.agencyRepresentation} - NDA default</p>
+              <div class='celeb-actions'>
+                <button class='crowd-mini-btn' data-a='crowd' data-id='${c.id}'> &nbsp;Join Crowd Event -</button>
+                <div class='celeb-sub-actions'>
+                  <button data-a='check' data-id='${c.id}'>Availability Window</button>
+                  <button class='secondary' data-a='dossier' data-id='${c.id}'>Private Dossier</button>
+                  <button class='secondary' data-a='shortlist' data-id='${c.id}'>${shortlist.has(c.id) ? '- Shortlisted' : '- VIP Shortlist'}</button>
+                  ${c.availability === 'Waitlist'
+                    ? `<button class='secondary' data-a='wl-reserve' data-id='${c.id}' data-name='${c.name}' style='border-color:rgba(240,195,107,.5);color:#f0c36b'>- Reserve Slot</button>`
+                    : `<button class='secondary' data-a='set-meet' data-id='${c.id}' data-name='${c.name}'>How to Meet</button>`}
+                </div>
               </div>
             </div>
             <p class='small muted' id='s-${c.id}' style='margin-top:6px'></p>
@@ -528,7 +542,10 @@
           const btn = e.target.closest('[data-a]');
         if (!btn) return;
         const { a, id, name } = btn.dataset;
-        if (a === 'portal') {
+        if (a === 'expand') {
+          const body = btn.closest('.celeb-card-body');
+          if (body) body.classList.add('mob-expanded');
+        } else if (a === 'portal') {
           openAccessPortal(celebMap.get(id));
         } else if (a === 'crowd') {
           window.location.href = `crowdbooking.html?celeb=${id}`;

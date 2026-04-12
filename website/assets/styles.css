@@ -104,8 +104,23 @@ img{width:100%;height:210px;object-fit:cover;border-radius:12px;border:1px solid
   .floating-msg-row{grid-template-columns:1fr}
   .concierge-rail{width:calc(100vw - 20px);right:10px}
   .concierge-actions{grid-template-columns:1fr}
+  /* Mobile card collapse */
+  .mob-see-more-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;margin:8px 0 0;padding:10px 14px;background:rgba(148,180,216,.05);border:1px solid rgba(148,180,216,.18);border-radius:10px;color:var(--accent);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;cursor:pointer}
+  .celeb-card-extra{display:none}
+  .celeb-card-body.mob-expanded .celeb-card-extra{display:block}
+  .celeb-card-body.mob-expanded .mob-see-more-btn{display:none}
+  /* Mobile section hiding */
+  .mob-hidden-section{display:none!important}
+  /* Mobile filter expand toggle */
+  .mob-filter-expand{display:flex;align-items:center;gap:6px;padding:10px 16px;background:rgba(148,180,216,.07);border:1px solid rgba(148,180,216,.22);border-radius:10px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;white-space:nowrap;flex-shrink:0}
+  .filter-selects{display:none;flex-direction:column;gap:8px}
+  .filter-selects.mob-open{display:flex}
 }
 @media(hover:none){.tilt-card:hover{transform:none!important;box-shadow:none!important}.celeb-card:hover{transform:none!important}}
+/* ── MOBILE COLLAPSE HELPERS (global) ───────────────────── */
+.mob-see-more-btn{display:none}
+.mob-filter-expand{display:none}
+.filter-selects{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
 @media(prefers-reduced-motion:reduce){.ticker-track{animation:none!important}.hero-slide{transition:none!important}.pressure-dot{animation:none!important}.ap-stamp-dot,.ap-live-dot,.access-live-count::before{animation:none!important}}
 
 /* ── LIVE DEMAND TICKER ─────────────────────────────────── */
