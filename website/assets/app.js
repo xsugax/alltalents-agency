@@ -36,7 +36,7 @@ export function nav(active){
   return `<header class="glass nav"><div class="brand-wrap"><div class="brand-mark">ATA</div><div><div class="brand">ALL TALENTS Agency</div><div class="small muted brand-sub">Private Celebrity Representation & Strategic Bookings</div></div></div><nav class="menu">
   <a class="${active==='home'?'active':''}" href="index.html">Home</a>
   <a class="${active==='explorer'?'active':''}" href="explorer.html">Explorer</a>
-  <a class="${active==='crowd'?'active':''}" href="crowdbooking.html" style="${active==='crowd'?'':'border-color:rgba(159,230,176,.35);color:#9fe6b0'}">👥 Crowd Access</a>
+  <a class="${active==='crowd'?'active':''}" href="crowdbooking.html">👥 Crowd Access</a>
   <a class="${active==='booking'?'active':''}" href="booking.html">Booking</a>
   <a class="${active==='portal'?'active':''}" href="portal.html">Portal</a>
   <a class="${active==='login'?'active':''}" href="login.html">Login</a>

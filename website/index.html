@@ -125,23 +125,23 @@
 				<p class='small muted' style='opacity:.45;letter-spacing:.12em;text-transform:uppercase;font-size:10px'>Loading featured profiles...</p>
 			</section>
 			<section class='grid g4 section' id='kpis'>
-				${['','','',''].map(()=>`<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>`).join('')}
+				${['','','',''].map(()=>`<div class='card' style='height:72px'></div>`).join('')}
 			</section>
 			<section class='access-strip section'>
-				<div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(148,180,216,.5);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);background:rgba(148,180,216,.06);margin-bottom:18px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0'></span>Live Access Status</div>
+				<div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(196,155,46,.3);border-radius:5px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:18px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0'></span>Live Access Status</div>
 				<h2 class='access-strip-title'>100 Verified Celebrities.<br>Direct Access. Right Now.</h2>
 				<p class='access-strip-sub'>Every talent on this platform is reachable through Aurelux's authorized private channels. Your qualification as a registered client unlocks exclusive meeting windows, direct representative outreach, and priority booking rights - unavailable anywhere else.</p>
 				<form id='heroSearch' style='display:flex;gap:0;margin:22px 0 24px;max-width:620px;width:100%' onsubmit='event.preventDefault(); const q = document.getElementById("heroSearchInput").value.trim(); if(q) window.location.href="explorer.html?search="+encodeURIComponent(q);'>
-					<input id='heroSearchInput' type='text' placeholder='Search for your favourite celebrity-' autocomplete='off' style='flex:1;border-radius:10px 0 0 10px;border:1.5px solid rgba(148,180,216,.55);border-right:none;background:rgba(255,255,255,.04);color:#E6ECF4;padding:15px 20px;font-size:14px;letter-spacing:.02em;outline:none;min-width:0;transition:border-color .2s' onfocus='this.style.borderColor="rgba(148,180,216,.9)"' onblur='this.style.borderColor="rgba(148,180,216,.55)"'>
-					<button type='submit' style='background:linear-gradient(135deg,#94B4D8,#b8962e);color:#0b0b0b;border:none;padding:15px 28px;border-radius:0 10px 10px 0;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap'>Search &#x2192;</button>
+					<input id='heroSearchInput' type='text' placeholder='Search for your favourite celebrity-' autocomplete='off' style='flex:1;border-radius:7px 0 0 7px;border:1.5px solid rgba(0,0,0,.15);border-right:none;background:var(--bg-alt);color:var(--text);padding:15px 20px;font-size:14px;letter-spacing:.02em;outline:none;min-width:0;transition:border-color .2s' onfocus='this.style.borderColor="rgba(196,155,46,.6)"' onblur='this.style.borderColor="rgba(0,0,0,.15)"'>
+					<button type='submit' style='background:var(--bg-dark);color:#fff;border:none;padding:15px 28px;border-radius:0 7px 7px 0;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap'>Search &#x2192;</button>
 				</form>
 				<div style='display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px'>
-					<span style='font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(148,180,216,.5);align-self:center;margin-right:4px'>Quick search:</span>
-					${['Beyonce','Taylor Swift','Cristiano Ronaldo','Rihanna','Drake','Zendaya','Dwayne Johnson','Bad Bunny','Salma Hayek','Matt Rife','Sabrina Carpenter','Kendrick Lamar','Jennifer Aniston','Lionel Messi','Kylie Jenner','BTS'].map(n => `<button onclick='window.location.href="explorer.html?search="+encodeURIComponent("${n}")' style='background:rgba(148,180,216,.06);border:1px solid rgba(148,180,216,.25);color:rgba(148,180,216,.8);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .2s' onmouseover='this.style.background="rgba(148,180,216,.15)";this.style.borderColor="rgba(148,180,216,.6)"' onmouseout='this.style.background="rgba(148,180,216,.06)";this.style.borderColor="rgba(148,180,216,.25)"'>${n}</button>`).join('')}
+					<span style='font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);align-self:center;margin-right:4px'>Quick search:</span>
+					${['Beyonce','Taylor Swift','Cristiano Ronaldo','Rihanna','Drake','Zendaya','Dwayne Johnson','Bad Bunny','Salma Hayek','Matt Rife','Sabrina Carpenter','Kendrick Lamar','Jennifer Aniston','Lionel Messi','Kylie Jenner','BTS'].map(n => `<button onclick='window.location.href="explorer.html?search="+encodeURIComponent("${n}")' style='background:var(--bg-alt);border:1px solid rgba(0,0,0,.1);color:var(--text-2);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .2s' onmouseover='this.style.background="rgba(0,0,0,.06)";this.style.borderColor="rgba(0,0,0,.2)"' onmouseout='this.style.background="var(--bg-alt)";this.style.borderColor="rgba(0,0,0,.1)"'>${n}</button>`).join('')}
 				</div>
 				<div class='access-live-count'>Live windows open for qualified clients today</div>
 				<div class='window-grid' id='windowGrid' style='margin-top:18px'>
-					${[1,2,3,4].map(()=>`<div class='window-card' style='height:88px;background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.05)'></div>`).join('')}
+					${[1,2,3,4].map(()=>`<div class='window-card' style='height:88px'></div>`).join('')}
 				</div>
 				<div style='margin-top:18px;text-align:center'>
 					<a href='explorer.html'><button class='primary' style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase'>Explore All Access Windows -</button></a>
@@ -152,10 +152,10 @@
 				<h2 style='margin-bottom:10px'>Can't Afford Solo Private Access?<br><span>Join a Group. Share the Moment.</span></h2>
 				<p class='access-strip-sub'>Crowd Booking lets you join a verified group at the celebrity's <em>next real event</em> - concerts, premieres, paddocks, brand days. Same icon, same room. Drastically lower entry point with installment payment plans. Slots are limited and fill fast.</p>
 				<div style='margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px' id='crowdTeaserGrid'>
-					${[1,2,3].map(()=>`<div class='crowd-event-card' style='height:80px;background:rgba(255,255,255,.02);border-color:rgba(159,230,176,.08)'></div>`).join('')}
+					${[1,2,3].map(()=>`<div class='crowd-event-card' style='height:80px'></div>`).join('')}
 				</div>
 				<div style='margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;align-items:center'>
-					<a href='crowdbooking.html'><button style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(135deg,rgba(159,230,176,.2),rgba(159,230,176,.07));border:1px solid rgba(159,230,176,.5);color:#9fe6b0;border-radius:10px;cursor:pointer'> View All Crowd Events -</button></a>
+					<a href='crowdbooking.html'><button class='primary' style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer'>View All Crowd Events &#x2192;</button></a>
 					<span class='small muted'>From $1,800 /person - Pay in 3 or 6 installments</span>
 				</div>
 			</section>
@@ -258,12 +258,12 @@
 				<div class='hero-slide${i === 0 ? ' hs-active' : ''}' data-idx='${i}'>
 					<p class='eyebrow'>Featured Profile - ${i + 1} of ${featured.length} &nbsp;-&nbsp; ${c.category}</p>
 					<h1 class='headline'>${c.name}</h1>
-					${c.eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:rgba(229,228,226,.65);font-style:italic;margin:0 0 10px;border-left:2px solid rgba(148,180,216,.5);padding-left:12px'>${c.eliteSignal}</p>` : ''}
+					${c.eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:var(--text-2);font-style:italic;margin:0 0 10px;border-left:2px solid var(--accent);padding-left:12px'>${c.eliteSignal}</p>` : ''}
 					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px'>
-						${c.netWorth ? `<span class='small'><span class='muted'>Net Worth</span> <strong style='color:var(--accent)'>${c.netWorth}</strong></span>` : ''}
-						<span class='small'><span class='muted'>Global Reach</span> <strong style='color:var(--accent)'>${c.socialReachMillions}M</strong></span>
-						<span class='small'><span class='muted'>Private Access</span> <strong style='color:var(--accent)'>${fmtP(c.startingPrice)}</strong></span>
-						<span class='small'><span class='muted'>Agency</span> <strong style='color:var(--accent)'>${c.agencyRepresentation}</strong></span>
+						${c.netWorth ? `<span class='small'><span class='muted'>Net Worth</span> <strong style='color:var(--accent-text)'>${c.netWorth}</strong></span>` : ''}
+						<span class='small'><span class='muted'>Global Reach</span> <strong style='color:var(--accent-text)'>${c.socialReachMillions}M</strong></span>
+						<span class='small'><span class='muted'>Private Access</span> <strong style='color:var(--accent-text)'>${fmtP(c.startingPrice)}</strong></span>
+						<span class='small'><span class='muted'>Agency</span> <strong style='color:var(--accent-text)'>${c.agencyRepresentation}</strong></span>
 					</div>
 					<p class='small muted'>${c.availability === 'Open' ? '- Accepting qualified outreach now.' : c.availability === 'Limited' ? '- Limited access windows - act within 48h.' : '- Waitlist only - secure your slot.'}</p>
 					<div style='margin-top:12px;display:flex;gap:10px;flex-wrap:wrap'>
@@ -276,12 +276,12 @@
 			const sizer = `<div class='hero-slide hero-slide-sizer' aria-hidden='true'>
 					<p class='eyebrow'>Featured Profile - 1 of ${featured.length} - ${featured[0].category}</p>
 					<h1 class='headline'>${featured[0].name}</h1>
-					${featured[0].eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:rgba(229,228,226,.65);font-style:italic;margin:0 0 10px;border-left:2px solid rgba(148,180,216,.5);padding-left:12px'>${featured[0].eliteSignal}</p>` : ''}
+					${featured[0].eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:var(--text-2);font-style:italic;margin:0 0 10px;border-left:2px solid var(--accent);padding-left:12px'>${featured[0].eliteSignal}</p>` : ''}
 					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px'>
-						${featured[0].netWorth ? `<span class='small'><span class='muted'>Net Worth</span> <strong style='color:var(--accent)'>${featured[0].netWorth}</strong></span>` : ''}
-						<span class='small'><span class='muted'>Global Reach</span> <strong style='color:var(--accent)'>${featured[0].socialReachMillions}M</strong></span>
-						<span class='small'><span class='muted'>Private Access</span> <strong style='color:var(--accent)'>$${(featured[0].startingPrice/1e6).toFixed(1)}M</strong></span>
-						<span class='small'><span class='muted'>Agency</span> <strong style='color:var(--accent)'>${featured[0].agencyRepresentation}</strong></span>
+						${featured[0].netWorth ? `<span class='small'><span class='muted'>Net Worth</span> <strong style='color:var(--accent-text)'>${featured[0].netWorth}</strong></span>` : ''}
+						<span class='small'><span class='muted'>Global Reach</span> <strong style='color:var(--accent-text)'>${featured[0].socialReachMillions}M</strong></span>
+						<span class='small'><span class='muted'>Private Access</span> <strong style='color:var(--accent-text)'>$${(featured[0].startingPrice/1e6).toFixed(1)}M</strong></span>
+						<span class='small'><span class='muted'>Agency</span> <strong style='color:var(--accent-text)'>${featured[0].agencyRepresentation}</strong></span>
 					</div>
 					<p class='small muted'>- Accepting qualified outreach now.</p>
 					<div style='margin-top:12px;display:flex;gap:10px;flex-wrap:wrap'>
@@ -365,8 +365,8 @@
 					<div class='wc-name'>${c.name}</div>
 					<div class='wc-meta'>${c.category} - ${c.region}</div>
 					<div style='display:flex;gap:10px;flex-wrap:wrap;margin-top:2px'>
-						${c.netWorth ? `<span style='font-size:10px;color:rgba(148,180,216,.7)'>${c.netWorth} est. worth</span>` : ''}
-						<span style='font-size:10px;color:rgba(229,228,226,.4)'>${c.socialReachMillions}M reach</span>
+						${c.netWorth ? `<span style='font-size:10px;color:var(--text-2)'>${c.netWorth} est. worth</span>` : ''}
+						<span style='font-size:10px;color:var(--text-2)'>${c.socialReachMillions}M reach</span>
 					</div>
 					<div class='wc-price'>Private access from ${fmtPH(c.startingPrice)}</div>
 				</div>
@@ -389,7 +389,7 @@
 					.slice(0, 3);
 				teaserGrid.innerHTML = top3.map(ev => {
 					const soldPct = Math.min(100, Math.round((ev.claimed / ev.slots) * 100));
-					const urgency = ev.available <= 5 ? '#ff6b6b' : ev.available <= 12 ? '#ffd166' : '#9fe6b0';
+					const urgency = ev.available <= 5 ? '#C03030' : ev.available <= 12 ? '#B87020' : '#1E7040';
 					const fmtP = p => p >= 1000 ? `$${(p/1000).toFixed(1)}K` : `$${p}`;
 					return `
 					<div class='crowd-event-card' onclick="window.location.href='crowdbooking.html'" style='cursor:pointer;padding:16px'>

@@ -36,23 +36,23 @@
   <link rel='stylesheet' href='assets/styles.css'>
   <style>
     /* Explorer filter bar */
-    #search{background:rgba(148,180,216,.04);border:1px solid rgba(148,180,216,.2);color:#E6ECF4;transition:all .2s ease}
-    #search:focus{border-color:rgba(148,180,216,.65);box-shadow:0 0 0 3px rgba(148,180,216,.1);background:rgba(148,180,216,.07)}
-    #search::placeholder{color:rgba(230,236,244,.3)}
-    .filter-select{background:rgba(148,180,216,.04);border:1px solid rgba(148,180,216,.15);color:rgba(230,236,244,.8)}
-    .filter-select:focus{border-color:rgba(148,180,216,.5);outline:none}
+    #search{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text);transition:all .2s ease}
+    #search:focus{border-color:rgba(196,155,46,.6);box-shadow:0 0 0 3px rgba(196,155,46,.1);background:#fff}
+    #search::placeholder{color:rgba(0,0,0,.35)}
+    .filter-select{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text)}
+    .filter-select:focus{border-color:rgba(196,155,46,.5);outline:none}
     /* Animated result count */
     #resultsCount{transition:opacity .2s ease}
     #resultsCount.rc-updating{opacity:.4}
     /* Search KB shortcut hint */
-    .search-hint{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:10px;color:rgba(148,180,216,.35);pointer-events:none;font-family:monospace;border:1px solid rgba(148,180,216,.18);border-radius:4px;padding:2px 6px;letter-spacing:.04em;background:rgba(148,180,216,.04)}
+    .search-hint{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:10px;color:rgba(0,0,0,.3);pointer-events:none;font-family:monospace;border:1px solid rgba(0,0,0,.12);border-radius:4px;padding:2px 6px;letter-spacing:.04em;background:var(--bg-alt)}
     .search-wrap{position:relative;flex:2;min-width:220px}
     .search-wrap input{width:100%;box-sizing:border-box;padding-right:56px}
     /* Category Pills - active filter visual feedback */
-    #resultsCount.has-filter{color:#94B4D8;font-weight:700}
+    #resultsCount.has-filter{color:var(--accent-text);font-weight:700}
     /* Load more button */
-    #loadMoreBtn{background:rgba(148,180,216,.06);border:1px solid rgba(148,180,216,.22);color:#94B4D8;transition:all .22s ease}
-    #loadMoreBtn:hover{background:rgba(148,180,216,.14);border-color:rgba(148,180,216,.5);box-shadow:0 8px 24px rgba(148,180,216,.1)}
+    #loadMoreBtn{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text);transition:all .22s ease}
+    #loadMoreBtn:hover{background:rgba(196,155,46,.08);border-color:var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.06)}
     /* Empty state */
     .empty-state{grid-column:1/-1;text-align:center;padding:72px 20px}
     .empty-state-icon{font-size:48px;margin-bottom:16px;filter:grayscale(.4)}
@@ -170,7 +170,7 @@
         <div class='ap-stamp'><div class='ap-stamp-dot'></div>Aurelux Private Access - Authorized Channel</div>
         <h1 class='ap-celeb-name'>${c.name}</h1>
         <p class='ap-celeb-meta'>${c.category} &nbsp;-&nbsp; ${c.region} &nbsp;-&nbsp; ${c.agencyRepresentation}</p>
-        <p style='font-size:12.5px;line-height:1.6;color:rgba(229,228,226,.72);font-style:italic;margin:0 0 18px;padding:12px 14px;border-left:2px solid rgba(148,180,216,.5);background:rgba(148,180,216,.04);border-radius:0 8px 8px 0'>"${c.eliteSignal}"</p>
+        <p style='font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.72);font-style:italic;margin:0 0 18px;padding:12px 14px;border-left:2px solid var(--accent);background:rgba(196,155,46,.08);border-radius:0 8px 8px 0'>"${c.eliteSignal}"</p>
         <div class='ap-live-status'><div class='ap-live-dot'></div>Direct meeting access LIVE for qualified clients - closes in 72h</div>
         <div class='ap-brief-row'>${briefHtml}</div>
         <div class='ap-divider'></div>
@@ -239,8 +239,8 @@
     const app = document.getElementById('app');
     app.innerHTML = `
       ${nav('explorer')}
-      <section class='glass card section' style='border-color:rgba(148,180,216,.35);box-shadow:0 0 60px rgba(148,180,216,.07),0 22px 50px rgba(0,0,0,.35)'>
-        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(159,230,176,.4);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#9fe6b0;background:rgba(159,230,176,.05);margin-bottom:14px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:#9fe6b0;display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Private Access Zone - Session Authorized</div>
+      <section class='glass card section' style='border-color:rgba(0,0,0,.09);box-shadow:0 4px 24px rgba(0,0,0,.06)'>
+        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(196,155,46,.3);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:14px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Private Access Zone - Session Authorized</div>
         <h2 style='font-size:clamp(26px,3.8vw,44px);font-weight:900;letter-spacing:-.02em;margin:0 0 10px'>Select Your Celebrity.<br>Claim Your Private Window.</h2>
         <p class='lead'>You have direct access to 119+ verified talents through Aurelux's authorized channel network. Tap any profile to open your private meeting portal - choose a venue, lock in your window, and initiate contact.</p>
         <div style='display:flex;gap:10px;align-items:center;margin-bottom:8px'>
@@ -294,31 +294,31 @@
         <div id='compareOut' class='small muted'>Comparison output will appear here.</div>
       </section>
       <section class='grid g3 section' id='results'>
-        ${[1,2,3].map(()=>`<article class='card stack' style='height:280px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></article>`).join('')}
+        ${[1,2,3].map(()=>`<article class='card stack' style='height:280px'></article>`).join('')}
       </section>
-      <section id='inquirySection' class='glass card section' style='border-color:rgba(148,180,216,.3);box-shadow:0 0 40px rgba(148,180,216,.05),0 16px 40px rgba(0,0,0,.3);max-width:680px;margin:0 auto'>
-        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(148,180,216,.4);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#94B4D8;background:rgba(148,180,216,.05);margin-bottom:16px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:#94B4D8;display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Celebrity Not Listed? Request Via Private Desk</div>
+      <section id='inquirySection' class='glass card section' style='border-color:rgba(0,0,0,.09);box-shadow:0 4px 24px rgba(0,0,0,.06);max-width:680px;margin:0 auto'>
+        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(196,155,46,.3);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:16px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Celebrity Not Listed? Request Via Private Desk</div>
         <h3 style='font-weight:800;margin:0 0 6px;font-size:clamp(20px,2.8vw,30px)'>Can't Find Who<br>You're Looking For?</h3>
         <p class='small muted' style='margin:0 0 22px;line-height:1.7'>Submit a private celebrity inquiry through our Concierge Desk. Our representation team will assess availability, negotiate terms, and revert within 48 hours under full NDA.</p>
         <form id='celebInquiryForm' style='display:flex;flex-direction:column;gap:14px'>
           <div style='display:flex;gap:12px;flex-wrap:wrap'>
             <div style='flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px'>
-              <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>YOUR NAME</label>
-              <input id='inqName' placeholder='Full name' required style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+              <label style='font-size:11px;letter-spacing:.08em;color:rgba(0,0,0,.5)'>YOUR NAME</label>
+              <input id='inqName' placeholder='Full name' required style='background:var(--bg-alt);border-color:rgba(0,0,0,.12)'>
             </div>
             <div style='flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px'>
-              <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>EMAIL ADDRESS</label>
-              <input id='inqEmail' type='email' placeholder='your@email.com' required style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+              <label style='font-size:11px;letter-spacing:.08em;color:rgba(0,0,0,.5)'>EMAIL ADDRESS</label>
+              <input id='inqEmail' type='email' placeholder='your@email.com' required style='background:var(--bg-alt);border-color:rgba(0,0,0,.12)'>
             </div>
           </div>
           <div style='display:flex;flex-direction:column;gap:5px'>
-            <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>CELEBRITY NAME</label>
-            <input id='inqCelebrity' placeholder='Who would you like to book?' required style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+            <label style='font-size:11px;letter-spacing:.08em;color:rgba(0,0,0,.5)'>CELEBRITY NAME</label>
+            <input id='inqCelebrity' placeholder='Who would you like to book?' required style='background:var(--bg-alt);border-color:rgba(0,0,0,.12)'>
           </div>
           <div style='display:flex;gap:12px;flex-wrap:wrap'>
             <div style='flex:1;min-width:180px;display:flex;flex-direction:column;gap:5px'>
-              <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>EVENT TYPE</label>
-              <select id='inqEventType' style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+              <label style='font-size:11px;letter-spacing:.08em;color:rgba(0,0,0,.5)'>EVENT TYPE</label>
+              <select id='inqEventType' style='background:var(--bg-alt);border-color:rgba(0,0,0,.12)'>
                 <option value=''>Select event type-</option>
                 <option>Corporate Keynote</option>
                 <option>Brand Endorsement</option>
@@ -331,13 +331,13 @@
               </select>
             </div>
             <div style='flex:1;min-width:160px;display:flex;flex-direction:column;gap:5px'>
-              <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>DESIRED DATE</label>
-              <input id='inqDate' type='date' style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)'>
+              <label style='font-size:11px;letter-spacing:.08em;color:rgba(0,0,0,.5)'>DESIRED DATE</label>
+              <input id='inqDate' type='date' style='background:var(--bg-alt);border-color:rgba(0,0,0,.12)'>
             </div>
           </div>
           <div style='display:flex;flex-direction:column;gap:5px'>
-            <label style='font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.55)'>ADDITIONAL DETAILS</label>
-            <textarea id='inqMessage' rows='4' placeholder='Budget range, location, audience size, any specific requests-' style='background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);resize:vertical'></textarea>
+            <label style='font-size:11px;letter-spacing:.08em;color:rgba(0,0,0,.5)'>ADDITIONAL DETAILS</label>
+            <textarea id='inqMessage' rows='4' placeholder='Budget range, location, audience size, any specific requests-' style='background:var(--bg-alt);border-color:rgba(0,0,0,.12);resize:vertical'></textarea>
           </div>
           <div style='display:flex;align-items:center;gap:16px;flex-wrap:wrap'>
             <button type='submit' id='inqSubmitBtn' class='primary' style='min-width:200px'>Submit Celebrity Request</button>
@@ -489,7 +489,7 @@
 
       const results = document.getElementById('results');
       if (data.length === 0) {
-        results.innerHTML = `<div class='empty-state'><div class='empty-state-icon'>-</div><h4 style='margin-bottom:8px;color:#94B4D8'>No talents found</h4><p class='small muted'>No celebrities match your current filters.</p><p class='small muted' style='margin-top:6px'>Try broadening your search or click <b>- Clear</b> to reset all filters.</p></div>`;
+        results.innerHTML = `<div class='empty-state'><div class='empty-state-icon'>-</div><h4 style='margin-bottom:8px;color:var(--accent-text)'>No talents found</h4><p class='small muted'>No celebrities match your current filters.</p><p class='small muted' style='margin-top:6px'>Try broadening your search or click <b>- Clear</b> to reset all filters.</p></div>`;
         return;
       }
 
@@ -725,7 +725,7 @@
       };
       try {
         const res = await request('/inquiry', { method: 'POST', body: JSON.stringify(payload) });
-        msg.style.color = '#9fe6b0';
+        msg.style.color = '#1E7040';
         msg.textContent = res.message || 'Request received. Our team will contact you within 48 hours.';
         document.getElementById('celebInquiryForm').reset();
       } catch (err) {
