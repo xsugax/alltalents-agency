@@ -1,5 +1,5 @@
 /** All Talents Agency — shared platform utilities */
-export const ASSET_V = '20260605';
+export const ASSET_V = '20260606';
 export const SHORTLIST_KEY = 'ata_shortlist';
 export const SHORTLIST_MAX = 5;
 
@@ -37,7 +37,7 @@ export function toggleShortlist(id) {
 
 export function requireAuth(returnPath) {
   const { token } = window.__ataAuth || {};
-  const t = token?.() ?? localStorage.getItem('ata_token') || localStorage.getItem('aurelux_token');
+  const t = token?.() || localStorage.getItem('ata_token') || localStorage.getItem('aurelux_token');
   if (t) return true;
   const path = returnPath || (location.pathname + location.search);
   localStorage.setItem('ata_return', path.startsWith('/') ? path.slice(1) : path);
