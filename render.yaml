@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: alltalents-api
+    runtime: node
+    rootDir: api
+    buildCommand: npm install
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 4100
+      - key: NODE_ENV
+        value: production
