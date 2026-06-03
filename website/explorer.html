@@ -5,10 +5,14 @@
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name='referrer' content='no-referrer'>
-  <title>Talent Directory | All Talents Agency</title>
+  <title>Talent Directory | All Talents Agency (ATA)</title>
+  <meta name="application-name" content="All Talents Agency">
+  <meta name="apple-mobile-web-app-title" content="ATA">
+  <meta name="theme-color" content="#060809">
+  <meta name="msapplication-TileColor" content="#C9A962">
   <!-- SEO: Primary Meta -->
-  <meta name="description" content="Search 119+ verified A-list celebrities - musicians, film stars, athletes, K-pop idols (BTS, BLACKPINK), influencers, and comedians. Filter by category, region, and availability for any event.">
-  <meta name="keywords" content="celebrity directory, search celebrity talent, A-list stars, K-pop booking, BTS members, BLACKPINK Lisa Jennie, Korean actors, celebrity for hire, talent search, influencer booking">
+  <meta name="description" content="Search All Talents Agency (ATA) roster — 119+ verified A-list celebrities. Filter by category, region, and availability for sovereign private access.">
+  <meta name="keywords" content="All Talents Agency, ATA, celebrity directory, talent search, book celebrity">
   <meta name="robots" content="index, follow">
   <meta name="author" content="All Talents Agency">
   <meta property="og:type" content="website">
@@ -33,7 +37,8 @@
     "isPartOf": { "@type": "WebSite", "name": "All Talents Agency", "url": "https://alltalentsagency.com" }
   }
   </script>
-  <link rel='stylesheet' href='assets/styles.css?v=20260609'>
+  <link rel='apple-touch-icon' href='/assets/ata-mark.svg'>
+  <link rel='stylesheet' href='assets/styles.css?v=20260610'>
   <style>
     /* Explorer filter bar — obsidian */
     #search{background:var(--bg-alt);border:1px solid var(--line);color:var(--text);transition:all .2s ease}
@@ -129,7 +134,7 @@
       renderRedactedBrief, displayPrice, renderProtocolSpine, getAccessProgress,
       renderAccessPathSimulator, bindAccessPathSimulator, initAccessProtocol, bindPathBaitHandlers,
       isQualified, openQualifyModal
-    } from './assets/app.js?v=20260609';
+    } from './assets/app.js?v=20260610';
     import { CELEBRITIES } from './assets/celebrities-data.js';
 
     let selectedCelebrity = { id: '', name: '' };

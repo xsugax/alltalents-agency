@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" aria-hidden="true">
+  <defs>
+    <linearGradient id="ataBrass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8D5A3"/>
+      <stop offset="50%" stop-color="#C9A962"/>
+      <stop offset="100%" stop-color="#9A7840"/>
+    </linearGradient>
+  </defs>
+  <rect width="44" height="44" rx="6" fill="#060809"/>
+  <rect x="1" y="1" width="42" height="42" rx="5" fill="none" stroke="url(#ataBrass)" stroke-width="1" opacity="0.9"/>
+  <text x="22" y="28" font-family="'IBM Plex Mono',ui-monospace,monospace" font-size="13" font-weight="700" fill="url(#ataBrass)" text-anchor="middle" letter-spacing="-0.5">ATA</text>
+  <line x1="10" y1="33" x2="34" y2="33" stroke="url(#ataBrass)" stroke-width="0.6" opacity="0.45"/>
+</svg>

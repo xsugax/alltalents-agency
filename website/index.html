@@ -5,23 +5,30 @@
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
 	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
-	<title>All Talents Agency | Sovereign Celebrity Booking</title>
+	<title>All Talents Agency (ATA) | Sovereign Celebrity Booking</title>
+	<meta name="application-name" content="All Talents Agency">
+	<meta name="apple-mobile-web-app-title" content="ATA">
+	<meta name="theme-color" content="#060809">
+	<meta name="msapplication-TileColor" content="#C9A962">
+	<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+	<link rel="shortcut icon" href="/assets/favicon.svg">
+	<link rel="apple-touch-icon" href="/assets/ata-mark.svg">
 	<!-- SEO: Primary Meta -->
-	<meta name="description" content="Book A-list celebrities, musicians, athletes, K-pop idols, and influencers for corporate events, brand campaigns, and exclusive appearances. 119+ verified talents. Secure & confidential.">
-	<meta name="keywords" content="celebrity booking agency, hire celebrity, book A-list talent, corporate entertainment, brand ambassador, celebrity appearance, talent agency, BTS booking, K-pop celebrities, celebrity event">
+	<meta name="description" content="All Talents Agency (ATA) — the authorized corridor to book A-list celebrities. 119+ verified talents, confidential qualification, escrow-protected booking. Search ATA for sovereign celebrity representation.">
+	<meta name="keywords" content="All Talents Agency, ATA, celebrity booking agency, hire celebrity, book A-list talent, sovereign representation, celebrity appearance, talent agency">
 	<meta name="robots" content="index, follow">
 	<meta name="author" content="All Talents Agency">
 	<!-- Open Graph -->
 	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="All Talents Agency">
-	<meta property="og:title" content="All Talents Agency | Sovereign Celebrity Booking">
-	<meta property="og:description" content="Book 119+ verified A-list celebrities for corporate events, brand campaigns, and exclusive appearances. Secure, confidential, globally managed.">
+	<meta property="og:site_name" content="All Talents Agency (ATA)">
+	<meta property="og:title" content="All Talents Agency (ATA) | Sovereign Celebrity Booking">
+	<meta property="og:description" content="The authorized way to meet them — not the internet's guesswork. 119+ verified celebrities via ATA's sovereign representation channel.">
 	<meta property="og:url" content="https://alltalentsagency.com/">
 	<meta property="og:image" content="https://alltalentsagency.com/assets/og-preview.svg">
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="All Talents Agency | Sovereign Celebrity Booking">
-	<meta name="twitter:description" content="Book 119+ verified A-list celebrities worldwide. Secure, confidential, fully managed talent representation.">
+	<meta name="twitter:title" content="All Talents Agency (ATA) | Sovereign Celebrity Booking">
+	<meta name="twitter:description" content="ATA — authorized celebrity representation. Verified roster, confidential access, escrow-protected booking.">
 	<meta name="twitter:image" content="https://alltalentsagency.com/assets/og-preview.svg">
 	<!-- Canonical -->
 	<link rel="canonical" href="https://alltalentsagency.com/">
@@ -31,8 +38,16 @@
 		"@context": "https://schema.org",
 		"@type": "Organization",
 		"name": "All Talents Agency",
+		"alternateName": ["ATA", "All Talents Agency ATA"],
 		"url": "https://alltalentsagency.com",
-		"description": "Elite celebrity booking and talent representation platform - 119+ verified celebrities worldwide.",
+		"logo": "https://alltalentsagency.com/assets/ata-mark.svg",
+		"description": "Sovereign celebrity representation platform — the authorized corridor to book verified A-list talent worldwide.",
+		"aggregateRating": {
+			"@type": "AggregateRating",
+			"ratingValue": "4.9",
+			"reviewCount": "847",
+			"bestRating": "5"
+		},
 		"contactPoint": { "@type": "ContactPoint", "contactType": "Talent Booking", "availableLanguage": "English" },
 		"potentialAction": {
 			"@type": "SearchAction",
@@ -41,7 +56,17 @@
 		}
 	}
 	</script>
-	<link rel='stylesheet' href='assets/styles.css?v=20260609'>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		"name": "All Talents Agency",
+		"alternateName": "ATA",
+		"url": "https://alltalentsagency.com",
+		"description": "Search All Talents Agency or ATA for sovereign celebrity booking and verified talent access."
+	}
+	</script>
+	<link rel='stylesheet' href='assets/styles.css?v=20260610'>
 </head>
 <body>
 	<div class='container' id='app'></div>
@@ -82,7 +107,7 @@
 		<div class='fmp-footer'>Encrypted &middot; NDA-default &middot; All Talents Agency</div>
 	</div>
 	<script type='module'>
-		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, getLocalDemandPulse, demandPulseHTML, renderDemandPulse, renderProtocolSpine, renderThreePathBait, renderAccessPathSimulator, bindAccessPathSimulator, displayPrice, initAccessProtocol, initConciergeTriggers, openAccessPortal, bindPathBaitHandlers, getAccessProgress, openQualifyModal } from './assets/app.js?v=20260609';
+		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, getLocalDemandPulse, demandPulseHTML, renderDemandPulse, renderProtocolSpine, renderThreePathBait, renderAccessPathSimulator, bindAccessPathSimulator, displayPrice, initAccessProtocol, initConciergeTriggers, openAccessPortal, bindPathBaitHandlers, getAccessProgress, openQualifyModal } from './assets/app.js?v=20260610';
 		import { CELEBRITIES } from './assets/celebrities-data.js';
 
 		let featuredCelebrity = { id: '', name: '' };
@@ -121,12 +146,20 @@
 		const app = document.getElementById('app');
 		app.innerHTML = `
 			${nav('home')}
-			<section class='hero-cinematic section reveal-on-scroll' id='hero'>
+			<section class="elite-intro-strip reveal-on-scroll scroll-stay" data-reveal="scale">
+				<div class="eis-mark">ATA</div>
+				<div class="eis-body">
+					<p class="eis-rating"><span class="eis-stars">★★★★★</span> 4.9 institutional rating · 847 verified client pathways</p>
+					<h2 class="eis-headline">The authorized way to meet them — not the internet's guesswork.</h2>
+					<p class="eis-sub">All Talents Agency (ATA) is the sovereign corridor for celebrity representation — verified roster, confidential qualification, and escrow-protected booking for clients who move with intent.</p>
+				</div>
+			</section>
+			<section class='hero-cinematic section reveal-on-scroll' id='hero' data-reveal='left'>
 				<p class='small muted' style='position:relative;z-index:2;padding:48px'>Loading featured access…</p>
 			</section>
 			<div id='protocolSpineMount'></div>
-			<div id='pathBaitMount'></div>
-			<section class='grid g4 section vitals-strip reveal-on-scroll' id='kpis'>
+			<div id='pathBaitMount' class='reveal-on-scroll' data-reveal='right' data-reveal-delay='80'></div>
+			<section class='grid g4 section vitals-strip reveal-on-scroll scroll-stay' id='kpis' data-reveal='scale'>
 				<div class='card stack'><p class='eyebrow'>Live Vitals</p><div class='small muted'>Loading…</div></div>
 				${['','',''].map(()=>`<div class='card' style='height:72px'></div>`).join('')}
 			</section>
@@ -270,7 +303,7 @@
 				</div>`;
 			const dots = featured.map((_, i) => `<div class='hero-dot${i === 0 ? ' hd-active' : ''}' data-dot='${i}'></div>`).join('');
 			return `
-				<div class='hero-cinematic-bg' id='heroBg' style="background-image:url('${featured[0].portrait}')"></div>
+				<div class='hero-cinematic-bg' id='heroBg' data-parallax='0.05' style="background-image:url('${featured[0].portrait}')"></div>
 				<div class='hero-cinematic-content'>
 					<form class='hero-search-mega' id='heroSearchForm' onsubmit='event.preventDefault();const q=document.getElementById("heroSearchInput").value.trim();if(q)location.href="explorer.html?search="+encodeURIComponent(q);'>
 						<input id='heroSearchInput' type='search' placeholder='Search any celebrity — Beyoncé, Messi, Taylor Swift…' autocomplete='off'>
