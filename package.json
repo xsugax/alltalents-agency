@@ -1,11 +1,13 @@
 {
   "name": "alltalents-platform",
   "version": "2.1.0",
+  "type": "module",
   "scripts": {
     "predev": "kill-port 5600 4100",
     "dev": "concurrently \"npm run dev --prefix api\" \"npm run static\"",
     "static": "http-server website -p 5600 -c-1",
-    "api": "npm run dev --prefix api"
+    "api": "npm run dev --prefix api",
+    "sync-roster": "node scripts/sync-roster.js"
   },
   "keywords": [],
   "author": "ATA Operations Group <ops@alltalentsagency.com>",

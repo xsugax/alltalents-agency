@@ -25,6 +25,40 @@ export const setAuth = (tokenValue, user) => {
   localStorage.removeItem('aurelux_user');
 };
 
+window.__ataAuth = { token, currentUser, setAuth };
+
+export function requireAuth(returnPath) {
+  if (token()) return true;
+  const path = returnPath || (location.pathname.replace(/^\//, '') + location.search);
+  localStorage.setItem('ata_return', path);
+  location.href = 'login.html';
+  return false;
+}
+
+export function consumeReturnUrl(defaultPath = 'explorer.html') {
+  const r = localStorage.getItem('ata_return');
+  if (r) {
+    localStorage.removeItem('ata_return');
+    location.href = r.startsWith('http') ? r : r;
+    return true;
+  }
+  return false;
+}
+
+export {
+  ASSET_V,
+  formatPrice,
+  getShortlist,
+  setShortlist,
+  toggleShortlist,
+  getRelatedTalents,
+  renderRelatedRail,
+  renderShortlistTray,
+  bindShortlistTray,
+  trackEvent,
+  renderCompareMatrix,
+} from './platform.js';
+
 export async function request(path, options = {}) {
   const response = await fetch(`${_API}${path}`, {
     ...options,
@@ -70,13 +104,29 @@ const TICKER_EVENTS = [
   { name: 'Dwayne Johnson', event: 'New Inquiry', change: '+$5.0M', positive: true },
 ];
 
-export function loadTicker() {
+function renderTickerItems(events) {
   const el = document.getElementById('tickerTrack');
   if (!el) return;
-  const items = TICKER_EVENTS.map(e =>
+  const items = events.map(e =>
     `<span class="tick-item ${e.positive ? 'tick-up' : 'tick-down'}">${e.name} <b>· ${e.event}</b> ${e.change}</span><span class="tick-sep">◆</span>`
   ).join('');
   el.innerHTML = items + items;
+}
+
+export async function loadTicker() {
+  try {
+    const data = await fetch(`${_API}/intelligence/ticker`).then(r => r.json());
+    if (data?.events?.length) {
+      renderTickerItems(data.events.map(e => ({
+        name: e.name,
+        event: e.event || e.label,
+        change: e.change || '',
+        positive: e.positive !== false,
+      })));
+      return;
+    }
+  } catch { /* fallback */ }
+  renderTickerItems(TICKER_EVENTS);
 }
 
 export function conciergeRail(){

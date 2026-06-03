@@ -3,7 +3,7 @@
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name='referrer' content='no-referrer'>
   <title>Crowd Access | All Talents Agency</title>
   <!-- SEO: Primary Meta -->
@@ -21,7 +21,7 @@
   <link rel="canonical" href="https://alltalentsagency.com/crowdbooking.html">
   <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
   <link rel='shortcut icon' href='/assets/favicon.svg'>
-  <link rel='stylesheet' href='assets/styles.css'>
+  <link rel='stylesheet' href='assets/styles.css?v=20260605'>
 </head>
 <body>
   <div class='container' id='app'></div>
@@ -32,7 +32,7 @@
   </div>
 
   <script type='module'>
-    import { request, nav, loadTicker, buildCryptoPaymentHTML, initCryptoWidget, initNav, initTheme } from './assets/app.js';
+    import { request, nav, loadTicker, buildCryptoPaymentHTML, initCryptoWidget, initNav, initTheme, requireAuth, trackEvent } from './assets/app.js?v=20260605';
 
     (async () => {
 
@@ -279,8 +279,10 @@
         const status = document.getElementById('cmStatus');
         btn.disabled = true; btn.textContent = 'Securing slot...';
         const payMethod = cmCryptoWidget.getMethod();
+        if (!requireAuth(`crowdbooking.html?celeb=${ev.celebId}`)) { btn.disabled = false; btn.textContent = '- Confirm & Secure My Slot'; return; }
         try {
           const res = await request(`/crowd-events/${ev.id}/join`, { method: 'POST', body: JSON.stringify({ plan, paymentMethod: payMethod }) });
+          trackEvent('crowd_join', { eventId: ev.id, celebId: ev.celebId });
           const payLabel = payMethod === 'wire' ? 'Wire Transfer' : payMethod.toUpperCase();
           modalContent.innerHTML = `
             <div style='text-align:center;padding:10px 0'>
@@ -294,7 +296,8 @@
                 Payment via ${payLabel}
               </div>
               <p class='small muted' style='font-size:10px;opacity:.65'>Event credentials will be delivered 14 days before the event date. Keep your slot code safe.</p>
-              <button onclick="document.getElementById('crowdModalBack').classList.remove('cm-open')" style='margin-top:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(229,228,226,.7);font-size:11px;padding:10px 24px;border-radius:8px;cursor:pointer;width:auto;letter-spacing:.06em;text-transform:uppercase'>Done</button>
+              <a href='booking.html?id=${ev.celebId}' style='display:inline-block;margin-top:14px'><button class='primary' style='width:auto;padding:12px 28px;font-size:11px'>Upgrade to private access with ${ev.name} →</button></a>
+              <br><button onclick="document.getElementById('crowdModalBack').classList.remove('cm-open')" style='margin-top:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(229,228,226,.7);font-size:11px;padding:10px 24px;border-radius:8px;cursor:pointer;width:auto;letter-spacing:.06em;text-transform:uppercase'>Done</button>
             </div>
           `;
           // Update allEvents count live

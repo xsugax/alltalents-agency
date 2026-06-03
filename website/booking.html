@@ -3,186 +3,223 @@
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>Sovereign Booking | All Talents Agency</title>
 	<meta name="robots" content="noindex, nofollow">
-	<link rel='stylesheet' href='assets/styles.css'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260605'>
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
-	<link rel='shortcut icon' href='/assets/favicon.svg'>
 </head>
 <body>
 	<div class='container' id='app'></div>
 	<script type='module'>
-		import { request, nav, currentUser, loadTicker, buildCryptoPaymentHTML, initCryptoWidget, initNav, initTheme } from './assets/app.js';
+		import {
+			request, nav, currentUser, loadTicker, buildCryptoPaymentHTML, initCryptoWidget,
+			initNav, initTheme, requireAuth, formatPrice, renderRelatedRail, getRelatedTalents,
+			bindShortlistTray, trackEvent
+		} from './assets/app.js?v=20260605';
+		import { CELEBRITIES } from './assets/celebrities-data.js';
+
+		const qs = new URLSearchParams(location.search);
+		const id = qs.get('id');
+		const preVenue = qs.get('venue') || '';
+		const preDate = qs.get('date') || '';
 
 		const app = document.getElementById('app');
-		const id = new URLSearchParams(location.search).get('id');
-
-		app.innerHTML = `${nav('booking')}<section class='grid g2 section'><article class='card' id='left'></article><article class='card stack' id='right'></article></section>`;
+		app.innerHTML = `${nav('booking')}<section class='section' id='bkRoot'></section>`;
+		loadTicker(); initTheme(); initNav();
+		bindShortlistTray(CELEBRITIES);
 
 		if (!id) {
-			document.getElementById('left').innerHTML = '<h3>No celebrity selected</h3><p class="muted">Return to Explorer and choose a profile before initiating a sovereign booking sequence.</p>';
+			document.getElementById('bkRoot').innerHTML = '<div class="card"><h3>No celebrity selected</h3><p class="muted"><a href="explorer.html">Explorer</a></p></div>';
 			throw new Error('no id');
 		}
 
 		const c = await request('/celebrities/' + id);
+		trackEvent('booking_view', { id });
 
-		loadTicker();
-		initTheme();
-		initNav();
+		let step = 0;
+		let selectedDate = preDate;
+		let availMsg = '';
 
-		// Build 30-day availability calendar
-		function buildCalendar(celebrity) {
-			const today = new Date();
-			const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-			const firstDow = today.getDay();
-			const paddingCells = Array.from({length: firstDow}, (_, i) => `<div class='cal-cell cal-past'></div>`).join('');
-			let cells = '';
-			for (let d = 0; d < 30; d++) {
-				const date = new Date(today);
-				date.setDate(today.getDate() + d);
-				const isToday = d === 0;
-				const dayNum = date.getDate();
-				let cls = 'cal-past';
-				if (d <= celebrity.availabilityWindowDays) {
-					cls = celebrity.availability === 'Open' ? 'cal-open'
-						: celebrity.availability === 'Limited' ? 'cal-limited' : 'cal-waitlist';
-				}
-				const todayCls = isToday ? ' cal-today' : '';
-				cells += `<div class='cal-cell ${cls}${todayCls}' title='${date.toDateString()}'>${dayNum}</div>`;
-			}
-			return `
-				<div class='avail-cal'>
-					<p class='eyebrow'>Availability Pulse Calendar</p>
-					<p class='small muted'>30-day forward window for <b>${celebrity.name}</b> - Status: <b>${celebrity.availability}</b> - Open window: ${celebrity.availabilityWindowDays} days</p>
-					<div class='cal-legend'>
-						<span class='legend-open'>Open</span>
-						<span class='legend-limited'>Limited</span>
-						<span class='legend-waitlist'>Waitlist</span>
-						<span class='legend-past'>Outside Window</span>
-					</div>
-					<div class='cal-grid'>
-						${dows.map(d => `<div class='cal-dow'>${d}</div>`).join('')}
-						${paddingCells}${cells}
-					</div>
-				</div>
-			`;
+		const related = await request('/celebrities/' + id + '/related').catch(() => ({
+			data: getRelatedTalents(c, CELEBRITIES),
+		}));
+
+		function projectedQuote() {
+			const adjust = Number(document.getElementById('adjust')?.value || 0);
+			const security = document.getElementById('security')?.value || 'Standard';
+			const securityFactor = security === 'Sovereign' ? 1.18 : security === 'Executive' ? 1.1 : security === 'Enhanced' ? 1.05 : 1;
+			return Math.round(c.startingPrice * (1 + adjust / 100) * securityFactor);
 		}
 
-		document.getElementById('left').innerHTML = `
-			<p class='eyebrow'>Executive Booking Desk</p>
-			<h2>Initiate Structured Engagement for ${c.name}</h2>
-			<p class='lead'>Submit your event brief with security and operational requirements. The system simulates commercial impact prior to representative review and contract progression.</p>
-			<div class='grid section'>
-				<input id='eventType' value='Gala' placeholder='Event Type'>
-				<input id='date' type='date'>
-				<input id='location' value='Dubai' placeholder='Location'>
-				<select id='security'>${c.securityTiers.map(s => `<option>${s}</option>`).join('')}</select>
-				<textarea id='rider'>Private lounge protocol + secure arrival corridor + controlled media perimeter.</textarea>
-				<label class='small muted'>Dynamic Pricing Sensitivity</label>
-				<input id='adjust' type='range' min='-15' max='50' value='0'>
-				<div class='flow-grid'>
-					<div class='flow-step'><p class='num'>Projected Quote</p><h4 id='simQuote'>$0</h4><p id='simQuoteHint'>Base scenario</p></div>
-					<div class='flow-step'><p class='num'>Escrow Reserve</p><h4 id='simEscrow'>$0</h4><p>30% secured reserve</p></div>
-					<div class='flow-step'><p class='num'>Visibility Impact</p><h4 id='simImpact'>0</h4><p id='simImpactHint'>Forecast index</p></div>
-				</div>
-				<button id='genPlan'>Generate Executive Scenario</button>
-				<p class='small muted' id='planOut'>${currentUser() ? 'Generate a strategy scenario based on your current booking inputs.' : 'Login to enable scenario generation.'}</p>
-				<div style='border-top:1px solid rgba(255,255,255,.07);padding-top:16px;margin-top:4px'>
-					<p class='eyebrow' style='margin-bottom:12px'>Select Payment Method</p>
-					<div id='paymentWidgetWrap'></div>
-				</div>
-				<button class='primary' id='submit'>Confirm Booking Submission</button>
-				<p class='small muted' id='msg'></p>
-			</div>
-		`;
+		function render() {
+			const quote = projectedQuote();
+			const escrow = Math.round(quote * 0.3);
+			const root = document.getElementById('bkRoot');
+			root.innerHTML = `
+				<div class="booking-wizard">
+					<article class="card stack">
+						<div class="bk-steps">
+							<span class="bk-step ${step === 0 ? 'bk-active' : step > 0 ? 'bk-done' : ''}">01 Experience</span>
+							<span class="bk-step ${step === 1 ? 'bk-active' : step > 1 ? 'bk-done' : ''}">02 Logistics</span>
+							<span class="bk-step ${step === 2 ? 'bk-active' : step > 2 ? 'bk-done' : ''}">03 Commercial</span>
+							<span class="bk-step ${step === 3 ? 'bk-active' : ''}">04 Settlement</span>
+						</div>
+						<div class="bk-panel ${step === 0 ? 'bk-show' : ''}" data-step="0">
+							<p class="eyebrow">Executive booking desk</p>
+							<h2>Your engagement with ${c.name}</h2>
+							<div class="experience-preview">
+								<img src="${c.portrait}" alt="">
+								<div>
+									<p class="lead" style="margin:0 0 10px">${c.eliteSignal || 'Sovereign private access — representation-first pathway.'}</p>
+									<p class="small muted">From ${formatPrice(c.startingPrice)} · ${c.availability} · ${c.category}</p>
+								</div>
+							</div>
+							<button type="button" class="primary" id="bkNext0" style="width:auto;margin-top:16px">Continue to logistics →</button>
+						</div>
+						<div class="bk-panel ${step === 1 ? 'bk-show' : ''}" data-step="1">
+							<p class="eyebrow">Logistics</p>
+							<div class="grid g2">
+								<input id="eventType" value="Gala" placeholder="Event type">
+								<input id="date" type="date" value="${selectedDate}">
+								<input id="location" value="${preVenue ? decodeURIComponent(preVenue) : 'Dubai'}" placeholder="Location">
+								<select id="security">${c.securityTiers.map(s => `<option>${s}</option>`).join('')}</select>
+							</div>
+							<textarea id="rider" rows="3" style="margin-top:10px">Private lounge protocol + secure arrival corridor.</textarea>
+							<p class="small muted" id="availStatus">${availMsg || 'Select a date to verify availability pulse.'}</p>
+							<div style="display:flex;gap:10px;margin-top:14px">
+								<button type="button" class="secondary" id="bkBack1" style="width:auto">← Back</button>
+								<button type="button" class="primary" id="bkNext1" style="width:auto">Commercial quote →</button>
+							</div>
+						</div>
+						<div class="bk-panel ${step === 2 ? 'bk-show' : ''}" data-step="2">
+							<p class="eyebrow">Commercial</p>
+							<label class="small muted">Pricing sensitivity</label>
+							<input id="adjust" type="range" min="-15" max="50" value="0">
+							<div class="quote-line"><span>Projected quote</span><strong id="simQuote">$${quote.toLocaleString()}</strong></div>
+							<div class="quote-line"><span>Escrow reserve (30%)</span><strong id="simEscrow">$${escrow.toLocaleString()}</strong></div>
+							<div class="escrow-bar"><div class="escrow-fill" id="escrowFill" style="width:30%"></div></div>
+							<button type="button" class="secondary" id="genPlan" style="margin-top:12px">Generate executive scenario</button>
+							<p class="small muted" id="planOut">${currentUser() ? 'Optional strategy brief.' : 'Login for blueprint generation.'}</p>
+							<div style="display:flex;gap:10px;margin-top:14px">
+								<button type="button" class="secondary" id="bkBack2" style="width:auto">← Back</button>
+								<button type="button" class="primary" id="bkNext2" style="width:auto">Settlement →</button>
+							</div>
+						</div>
+						<div class="bk-panel ${step === 3 ? 'bk-show' : ''}" data-step="3">
+							<p class="eyebrow">Settlement</p>
+							<div id="paymentWidgetWrap"></div>
+							<button type="button" class="primary" id="submit" style="margin-top:14px">Confirm booking submission</button>
+							<p class="small muted" id="msg"></p>
+							<button type="button" class="secondary" id="bkBack3" style="width:auto;margin-top:8px">← Back</button>
+						</div>
+					</article>
+					<aside class="card stack" id="bkSidebar">
+						<p class="eyebrow">Add another engagement</p>
+						<div id="bkRelated"></div>
+					</aside>
+				</div>`;
 
-		const stages = ['Inquiry Received', 'Representative Qualification', 'Commercial Negotiation', 'Contract Finalization', 'Escrow Confirmation', 'Engagement Confirmed'];
-		document.getElementById('right').innerHTML = `
-			<p class='eyebrow'>Process Control</p>
-			<h3>Structured Status Tracker</h3>
-			<p class='small muted'>Each phase reflects the formal representation lifecycle from intake through engagement confirmation.</p>
-			<div class='flow-step'>
-				<p class='num'>Pre-check</p>
-				<h4>Before Submission</h4>
-				<p>Confirm date, location, and security tier to reduce revision cycles and accelerate approvals.</p>
-			</div>
-			${stages.map(s => `<div class='card small'>${s}</div>`).join('')}
-			${buildCalendar(c)}
-		`;
+			renderRelatedRail(document.getElementById('bkRelated'), related.data || [], 'Clients also pursued');
 
-		const adjustInput = document.getElementById('adjust');
-		const securityInput = document.getElementById('security');
+			const refreshQuote = () => {
+				const q = projectedQuote();
+				const esc = Math.round(q * 0.3);
+				const sq = document.getElementById('simQuote');
+				const se = document.getElementById('simEscrow');
+				if (sq) sq.textContent = `$${q.toLocaleString()}`;
+				if (se) se.textContent = `$${esc.toLocaleString()}`;
+			};
 
-		const updateSimulator = () => {
-			const adjust = Number(adjustInput.value || 0);
-			const security = securityInput.value;
-			const securityFactor = security === 'Sovereign' ? 1.18 : security === 'Executive' ? 1.1 : security === 'Enhanced' ? 1.05 : 1;
-			const projected = Math.round(c.startingPrice * (1 + adjust / 100) * securityFactor);
-			const escrow = Math.round(projected * 0.3);
-			const impact = Math.min(100, Math.round((c.demandIndex * 0.5) + (adjust > 0 ? Math.min(22, adjust * 0.4) : 4) + (securityFactor > 1.1 ? 12 : 7)));
+			document.getElementById('bkNext0')?.addEventListener('click', () => { step = 1; render(); });
+			document.getElementById('bkBack1')?.addEventListener('click', () => { step = 0; render(); });
+			document.getElementById('bkNext1')?.addEventListener('click', () => { step = 2; render(); });
+			document.getElementById('bkBack2')?.addEventListener('click', () => { step = 1; render(); });
+			document.getElementById('bkNext2')?.addEventListener('click', () => { step = 3; render(); bindPay(); });
+			document.getElementById('bkBack3')?.addEventListener('click', () => { step = 2; render(); });
 
-			document.getElementById('simQuote').textContent = `$${projected.toLocaleString()}`;
-			document.getElementById('simEscrow').textContent = `$${escrow.toLocaleString()}`;
-			document.getElementById('simImpact').textContent = `${impact}/100`;
-			document.getElementById('simQuoteHint').textContent = `${adjust}% pricing sensitivity - ${security} security`; 
-			document.getElementById('simImpactHint').textContent = impact >= 80 ? 'High-visibility premium scenario' : impact >= 60 ? 'Strong strategic scenario' : 'Controlled baseline scenario';
-		};
+			document.getElementById('date')?.addEventListener('change', async (e) => {
+				selectedDate = e.target.value;
+				const st = document.getElementById('availStatus');
+				if (!selectedDate) return;
+				try {
+					const a = await request(`/celebrities/${id}/availability?date=${selectedDate}`);
+					availMsg = a.message || a.status;
+					if (st) st.textContent = availMsg;
+				} catch (err) {
+					if (st) st.textContent = err.message;
+				}
+			});
 
-		adjustInput.addEventListener('input', updateSimulator);
-		securityInput.addEventListener('change', updateSimulator);
-		updateSimulator();
+			document.getElementById('adjust')?.addEventListener('input', refreshQuote);
+			document.getElementById('security')?.addEventListener('change', refreshQuote);
 
-		// Inject crypto widget
-		document.getElementById('paymentWidgetWrap').innerHTML = buildCryptoPaymentHTML('bk');
-		const cryptoWidget = initCryptoWidget('bk');
+			document.getElementById('genPlan')?.addEventListener('click', async () => {
+				const out = document.getElementById('planOut');
+				if (!currentUser()) { out.textContent = 'Login required for blueprint.'; return; }
+				try {
+					const strategy = await request('/intelligence/blueprint', {
+						method: 'POST',
+						body: JSON.stringify({
+							celebrityId: id,
+							objective: `Premium ${document.getElementById('eventType').value}`,
+							audienceType: 'VIP stakeholders',
+							region: document.getElementById('location').value,
+							budget: projectedQuote(),
+							timelineDays: 21,
+						}),
+					});
+					out.innerHTML = `<b>${strategy.blueprintId}</b> — ${strategy.strategy.recommendation}`;
+				} catch (e) {
+					out.textContent = e.message;
+				}
+			});
 
-		document.getElementById('genPlan').onclick = async () => {
-			const out = document.getElementById('planOut');
-			try {
-				const security = document.getElementById('security').value;
-				const projectedBudget = Math.round(c.startingPrice * (1 + Number(document.getElementById('adjust').value || 0) / 100));
-				const strategy = await request('/intelligence/blueprint', {
-					method: 'POST',
-					body: JSON.stringify({
-						celebrityId: id,
-						objective: `Premium ${document.getElementById('eventType').value} execution`,
-						audienceType: 'VIP & strategic stakeholders',
-						region: document.getElementById('location').value,
-						budget: projectedBudget,
-						timelineDays: 21,
-					}),
-				});
-				out.innerHTML = `<b>${strategy.blueprintId}</b> - ${strategy.strategy.recommendation} - Exclusivity ${strategy.scores.exclusivityIndex} - Security lane: ${security}.`;
-			} catch (error) {
-				out.textContent = error.message + ' (login first)';
-			}
-		};
+			if (step === 3) bindPay();
+		}
 
-		document.getElementById('submit').onclick = async () => {
-			try {
-				const payMethod = cryptoWidget.getMethod();
-				const r = await request('/bookings/initiate', {
-					method: 'POST',
-					body: JSON.stringify({
-						celebrityId: id,
-						eventType: document.getElementById('eventType').value,
-						date: document.getElementById('date').value,
-						location: document.getElementById('location').value,
-						ndaRequired: true,
-						securityLevel: document.getElementById('security').value,
-						riderRequirements: document.getElementById('rider').value,
-						pricingAdjustmentPercent: Number(document.getElementById('adjust').value),
-						paymentMethod: payMethod,
-					}),
-				});
-				const payLabel = payMethod === 'wire' ? 'Wire Transfer' : payMethod.toUpperCase();
-				document.getElementById('msg').innerHTML = `- Submission accepted. Booking <b>${r.booking.id.slice(0,8)}</b> - Contract <b>${r.booking.contractId}</b> - Payment via <b>${payLabel}</b>.`;
-			} catch (e) {
-				document.getElementById('msg').textContent = e.message + ' (login first)';
-			}
-		};
+		let cryptoWidget;
+		function bindPay() {
+			document.getElementById('paymentWidgetWrap').innerHTML = buildCryptoPaymentHTML('bk');
+			cryptoWidget = initCryptoWidget('bk');
+			document.getElementById('submit').onclick = async () => {
+				if (!requireAuth(`booking.html?id=${id}&venue=${encodeURIComponent(document.getElementById('location').value)}&date=${document.getElementById('date').value}`)) return;
+				const msg = document.getElementById('msg');
+				try {
+					const payMethod = cryptoWidget.getMethod();
+					const r = await request('/bookings/initiate', {
+						method: 'POST',
+						body: JSON.stringify({
+							celebrityId: id,
+							eventType: document.getElementById('eventType').value,
+							date: document.getElementById('date').value,
+							location: document.getElementById('location').value,
+							ndaRequired: true,
+							securityLevel: document.getElementById('security').value,
+							riderRequirements: document.getElementById('rider').value,
+							pricingAdjustmentPercent: Number(document.getElementById('adjust').value),
+							paymentMethod: payMethod,
+						}),
+					});
+					trackEvent('booking_initiate', { id, bookingId: r.booking.id });
+					msg.innerHTML = `<div class="bk-success-pulse card" style="margin-top:12px;padding:16px">
+						<p class="eyebrow">Engagement recorded</p>
+						<p><b>${r.booking.id.slice(0, 8)}</b> · Contract ${r.booking.contractId}</p>
+						<p class="small muted">Representation review within 24h. <a href="portal.html">Open portal →</a></p>
+					</div>`;
+				} catch (e) {
+					msg.textContent = e.message;
+				}
+			};
+		}
+
+		render();
+		if (preDate) {
+			request(`/celebrities/${id}/availability?date=${preDate}`).then(a => {
+				availMsg = a.message || a.status;
+			}).catch(() => {});
+		}
 	</script>
 </body>
 </html>

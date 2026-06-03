@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<title>Talent Dossier | All Talents Agency</title>
+	<meta name="robots" content="noindex, nofollow">
+	<link rel="stylesheet" href="assets/styles.css?v=20260605">
+	<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+	<div class="container" id="app"></div>
+	<script type="module">
+		import {
+			request, nav, loadTicker, initNav, initTheme, initScrollReveal,
+			formatPrice, toggleShortlist, getShortlist, renderRelatedRail,
+			bindShortlistTray, trackEvent, requireAuth, getRelatedTalents
+		} from './assets/app.js?v=20260605';
+		import { CELEBRITIES } from './assets/celebrities-data.js';
+
+		const params = new URLSearchParams(location.search);
+		const id = params.get('id');
+		const app = document.getElementById('app');
+
+		if (!id) {
+			app.innerHTML = `${nav('explorer')}<section class="card section"><h2>No talent selected</h2><p class="muted"><a href="explorer.html">Return to explorer</a></p></section>`;
+			loadTicker(); initTheme(); initNav();
+			throw new Error('no id');
+		}
+
+		app.innerHTML = `${nav('explorer')}<div id="talentRoot"><p class="small muted">Loading dossier…</p></div>`;
+		loadTicker(); initTheme(); initNav(); initScrollReveal();
+		bindShortlistTray(CELEBRITIES);
+		trackEvent('dossier_view', { id });
+
+		let celeb;
+		try {
+			const [c, dossierRes, relatedRes] = await Promise.all([
+				request('/celebrities/' + id),
+				request('/celebrities/' + id + '/dossier').catch(() => null),
+				request('/celebrities/' + id + '/related').catch(() => ({ data: getRelatedTalents(
+					CELEBRITIES.find(x => x.id === id) || {}, CELEBRITIES
+				) })),
+			]);
+			celeb = c;
+			const d = dossierRes?.dossier;
+			const related = relatedRes?.data || [];
+			const listed = getShortlist().includes(id);
+
+			document.getElementById('talentRoot').innerHTML = `
+				<section class="talent-hero reveal-on-scroll">
+					<div class="talent-hero-bg" style="background-image:url('${c.portrait}')"></div>
+					<div class="talent-hero-content">
+						<span class="talent-stamp">${d?.classificationLevel || 'Qualified Access File'}</span>
+						<p class="eyebrow">${c.category} · ${c.region} · ${c.agencyRepresentation}</p>
+						<h1 class="talent-name">${c.name}</h1>
+						<p class="lead" style="max-width:560px">${c.eliteSignal || 'Sovereign representation channel — executive booking desk ready.'}</p>
+						<div style="display:flex;flex-wrap:wrap;gap:14px;margin:16px 0">
+							<span class="badge">${c.availability}</span>
+							<span class="small"><span class="muted">Access from</span> <strong style="color:var(--accent-text)">${formatPrice(c.startingPrice)}</strong></span>
+							<span class="small"><span class="muted">Demand</span> <strong>${c.demandIndex}/99</strong></span>
+						</div>
+						<div class="talent-cta-row">
+							<a href="booking.html?id=${c.id}"><button class="primary" type="button">Private booking desk →</button></a>
+							<a href="crowdbooking.html?celeb=${c.id}"><button class="secondary" type="button">Crowd access</button></a>
+							<button class="secondary" type="button" id="talentShortlistBtn" style="width:auto">${listed ? 'On engagement board' : '+ Engagement board'}</button>
+						</div>
+					</div>
+				</section>
+				<section class="grid g2 section reveal-on-scroll">
+					<article class="card stack">
+						<p class="eyebrow">Intelligence brief</p>
+						${d ? `
+							<div class="dossier-meta-grid">
+								<div class="dossier-meta-item"><div class="dmk">Media authority</div><div class="dmv">${d.mediaAuthorityScore}/99</div></div>
+								<div class="dossier-meta-item"><div class="dmk">Lead time</div><div class="dmv">${d.optimalLeadTime}</div></div>
+								<div class="dossier-meta-item"><div class="dmk">Venue</div><div class="dmv">${d.recommendedVenue}</div></div>
+								<div class="dossier-meta-item"><div class="dmk">NDA</div><div class="dmv">${d.ndaStatus}</div></div>
+							</div>
+							<div class="dossier-section" style="margin-top:14px">
+								<h5 style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent-text)">Talking points</h5>
+								<ul class="dossier-tp">${d.talkingPoints.map(p => `<li>${p}</li>`).join('')}</ul>
+							</div>
+							<p class="small muted" style="margin-top:10px">${d.riskBrief}</p>
+						` : '<p class="muted">Brief loading unavailable — proceed via booking desk.</p>'}
+					</article>
+					<article class="card stack">
+						<p class="eyebrow">Your experience preview</p>
+						<div class="experience-preview">
+							<img src="${c.portrait}" alt="">
+							<div>
+								<h3 style="margin:0 0 8px;font-size:18px">An evening with ${c.name}</h3>
+								<p class="small muted">Configure venue, date, and tier on the booking desk. Escrow clears through sovereign channels.</p>
+								<div class="escrow-bar" style="margin-top:14px"><div class="escrow-fill" style="width:30%"></div></div>
+								<p class="small" style="margin-top:8px">30% escrow reserve · representation review within 24h</p>
+							</div>
+						</div>
+					</article>
+				</section>
+				<section class="section reveal-on-scroll" id="relatedRailWrap"></section>
+			`;
+
+			renderRelatedRail(document.getElementById('relatedRailWrap'), related);
+			document.getElementById('talentShortlistBtn')?.addEventListener('click', () => {
+				const r = toggleShortlist(id);
+				if (!r.ok) alert('Engagement board holds 5 profiles maximum.');
+				else document.getElementById('talentShortlistBtn').textContent =
+					getShortlist().includes(id) ? 'On engagement board' : '+ Engagement board';
+			});
+		} catch (e) {
+			document.getElementById('talentRoot').innerHTML = `<section class="card"><p>${e.message}</p><a href="explorer.html">Explorer</a></section>`;
+		}
+	</script>
+</body>
+</html>

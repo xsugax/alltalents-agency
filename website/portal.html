@@ -3,18 +3,19 @@
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>Sovereign Client Portal | All Talents Agency</title>
 	<meta name="robots" content="noindex, nofollow">
-	<link rel='stylesheet' href='assets/styles.css'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260605'>
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
 	<link rel='shortcut icon' href='/assets/favicon.svg'>
 </head>
 <body>
 	<div class='container' id='app'></div>
 	<script type='module'>
-		import { request, nav, loadTicker, initNav, initTheme } from './assets/app.js';
+		import { request, nav, loadTicker, initNav, initTheme, renderRelatedRail, getRelatedTalents } from './assets/app.js?v=20260605';
+		import { CELEBRITIES } from './assets/celebrities-data.js';
 
 		const app = document.getElementById('app');
 		app.innerHTML = `${nav('portal')}<section id='p' class='section'></section>`;
@@ -140,12 +141,30 @@
 				</div>
 
 				<div class='card section stack'>
+					<p class='eyebrow'>Crowd access slots</p>
+					<h3>Group experience bookings</h3>
+					${(d.crowdSlots || []).length === 0 ? `<p class='small muted'>No crowd slots yet. <a href='crowdbooking.html'>Browse crowd events</a></p>` : (d.crowdSlots || []).map(b => `
+						<div class='card stack crowd-event-card' style='margin-top:10px'>
+							<p class='eyebrow'>${b.slotCode}</p>
+							<h4 style='color:#fff;margin:4px 0'>${b.eventTitle || b.celebName}</h4>
+							<p class='small' style='color:rgba(255,255,255,.6)'>${b.city} · ${b.date} · Plan: ${b.plan}</p>
+							<p class='small'><b style='color:var(--accent-text)'>$${(b.nextPayment || 0).toLocaleString()}</b> next · ${b.paymentStatus}</p>
+							${b.celebId ? `<a href='booking.html?id=${b.celebId}'><button class='secondary' style='width:auto;margin-top:8px;font-size:10px'>Upgrade to private access →</button></a>` : ''}
+						</div>
+					`).join('')}
+				</div>
+
+				<div class='card section stack' id='portalDiscover'></div>
+
+				<div class='card section stack'>
 					<p class='eyebrow'>Representative Communications</p>
 					<h3>Client Message Archive</h3>
 					<p class='small muted'>All messages are preserved as part of engagement audit continuity and support timeline clarity between inquiry and confirmation phases.</p>
 					${d.messages.map(m => `<p class='small'><b>${m.from}:</b> ${m.body}</p>`).join('') || '<p class="small muted">No messages currently available.</p>'}
 				</div>
 			`;
+
+			renderRelatedRail(document.getElementById('portalDiscover'), getRelatedTalents(CELEBRITIES[0], CELEBRITIES), 'Discover more talent');
 
 			// Animate gauge arc
 			if (standing) {

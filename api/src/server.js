@@ -5,6 +5,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { v4 as uuid } from "uuid";
 import { db, CROWD_EVENTS, inquiries } from "./data.js";
+import { loadStore, mergePersisted, snapshotDb } from "./persist.js";
+
+const userShortlists = mergePersisted(db, loadStore());
 
 const app = express();
 const PORT = process.env.PORT || 4100;
@@ -16,8 +19,9 @@ app.use((_req, res, next) => { res.setHeader("Server", "ATA/2.1"); next(); });
 const ALLOWED_ORIGINS = [
   'http://localhost:5600',
   'http://127.0.0.1:5600',
-  /^https:\/\/.*\.vercel\.app$/,   // All Vercel preview/production deployments
-  // Add your custom domain: 'https://alltalentsagency.com'
+  /^https:\/\/.*\.vercel\.app$/,
+  'https://alltalentsagency.com',
+  'https://www.alltalentsagency.com',
 ];
 app.use(cors({
   origin: (origin, cb) => {
@@ -174,6 +178,31 @@ app.get("/api/portfolio/summary", auth, (_req, res) => {
       annualRevenue: c.startingPrice * 12,
     })),
   });
+});
+
+function scoreRelated(target, c) {
+  let score = 0;
+  if (c.category === target.category) score += 40;
+  if (c.region === target.region) score += 20;
+  const price = target.startingPrice || 0;
+  const p = c.startingPrice || 0;
+  if (price && Math.abs(p - price) / price <= 0.3) score += 25;
+  score += (c.demandIndex || 0) * 0.15;
+  return score;
+}
+
+app.get("/api/celebrities/:id/related", (req, res) => {
+  if (!isValidCelebrityId(req.params.id)) return res.status(400).json({ error: "Invalid celebrity id" });
+  const target = db.celebrities.find((x) => x.id === req.params.id);
+  if (!target) return res.status(404).json({ error: "Celebrity not found" });
+  const limit = Math.min(12, Math.max(1, Number(req.query.limit) || 8));
+  const data = db.celebrities
+    .filter((c) => c.id !== target.id)
+    .map((c) => ({ c, score: scoreRelated(target, c) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((x) => x.c);
+  return res.json({ targetId: target.id, data });
 });
 
 app.get("/api/celebrities/:id", (req, res) => {
@@ -464,6 +493,7 @@ app.post("/api/messages/send", auth, (req, res) => {
       body: sanitizeText(ack.body),
     }
   );
+  snapshotDb(db, userShortlists);
   return res.status(201).json({ ok: true, acknowledgement: ack });
 });
 
@@ -495,7 +525,27 @@ app.post("/api/bookings/initiate", auth, (req, res) => {
     pricing: { finalQuote, escrow: Math.round(finalQuote * 0.3), escrowPercent: 30 },
   };
   db.bookings.push(booking);
+  snapshotDb(db, userShortlists);
   return res.status(201).json({ booking });
+});
+
+app.get("/api/shortlist", auth, (req, res) => {
+  const ids = userShortlists[req.user.id] || [];
+  return res.json({ ids });
+});
+
+app.post("/api/shortlist", auth, (req, res) => {
+  const { ids } = req.body || {};
+  if (!Array.isArray(ids)) return res.status(400).json({ error: "ids array required" });
+  userShortlists[req.user.id] = ids.filter((id) => isValidCelebrityId(id)).slice(0, 5);
+  snapshotDb(db, userShortlists);
+  return res.json({ ids: userShortlists[req.user.id] });
+});
+
+app.post("/api/events", (req, res) => {
+  const { name, detail } = req.body || {};
+  if (name) console.log(`[ATA event] ${name}`, detail || "");
+  return res.json({ ok: true });
 });
 
 app.get("/api/portal/overview", auth, (req, res) => {
@@ -551,6 +601,7 @@ app.post("/api/crowd-events/:id/join", auth, (req, res) => {
     eventId:      ev.id,
     eventTitle:   ev.eventTitle,
     celebName:    ev.name,
+    celebId:      ev.celebId,
     eventType:    ev.eventType,
     city:         ev.city,
     date:         ev.date,
@@ -566,6 +617,7 @@ app.post("/api/crowd-events/:id/join", auth, (req, res) => {
     bookedAt:     new Date().toISOString(),
   };
   db.crowdBookings.push(booking);
+  snapshotDb(db, userShortlists);
   return res.status(201).json({ booking, message: `Slot secured for ${ev.eventTitle}. ${totalMonths === 1 ? "Full payment of $" + ev.pricePerSlot.toLocaleString() : "First installment of $" + nextPayment.toLocaleString() + "/mo due now."} NDA and escrow terms apply.` });
 });
 

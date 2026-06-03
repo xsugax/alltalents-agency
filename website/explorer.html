@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name='referrer' content='no-referrer'>
   <title>Talent Directory | All Talents Agency</title>
   <!-- SEO: Primary Meta -->
@@ -33,26 +33,26 @@
     "isPartOf": { "@type": "WebSite", "name": "All Talents Agency", "url": "https://alltalentsagency.com" }
   }
   </script>
-  <link rel='stylesheet' href='assets/styles.css'>
+  <link rel='stylesheet' href='assets/styles.css?v=20260605'>
   <style>
-    /* Explorer filter bar */
-    #search{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text);transition:all .2s ease}
-    #search:focus{border-color:rgba(112,143,168,.6);box-shadow:0 0 0 3px rgba(112,143,168,.1);background:#fff}
-    #search::placeholder{color:rgba(0,0,0,.35)}
-    .filter-select{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text)}
-    .filter-select:focus{border-color:rgba(112,143,168,.5);outline:none}
+    /* Explorer filter bar — obsidian */
+    #search{background:var(--bg-alt);border:1px solid var(--line);color:var(--text);transition:all .2s ease}
+    #search:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);background:var(--surface-alt)}
+    #search::placeholder{color:var(--muted)}
+    .filter-select{background:var(--bg-alt);border:1px solid var(--line);color:var(--text)}
+    .filter-select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
     /* Animated result count */
     #resultsCount{transition:opacity .2s ease}
     #resultsCount.rc-updating{opacity:.4}
     /* Search KB shortcut hint */
-    .search-hint{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:10px;color:rgba(0,0,0,.3);pointer-events:none;font-family:monospace;border:1px solid rgba(0,0,0,.12);border-radius:4px;padding:2px 6px;letter-spacing:.04em;background:var(--bg-alt)}
+    .search-hint{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--muted);pointer-events:none;font-family:monospace;border:1px solid var(--line);border-radius:4px;padding:2px 6px;letter-spacing:.04em;background:var(--surface-alt)}
     .search-wrap{position:relative;flex:2;min-width:220px}
     .search-wrap input{width:100%;box-sizing:border-box;padding-right:56px}
     /* Category Pills - active filter visual feedback */
     #resultsCount.has-filter{color:var(--accent-text);font-weight:700}
     /* Load more button */
-    #loadMoreBtn{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text);transition:all .22s ease}
-    #loadMoreBtn:hover{background:rgba(112,143,168,.08);border-color:var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    #loadMoreBtn{background:var(--bg-alt);border:1px solid var(--line);color:var(--text);transition:all .22s ease}
+    #loadMoreBtn:hover{background:var(--surface-strong);border-color:var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.35)}
     /* Empty state */
     .empty-state{grid-column:1/-1;text-align:center;padding:72px 20px}
     .empty-state-icon{font-size:48px;margin-bottom:16px;filter:grayscale(.4)}
@@ -121,11 +121,11 @@
   </div>
 
   <script type='module'>
-    import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, initFlipFilter } from './assets/app.js';
+    import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, initFlipFilter, toggleShortlist, getShortlist, bindShortlistTray, renderCompareMatrix, renderRelatedRail, getRelatedTalents, trackEvent, formatPrice } from './assets/app.js?v=20260605';
     import { CELEBRITIES } from './assets/celebrities-data.js';
 
     let selectedCelebrity = { id: '', name: '' };
-    const shortlist = new Set();
+    const shortlist = new Set(getShortlist());
     const celebMap = new Map();
     let allCelebrities = []; // perf: fetched once, filtered client-side
 
@@ -187,7 +187,17 @@
       document.querySelectorAll('.ap-day').forEach(el => {
         el.onclick = () => { document.querySelectorAll('.ap-day').forEach(d => d.classList.remove('ad-sel')); el.classList.add('ad-sel'); };
       });
-      document.getElementById('apConfirmBtn').onclick = () => { window.location.href = `booking.html?id=${c.id}`; };
+      document.getElementById('apConfirmBtn').onclick = () => {
+        const vEl = document.querySelector('.ap-venue.av-sel');
+        const dEl = document.querySelector('.ap-day.ad-sel');
+        const vi = vEl ? Number(vEl.dataset.vi) : 0;
+        const di = dEl ? Number(dEl.dataset.di) : 0;
+        const venue = encodeURIComponent(VENUES[vi]?.name || 'TBD');
+        const dates = genDates();
+        const d = new Date(); d.setDate(d.getDate() + 4 + di);
+        const dateStr = d.toISOString().slice(0, 10);
+        window.location.href = `booking.html?id=${c.id}&venue=${venue}&date=${dateStr}&intent=meet`;
+      };
       portal.classList.add('ap-open');
       document.body.style.overflow = 'hidden';
     }
@@ -564,7 +574,8 @@
         } else if (a === 'crowd') {
           window.location.href = `crowdbooking.html?celeb=${id}`;
         } else if (a === 'dossier') {
-          openDossier(id);
+          if (window.innerWidth >= 900) { window.location.href = `talent.html?id=${id}`; }
+          else openDossier(id);
         } else if (a === 'wl-reserve') {
           openWaitlistReserve(id, name);
         } else if (a === 'set-meet') {
@@ -582,14 +593,13 @@
             .then(r => { status.textContent = r.available ? `Confirmed for ${r.date}.` : 'Unavailable for selected date.'; })
             .catch(err => { status.textContent = err.message; });
         } else if (a === 'shortlist') {
-          if (shortlist.has(id)) {
-            shortlist.delete(id);
-          } else {
-            if (shortlist.size >= 5) { document.getElementById('compareOut').textContent = 'Limit reached. Keep shortlist at 5 profiles max.'; return; }
-            shortlist.add(id);
-          }
+          const r = toggleShortlist(id);
+          if (!r.ok) { document.getElementById('compareOut').textContent = 'Engagement board holds 5 profiles maximum.'; return; }
+          shortlist.clear();
+          r.list.forEach(x => shortlist.add(x));
           renderShortlistState();
-          btn.textContent = shortlist.has(id) ? '- Shortlisted' : '- VIP Shortlist';
+          btn.textContent = getShortlist().includes(id) ? '✓ On board' : '+ Engagement board';
+          trackEvent('shortlist_add', { id });
         }
       });
       }
@@ -692,11 +702,7 @@
           method: 'POST',
           body: JSON.stringify({ celebrityIds: ids }),
         });
-        out.innerHTML = `
-          <p class='small'><b>Winner:</b> ${result.recommendation.winner.name}</p>
-          <p class='small'><b>Rationale:</b> ${result.recommendation.rationale}</p>
-          <p class='small'><b>Ranking:</b> ${result.compared.map((r, i) => `${i + 1}. ${r.name} (Score ${r.valueScore})`).join(' - ')}</p>
-        `;
+        renderCompareMatrix(out, result);
       } catch (error) {
         out.textContent = error.message;
       }
@@ -710,6 +716,7 @@
     initScrollReveal();
     initDynamicTheme();
     await init();
+    bindShortlistTray(CELEBRITIES);
 
     // -- Celebrity Inquiry Form handler ---------------------------------------
     document.getElementById('celebInquiryForm').addEventListener('submit', async (e) => {

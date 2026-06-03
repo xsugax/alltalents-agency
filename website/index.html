@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>All Talents Agency | Sovereign Celebrity Booking</title>
 	<!-- SEO: Primary Meta -->
@@ -41,7 +41,7 @@
 		}
 	}
 	</script>
-	<link rel='stylesheet' href='assets/styles.css'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260605'>
 </head>
 <body>
 	<div class='container' id='app'></div>
@@ -82,7 +82,7 @@
 		<div class='fmp-footer'>Encrypted &middot; NDA-default &middot; All Talents Agency</div>
 	</div>
 	<script type='module'>
-		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme } from './assets/app.js';
+		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice } from './assets/app.js?v=20260605';
 		import { CELEBRITIES } from './assets/celebrities-data.js';
 
 		let featuredCelebrity = { id: '', name: '' };
@@ -121,23 +121,19 @@
 		const app = document.getElementById('app');
 		app.innerHTML = `
 			${nav('home')}
-			<section class='glass hero section' id='hero'>
-				<p class='small muted' style='opacity:.45;letter-spacing:.12em;text-transform:uppercase;font-size:10px'>Loading featured profiles...</p>
+			<section class='hero-cinematic section reveal-on-scroll' id='hero'>
+				<p class='small muted' style='position:relative;z-index:2;padding:48px'>Loading featured access…</p>
 			</section>
 			<section class='grid g4 section' id='kpis'>
 				${['','','',''].map(()=>`<div class='card' style='height:72px'></div>`).join('')}
 			</section>
 			<section class='access-strip section'>
-				<div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(112,143,168,.3);border-radius:5px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:18px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0'></span>Live Access Status</div>
-				<h2 class='access-strip-title'>100 Verified Celebrities.<br>Direct Access. Right Now.</h2>
+				<div class='live-badge'><span class='live-dot'></span>Live Access Status</div>
+				<h2 class='access-strip-title'>${CELEBRITIES.length} Verified Celebrities.<br>Direct Access. Right Now.</h2>
 				<p class='access-strip-sub'>Every talent on this platform is reachable through All Talents Agency's sovereign authorized channels. Your qualification as a registered client unlocks exclusive meeting windows, direct representative outreach, and priority booking rights — unavailable anywhere else.</p>
-				<form id='heroSearch' style='display:flex;gap:0;margin:22px 0 24px;max-width:620px;width:100%' onsubmit='event.preventDefault(); const q = document.getElementById("heroSearchInput").value.trim(); if(q) window.location.href="explorer.html?search="+encodeURIComponent(q);'>
-					<input id='heroSearchInput' type='text' placeholder='Search for your favourite celebrity-' autocomplete='off' style='flex:1;border-radius:7px 0 0 7px;border:1.5px solid rgba(0,0,0,.15);border-right:none;background:var(--bg-alt);color:var(--text);padding:15px 20px;font-size:14px;letter-spacing:.02em;outline:none;min-width:0;transition:border-color .2s' onfocus='this.style.borderColor="rgba(112,143,168,.6)"' onblur='this.style.borderColor="rgba(0,0,0,.15)"'>
-					<button type='submit' style='background:var(--bg-dark);color:#fff;border:none;padding:15px 28px;border-radius:0 7px 7px 0;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap'>Search &#x2192;</button>
-				</form>
-				<div style='display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px'>
-					<span style='font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);align-self:center;margin-right:4px'>Quick search:</span>
-					${['Beyonce','Taylor Swift','Cristiano Ronaldo','Rihanna','Drake','Zendaya','Dwayne Johnson','Bad Bunny','Salma Hayek','Matt Rife','Sabrina Carpenter','Kendrick Lamar','Jennifer Aniston','Lionel Messi','Kylie Jenner','BTS'].map(n => `<button onclick='window.location.href="explorer.html?search="+encodeURIComponent("${n}")' style='background:var(--bg-alt);border:1px solid rgba(0,0,0,.1);color:var(--text-2);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .2s' onmouseover='this.style.background="rgba(0,0,0,.06)";this.style.borderColor="rgba(0,0,0,.2)"' onmouseout='this.style.background="var(--bg-alt)";this.style.borderColor="rgba(0,0,0,.1)"'>${n}</button>`).join('')}
+				<div class='access-chips'>
+					<span class='access-chips-label'>Trending:</span>
+					${['Beyonce','Taylor Swift','Cristiano Ronaldo','Rihanna','Drake','Zendaya','Messi','BTS','BLACKPINK','Sabrina Carpenter'].map(n => `<button type='button' class='quick-chip' data-q="${n}">${n}</button>`).join('')}
 				</div>
 				<div class='access-live-count'>Live windows open for qualified clients today</div>
 				<div class='window-grid' id='windowGrid' style='margin-top:18px'>
@@ -236,11 +232,18 @@
 			}
 		}
 
-		loadTicker();
+		await loadTicker();
 		initTheme();
 		initNav();
 		initScrollReveal();
 		initDynamicTheme();
+		bindShortlistTray(CELEBRITIES);
+		document.querySelectorAll('.quick-chip').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const q = btn.dataset.q;
+				if (q) window.location.href = `explorer.html?search=${encodeURIComponent(q)}`;
+			});
+		});
 
 		// Use local static data — no cold-start delay
 		const hero = document.getElementById('hero');
@@ -257,22 +260,20 @@
 		const HERO_INTERVAL = 7000;
 
 		function buildHeroHTML() {
-			const fmtP = p => p >= 1e6 ? `$${(p/1e6).toFixed(1)}M` : `$${Math.round(p/1000)}K`;
+			const fmtP = formatPrice;
 			const slides = featured.map((c, i) => `
-				<div class='hero-slide${i === 0 ? ' hs-active' : ''}' data-idx='${i}'>
-					<p class='eyebrow'>Featured Profile - ${i + 1} of ${featured.length} &nbsp;-&nbsp; ${c.category}</p>
+				<div class='hero-slide${i === 0 ? ' hs-active' : ''}' data-idx='${i}' data-portrait='${c.portrait}'>
+					<p class='eyebrow'>Featured · ${i + 1} / ${featured.length} · ${c.category}</p>
 					<h1 class='headline'>${c.name}</h1>
 					${c.eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:var(--text-2);font-style:italic;margin:0 0 10px;border-left:2px solid var(--accent);padding-left:12px'>${c.eliteSignal}</p>` : ''}
 					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px'>
-						${c.netWorth ? `<span class='small'><span class='muted'>Net Worth</span> <strong style='color:var(--accent-text)'>${c.netWorth}</strong></span>` : ''}
-						<span class='small'><span class='muted'>Global Reach</span> <strong style='color:var(--accent-text)'>${c.socialReachMillions}M</strong></span>
-						<span class='small'><span class='muted'>Private Access</span> <strong style='color:var(--accent-text)'>${fmtP(c.startingPrice)}</strong></span>
-						<span class='small'><span class='muted'>Agency</span> <strong style='color:var(--accent-text)'>${c.agencyRepresentation}</strong></span>
+						<span class='small'><span class='muted'>Private access</span> <strong style='color:var(--accent-text)'>${fmtP(c.startingPrice)}</strong></span>
+						<span class='small'><span class='muted'>Reach</span> <strong style='color:var(--accent-text)'>${c.socialReachMillions}M</strong></span>
+						<span class='small'><span class='muted'>Status</span> <strong>${c.availability}</strong></span>
 					</div>
-					<p class='small muted'>${c.availability === 'Open' ? '- Accepting qualified outreach now.' : c.availability === 'Limited' ? '- Limited access windows - act within 48h.' : '- Waitlist only - secure your slot.'}</p>
-					<div style='margin-top:12px;display:flex;gap:10px;flex-wrap:wrap'>
-						<a href='explorer.html'><button class='primary' style='width:auto;padding:10px 22px'>- Access Private Profile -</button></a>
-						<a href='booking.html?id=${c.id}'><button class='secondary' style='width:auto;padding:10px 22px'>Start Private Engagement</button></a>
+					<div style='margin-top:14px;display:flex;gap:10px;flex-wrap:wrap'>
+						<a href='talent.html?id=${c.id}'><button class='primary' style='width:auto;padding:12px 24px'>Open dossier →</button></a>
+						<a href='booking.html?id=${c.id}'><button class='secondary' style='width:auto;padding:12px 24px'>Book now</button></a>
 					</div>
 				</div>
 			`).join('');
@@ -294,10 +295,20 @@
 					</div>
 				</div>`;
 			const dots = featured.map((_, i) => `<div class='hero-dot${i === 0 ? ' hd-active' : ''}' data-dot='${i}'></div>`).join('');
-			return `<div class='hero-stage' id='heroStage'><div class='hero-slides-track'>${slides}${sizer}</div></div><div class='hero-dots'>${dots}</div>`;
+			return `
+				<div class='hero-cinematic-bg' id='heroBg' style="background-image:url('${featured[0].portrait}')"></div>
+				<div class='hero-cinematic-content'>
+					<form class='hero-search-mega' id='heroSearchForm' onsubmit='event.preventDefault();const q=document.getElementById("heroSearchInput").value.trim();if(q)location.href="explorer.html?search="+encodeURIComponent(q);'>
+						<input id='heroSearchInput' type='search' placeholder='Search any celebrity — Beyoncé, Messi, Taylor Swift…' autocomplete='off'>
+						<button type='submit' class='primary'>Search →</button>
+					</form>
+					<div class='hero-stage' id='heroStage'><div class='hero-slides-track'>${slides}${sizer}</div></div>
+					<div class='hero-dots'>${dots}</div>
+				</div>`;
 		}
 
 		hero.innerHTML = buildHeroHTML();
+		trackEvent('home_view');
 
 		function goToSlide(newIdx) {
 			const slides = hero.querySelectorAll('.hero-slide:not(.hero-slide-sizer)');
@@ -312,6 +323,8 @@
 			featuredCelebrity = { id: featured[heroIdx].id, name: featured[heroIdx].name };
 			document.getElementById('homeTarget').value = `${featured[heroIdx].name} (${featured[heroIdx].id})`;
 			setHomeTemplate(document.getElementById('homeType').value, featured[heroIdx].name);
+			const bg = document.getElementById('heroBg');
+			if (bg) bg.style.backgroundImage = `url('${featured[heroIdx].portrait}')`;
 
 			// progress bar reset
 			if (heroProg) { heroProg.style.transition = 'none'; heroProg.style.width = '0%'; }

@@ -3,13 +3,13 @@
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>Secure Access | All Talents Agency</title>
 	<meta name="robots" content="noindex, nofollow">
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
 	<link rel='shortcut icon' href='/assets/favicon.svg'>
-	<link rel='stylesheet' href='assets/styles.css'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260605'>
 	<style>
 		/* Login page - full-viewport cinematic gate */
 		html,body{height:100%;margin:0}
@@ -144,7 +144,7 @@
 	</div>
 
 	<script type='module'>
-		import { request, setAuth } from './assets/app.js';
+		import { request, setAuth, consumeReturnUrl } from './assets/app.js?v=20260605';
 
 		// Click-to-fill demo credentials
 		document.querySelectorAll('.login-demo-row').forEach(row => {
@@ -178,7 +178,8 @@
 				msg.textContent = `Session active - authenticated as ${r.user.role}. Redirecting-`;
 				msg.className = 'login-msg lm-success';
 				setTimeout(() => {
-					const dest = r.user.role === 'admin' ? 'admin.html' : r.user.role === 'manager' ? 'portal.html' : 'explorer.html';
+					if (consumeReturnUrl()) return;
+					const dest = r.user.role === 'admin' ? 'admin.html' : r.user.role === 'manager' ? 'portal.html' : 'portal.html';
 					window.location.href = dest;
 				}, 1100);
 			} catch (e) {
