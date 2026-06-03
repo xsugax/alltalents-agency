@@ -5,20 +5,20 @@
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name='referrer' content='no-referrer'>
-  <title>Celebrity Talent Directory | 119+ Verified Stars - ALL TALENTS Agency</title>
+  <title>Talent Directory | All Talents Agency</title>
   <!-- SEO: Primary Meta -->
   <meta name="description" content="Search 119+ verified A-list celebrities - musicians, film stars, athletes, K-pop idols (BTS, BLACKPINK), influencers, and comedians. Filter by category, region, and availability for any event.">
   <meta name="keywords" content="celebrity directory, search celebrity talent, A-list stars, K-pop booking, BTS members, BLACKPINK Lisa Jennie, Korean actors, celebrity for hire, talent search, influencer booking">
   <meta name="robots" content="index, follow">
-  <meta name="author" content="ALL TALENTS Agency">
+  <meta name="author" content="All Talents Agency">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="ALL TALENTS Agency">
-  <meta property="og:title" content="Celebrity Talent Directory - 119+ Verified Stars | ALL TALENTS Agency">
+  <meta property="og:site_name" content="All Talents Agency">
+  <meta property="og:title" content="Talent Directory | All Talents Agency">
   <meta property="og:description" content="Browse and book 119+ verified celebrities across music, film, sports, K-pop, comedy, and influencer categories worldwide.">
   <meta property="og:url" content="https://alltalents-agency.vercel.app/explorer.html">
   <meta property="og:image" content="https://alltalents-agency.vercel.app/assets/og-preview.svg">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Celebrity Talent Directory - ALL TALENTS Agency">
+  <meta name="twitter:title" content="Talent Directory | All Talents Agency">
   <meta name="twitter:description" content="Search 119+ verified A-list celebrities. Filter by K-pop, Music, Film, Sports, Comedy & more.">
   <link rel='canonical' href='https://alltalents-agency.vercel.app/explorer.html'>
   <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
@@ -30,17 +30,17 @@
     "name": "Celebrity Talent Directory",
     "description": "Search 119+ verified celebrity talents across music, film, sports, comedy, and K-pop.",
     "url": "https://alltalents-agency.vercel.app/explorer.html",
-    "isPartOf": { "@type": "WebSite", "name": "ALL TALENTS Agency", "url": "https://alltalents-agency.vercel.app" }
+    "isPartOf": { "@type": "WebSite", "name": "All Talents Agency", "url": "https://alltalents-agency.vercel.app" }
   }
   </script>
   <link rel='stylesheet' href='assets/styles.css'>
   <style>
     /* Explorer filter bar */
     #search{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text);transition:all .2s ease}
-    #search:focus{border-color:rgba(196,155,46,.6);box-shadow:0 0 0 3px rgba(196,155,46,.1);background:#fff}
+    #search:focus{border-color:rgba(112,143,168,.6);box-shadow:0 0 0 3px rgba(112,143,168,.1);background:#fff}
     #search::placeholder{color:rgba(0,0,0,.35)}
     .filter-select{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text)}
-    .filter-select:focus{border-color:rgba(196,155,46,.5);outline:none}
+    .filter-select:focus{border-color:rgba(112,143,168,.5);outline:none}
     /* Animated result count */
     #resultsCount{transition:opacity .2s ease}
     #resultsCount.rc-updating{opacity:.4}
@@ -52,7 +52,7 @@
     #resultsCount.has-filter{color:var(--accent-text);font-weight:700}
     /* Load more button */
     #loadMoreBtn{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text);transition:all .22s ease}
-    #loadMoreBtn:hover{background:rgba(196,155,46,.08);border-color:var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    #loadMoreBtn:hover{background:rgba(112,143,168,.08);border-color:var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.06)}
     /* Empty state */
     .empty-state{grid-column:1/-1;text-align:center;padding:72px 20px}
     .empty-state-icon{font-size:48px;margin-bottom:16px;filter:grayscale(.4)}
@@ -91,7 +91,7 @@
   </button>
   <div id='floatMsgPanel' class='floating-msg-panel'>
     <div class='fmp-header'>
-      <div class='fmp-avatar'>ATA</div>
+      <div class='fmp-avatar'>AT</div>
       <div class='fmp-agent-info'>
         <div class='fmp-agent-name'>Concierge Desk</div>
         <div class='fmp-agent-status'><span class='fmp-online-dot'></span>Private Representative Channel</div>
@@ -117,7 +117,7 @@
         <p id='meetStatus' class='small muted' style='text-align:center'></p>
       </div>
     </div>
-    <div class='fmp-footer'>Encrypted · NDA-default · ALL TALENTS Agency</div>
+    <div class='fmp-footer'>Encrypted · NDA-default · All Talents Agency</div>
   </div>
 
   <script type='module'>
@@ -167,10 +167,10 @@
       document.getElementById('apPortraitImg').src = c.portrait;
       document.getElementById('apPortraitImg').alt = c.name;
       document.getElementById('apContentCol').innerHTML = `
-        <div class='ap-stamp'><div class='ap-stamp-dot'></div>Aurelux Private Access - Authorized Channel</div>
+        <div class='ap-stamp'><div class='ap-stamp-dot'></div>All Talents Agency · Sovereign Private Access</div>
         <h1 class='ap-celeb-name'>${c.name}</h1>
         <p class='ap-celeb-meta'>${c.category} &nbsp;-&nbsp; ${c.region} &nbsp;-&nbsp; ${c.agencyRepresentation}</p>
-        <p style='font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.72);font-style:italic;margin:0 0 18px;padding:12px 14px;border-left:2px solid var(--accent);background:rgba(196,155,46,.08);border-radius:0 8px 8px 0'>"${c.eliteSignal}"</p>
+        <p style='font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.72);font-style:italic;margin:0 0 18px;padding:12px 14px;border-left:2px solid var(--accent);background:rgba(112,143,168,.08);border-radius:0 8px 8px 0'>"${c.eliteSignal}"</p>
         <div class='ap-live-status'><div class='ap-live-dot'></div>Direct meeting access LIVE for qualified clients - closes in 72h</div>
         <div class='ap-brief-row'>${briefHtml}</div>
         <div class='ap-divider'></div>
@@ -240,9 +240,9 @@
     app.innerHTML = `
       ${nav('explorer')}
       <section class='glass card section' style='border-color:rgba(0,0,0,.09);box-shadow:0 4px 24px rgba(0,0,0,.06)'>
-        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(196,155,46,.3);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:14px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Private Access Zone - Session Authorized</div>
+        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(112,143,168,.3);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:14px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Private Access Zone - Session Authorized</div>
         <h2 style='font-size:clamp(26px,3.8vw,44px);font-weight:900;letter-spacing:-.02em;margin:0 0 10px'>Select Your Celebrity.<br>Claim Your Private Window.</h2>
-        <p class='lead'>You have direct access to 119+ verified talents through Aurelux's authorized channel network. Tap any profile to open your private meeting portal - choose a venue, lock in your window, and initiate contact.</p>
+        <p class='lead'>You have direct access to 119+ verified talents through All Talents Agency's sovereign channel network. Tap any profile to open your private meeting portal — choose a venue, lock in your window, and initiate contact.</p>
         <div style='display:flex;gap:10px;align-items:center;margin-bottom:8px'>
           <div class='search-wrap' style='flex:1'><input id='search' placeholder='Search celebrities…' style='width:100%'><span class='search-hint'>/</span></div>
           <button class='mob-filter-expand' id='filterToggle'>Filters ▾</button>
@@ -297,7 +297,7 @@
         ${[1,2,3].map(()=>`<article class='card stack' style='height:280px'></article>`).join('')}
       </section>
       <section id='inquirySection' class='glass card section' style='border-color:rgba(0,0,0,.09);box-shadow:0 4px 24px rgba(0,0,0,.06);max-width:680px;margin:0 auto'>
-        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(196,155,46,.3);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:16px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Celebrity Not Listed? Request Via Private Desk</div>
+        <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(112,143,168,.3);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:16px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Celebrity Not Listed? Request Via Private Desk</div>
         <h3 style='font-weight:800;margin:0 0 6px;font-size:clamp(20px,2.8vw,30px)'>Can't Find Who<br>You're Looking For?</h3>
         <p class='small muted' style='margin:0 0 22px;line-height:1.7'>Submit a private celebrity inquiry through our Concierge Desk. Our representation team will assess availability, negotiate terms, and revert within 48 hours under full NDA.</p>
         <form id='celebInquiryForm' style='display:flex;flex-direction:column;gap:14px'>

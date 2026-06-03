@@ -75,11 +75,19 @@ const auth = (req, res, next) => {
   }
 };
 
-app.get("/api/health", (_req, res) => res.json({ ok: true, service: "AURELUX Website API" }));
+app.get("/api/health", (_req, res) => res.json({ ok: true, service: "All Talents Agency API" }));
+
+const LEGACY_EMAIL_ALIASES = {
+  "client@aurelux.com": "client@alltalents.agency",
+  "manager@aurelux.com": "manager@alltalents.agency",
+  "admin@aurelux.com": "admin@alltalents.agency",
+};
 
 app.post("/api/auth/login", (req, res) => {
   const { email, password } = req.body || {};
-  const user = db.users.find((u) => u.email.toLowerCase() === String(email || "").toLowerCase());
+  const normalized = String(email || "").toLowerCase();
+  const resolved = LEGACY_EMAIL_ALIASES[normalized] || normalized;
+  const user = db.users.find((u) => u.email.toLowerCase() === resolved);
   if (!user || !bcrypt.compareSync(password || "", user.passwordHash)) {
     return res.status(401).json({ error: "Invalid credentials" });
   }
@@ -137,7 +145,7 @@ app.get("/api/portfolio/summary", auth, (_req, res) => {
   });
 
   return res.json({
-    agencyName: "ALL TALENTS Agency",
+    agencyName: "All Talents Agency",
     totalManagedPortfolio: 218_500_000_000,
     ytdRevenue: YTD,
     prevYearRevenue: 47_350_000_000,

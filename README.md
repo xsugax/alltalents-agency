@@ -1,4 +1,4 @@
-# ALL TALENTS Agency — Platform
+# All Talents Agency — Sovereign Platform
 
 Private celebrity representation & strategic bookings platform.
 

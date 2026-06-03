@@ -664,9 +664,9 @@ export const inquiries = [];
 
 export const db = {
   users: [
-    { id: "u1", email: "client@aurelux.com", name: "Aria Sterling", role: "client", passwordHash: bcrypt.hashSync("Client@123", 10) },
-    { id: "u2", email: "manager@aurelux.com", name: "Marcus Vale", role: "manager", passwordHash: bcrypt.hashSync("Manager@123", 10) },
-    { id: "u3", email: "admin@aurelux.com", name: "Helena Noir", role: "admin", passwordHash: bcrypt.hashSync("Admin@123", 10) },
+    { id: "u1", email: "client@alltalents.agency", name: "Aria Sterling", role: "client", passwordHash: bcrypt.hashSync("Client@123", 10) },
+    { id: "u2", email: "manager@alltalents.agency", name: "Marcus Vale", role: "manager", passwordHash: bcrypt.hashSync("Manager@123", 10) },
+    { id: "u3", email: "admin@alltalents.agency", name: "Helena Noir", role: "admin", passwordHash: bcrypt.hashSync("Admin@123", 10) },
   ],
   celebrities: [
     ...namedCelebrities,
@@ -680,7 +680,7 @@ export const db = {
       id: "m1",
       from: "Representation Desk",
       toUserId: "u1",
-      body: "Welcome to ALL TALENTS Agency. Your private line is active.",
+      body: "Welcome to All Talents Agency. Your sovereign client line is active.",
       timestamp: new Date().toISOString(),
     },
   ],

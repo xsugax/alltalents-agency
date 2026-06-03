@@ -5,17 +5,29 @@ const API = window.location.hostname === 'localhost' || window.location.hostname
 // Override by setting window.ATA_API_URL before this script loads
 const _API = window.ATA_API_URL || API;
 
-export const token = () => localStorage.getItem('aurelux_token');
+const TOKEN_KEY = 'ata_token';
+const USER_KEY = 'ata_user';
+
+export const token = () => localStorage.getItem(TOKEN_KEY) || localStorage.getItem('aurelux_token');
 export const currentUser = () => {
   try {
-    return JSON.parse(localStorage.getItem('aurelux_user') || 'null');
+    const raw = localStorage.getItem(USER_KEY) || localStorage.getItem('aurelux_user');
+    return JSON.parse(raw || 'null');
   } catch {
     return null;
   }
 };
 export const setAuth = (tokenValue, user) => {
-  localStorage.setItem('aurelux_token', tokenValue);
-  localStorage.setItem('aurelux_user', JSON.stringify(user));
+  localStorage.setItem(TOKEN_KEY, tokenValue);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  localStorage.removeItem('aurelux_token');
+  localStorage.removeItem('aurelux_user');
+};
+export const clearAuth = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  localStorage.removeItem('aurelux_token');
+  localStorage.removeItem('aurelux_user');
 };
 
 export async function request(path, options = {}) {
@@ -33,10 +45,10 @@ export async function request(path, options = {}) {
 }
 
 export function nav(active){
-  return `<header class="glass nav"><div class="brand-wrap"><div class="brand-mark">ATA</div><div><div class="brand">ALL TALENTS Agency</div><div class="small muted brand-sub">Private Celebrity Representation & Strategic Bookings</div></div></div><nav class="menu">
+  return `<header class="glass nav"><a class="brand-wrap" href="index.html"><div class="brand-mark">AT</div><div><div class="brand">All Talents Agency</div><div class="small muted brand-sub">Sovereign Celebrity Representation</div></div></a><nav class="menu">
   <a class="${active==='home'?'active':''}" href="index.html">Home</a>
   <a class="${active==='explorer'?'active':''}" href="explorer.html">Explorer</a>
-  <a class="${active==='crowd'?'active':''}" href="crowdbooking.html">👥 Crowd Access</a>
+  <a class="${active==='crowd'?'active':''}" href="crowdbooking.html">Crowd Access</a>
   <a class="${active==='booking'?'active':''}" href="booking.html">Booking</a>
   <a class="${active==='portal'?'active':''}" href="portal.html">Portal</a>
   <a class="${active==='login'?'active':''}" href="login.html">Login</a>
