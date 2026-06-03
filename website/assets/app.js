@@ -102,7 +102,7 @@ export async function request(path, options = {}) {
 }
 
 export function nav(active){
-  return `<header class="nav"><div class="nav-inner"><a class="nav-brand" href="index.html"><div class="brand-mark">AT</div><div><div class="brand">All Talents Agency</div><div class="brand-sub">Sovereign Celebrity Representation</div></div></a><div style="display:flex;align-items:center;gap:10px"><span class="desk-status-chip" id="deskStatusChip"><span class="ds-dot"></span><span id="deskStatusText">Live desks</span></span><button class="nav-search-btn" id="navSearchBtn" title="Command palette (Ctrl+K)" aria-label="Command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button><button class="theme-toggle" id="themeToggle" title="Toggle theme">◐</button><button class="nav-access-btn" id="navAccessBtn" aria-label="Open navigation" aria-expanded="false"><span class="nab-burger"><span></span><span></span></span><span class="nab-text">ACCESS</span></button></div></div></header>
+  return `<header class="nav"><div class="nav-inner"><a class="nav-brand" href="index.html"><div class="brand-mark">AT</div><div><div class="brand">All Talents Agency</div><div class="brand-sub">Sovereign Celebrity Representation</div></div></a><div style="display:flex;align-items:center;gap:10px"><span class="desk-status-chip" id="deskStatusChip"><span class="ds-dot"></span><span id="deskStatusText">Live desks</span></span><button class="nav-search-btn" id="navSearchBtn" title="Command palette (Ctrl+K)" aria-label="Command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button><button class="nav-access-btn" id="navAccessBtn" aria-label="Open navigation" aria-expanded="false"><span class="nab-burger"><span></span><span></span></span><span class="nab-text">ACCESS</span></button></div></div></header>
   <div class="command-palette" id="commandPalette" role="dialog" aria-modal="true" aria-label="Command palette" aria-hidden="true">
     <div class="cp-panel">
       <div class="cp-header">
@@ -194,13 +194,8 @@ export function conciergeRail(){
 }
 
 export function initTheme() {
-  const saved = localStorage.getItem('ata_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-  document.getElementById('themeToggle')?.addEventListener('click', () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('ata_theme', next);
-  });
+  document.documentElement.setAttribute('data-theme', 'dark');
+  localStorage.setItem('ata_theme', 'dark');
 }
 
 // ── CRYPTO PAYMENT WIDGET ────────────────────────────────────────────────────
