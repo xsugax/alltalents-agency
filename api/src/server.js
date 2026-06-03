@@ -375,6 +375,11 @@ app.post("/api/waitlist/reserve", auth, (req, res) => {
 app.get("/api/intelligence/ticker", (_req, res) => {
   const types = ["Demand Surge", "Waitlist Entered", "New Inquiry", "Availability Opening", "Price Adjustment", "Rep Confirmation"];
   const positiveMap = [true, true, true, false, true, true];
+  const prestige = [
+    { id: "prestige-1", name: "Private mandate", event: "Music · closed in 11 days", change: "Sealed", positive: true },
+    { id: "prestige-2", name: "Window hold", event: "Film · Geneva", change: "Confirmed", positive: true },
+    { id: "prestige-3", name: "Crowd access", event: "Sports · Dubai", change: "12 seats left", positive: false },
+  ];
   const events = db.celebrities.slice(0, 22).map((c, i) => {
     const delta = 2 + ((i * 3 + 7) % 19);
     const positive = positiveMap[i % positiveMap.length];
@@ -386,7 +391,7 @@ app.get("/api/intelligence/ticker", (_req, res) => {
       positive,
     };
   });
-  return res.json({ events, timestamp: new Date().toISOString() });
+  return res.json({ events: [...prestige, ...events], timestamp: new Date().toISOString() });
 });
 
 app.get("/api/celebrities/:id/dossier", (req, res) => {

@@ -66,6 +66,39 @@ import {
   recordRecentView,
 } from './platform.js';
 
+import {
+  PROTOCOL_STEPS,
+  renderProtocolSpine,
+  renderThreePathBait,
+  runAccessPathSimulator,
+  renderAccessPathSimulator,
+  bindAccessPathSimulator,
+  formatAccessBand,
+  displayPrice,
+  isQualified,
+  setQualified,
+  getSessionHold,
+  setSessionHold,
+  clearSessionHold,
+  getAccessProgress,
+  renderProgressRail,
+  renderHoldChipHTML,
+  renderEscrowLedger,
+  renderRedactedBrief,
+  ensureAccessPortalShell,
+  openAccessPortal,
+  closeAccessPortal,
+  openWaitlistReserve,
+  triggerWindowHold,
+  openQualifyModal,
+  bindPathBaitHandlers,
+  refreshHoldUI,
+  initAccessProtocol,
+  initConciergeTriggers,
+  getPrestigeTickerEvents,
+  ANCHOR_COPY,
+} from './access-protocol.js';
+
 export {
   ASSET_V,
   formatPrice,
@@ -85,6 +118,35 @@ export {
   paletteSearchRoster,
   parsePaletteIntent,
   recordRecentView,
+  PROTOCOL_STEPS,
+  renderProtocolSpine,
+  renderThreePathBait,
+  runAccessPathSimulator,
+  renderAccessPathSimulator,
+  bindAccessPathSimulator,
+  formatAccessBand,
+  displayPrice,
+  isQualified,
+  setQualified,
+  getSessionHold,
+  setSessionHold,
+  clearSessionHold,
+  getAccessProgress,
+  renderProgressRail,
+  renderHoldChipHTML,
+  renderEscrowLedger,
+  renderRedactedBrief,
+  openAccessPortal,
+  closeAccessPortal,
+  openWaitlistReserve,
+  triggerWindowHold,
+  openQualifyModal,
+  bindPathBaitHandlers,
+  refreshHoldUI,
+  initAccessProtocol,
+  initConciergeTriggers,
+  getPrestigeTickerEvents,
+  ANCHOR_COPY,
 };
 
 export async function request(path, options = {}) {
@@ -165,19 +227,24 @@ function renderTickerItems(events) {
 }
 
 export async function loadTicker() {
+  const prestige = getPrestigeTickerEvents();
   try {
     const data = await fetch(`${_API}/intelligence/ticker`).then(r => r.json());
     if (data?.events?.length) {
-      renderTickerItems(data.events.map(e => ({
-        name: e.name,
-        event: e.event || e.label,
-        change: e.change || '',
-        positive: e.positive !== false,
-      })));
+      const blended = [
+        ...prestige,
+        ...data.events.slice(0, 18).map(e => ({
+          name: e.name,
+          event: e.event || e.label,
+          change: e.change || '',
+          positive: e.positive !== false,
+        })),
+      ];
+      renderTickerItems(blended);
       return;
     }
   } catch { /* fallback */ }
-  renderTickerItems(TICKER_EVENTS);
+  renderTickerItems([...prestige, ...TICKER_EVENTS]);
 }
 
 export function conciergeRail(){
@@ -389,9 +456,18 @@ export function initCommandPalette(roster = []) {
     if (intent && intent.type === 'route') {
       html += `<a class="cp-item cp-active" data-cp-href="${intent.href}"><span class="cp-item-icon">→</span><span>Go to ${intent.label}</span></a>`;
       currentItems.push(intent.href);
-    } else if (intent && (intent.type === 'dossier' || intent.type === 'book')) {
-      html += `<a class="cp-item cp-active" data-cp-href="${intent.href}"><span class="cp-item-icon">${intent.type === 'book' ? 'B' : 'D'}</span><span>${intent.type === 'book' ? 'Book' : 'Open dossier'}: ${intent.celeb.name}</span><span class="cp-item-meta">${formatPrice(intent.celeb.startingPrice)}</span></a>`;
-      currentItems.push(intent.href);
+    } else if (intent && (intent.type === 'dossier' || intent.type === 'book' || intent.type === 'path' || intent.type === 'hold')) {
+      const icons = { book: 'B', dossier: 'D', path: 'P', hold: 'H' };
+      const labels = { book: 'Book', dossier: 'Open dossier', path: 'Access path', hold: 'Hold window' };
+      const holdAttrs = intent.type === 'hold' && intent.celeb
+        ? ` data-cp-action="hold" data-cp-id="${intent.celeb.id}" data-cp-name="${(intent.celeb.name || '').replace(/"/g, '&quot;')}"`
+        : '';
+      const pathAttrs = intent.type === 'path' ? ' data-cp-action="path"' : '';
+      html += `<a class="cp-item cp-active"${holdAttrs}${pathAttrs} data-cp-href="${intent.href}"><span class="cp-item-icon">${icons[intent.type] || '→'}</span><span>${labels[intent.type] || intent.type}${intent.celeb ? ': ' + intent.celeb.name : ''}</span><span class="cp-item-meta">${intent.celeb ? formatPrice(intent.celeb.startingPrice) : ''}</span></a>`;
+      currentItems.push(intent.type === 'hold' ? 'hold' : intent.href);
+    } else if (intent && intent.type === 'qualify') {
+      html += `<a class="cp-item cp-active" data-cp-action="qualify"><span class="cp-item-icon">Q</span><span>Start client qualification</span></a>`;
+      currentItems.push('qualify');
     } else if (intent && intent.type === 'search') {
       html += `<a class="cp-item cp-active" data-cp-href="${intent.href}"><span class="cp-item-icon">⌕</span><span>Search roster for "${q.trim()}"</span></a>`;
       currentItems.push(intent.href);
@@ -411,6 +487,27 @@ export function initCommandPalette(roster = []) {
     results.querySelectorAll('.cp-item').forEach((el, idx) => {
       el.addEventListener('click', (e) => {
         e.preventDefault();
+        if (el.dataset.cpAction === 'qualify') {
+          closePalette();
+          openQualifyModal('');
+          return;
+        }
+        if (el.dataset.cpAction === 'hold') {
+          closePalette();
+          triggerWindowHold(el.dataset.cpId, el.dataset.cpName);
+          return;
+        }
+        if (el.dataset.cpAction === 'path') {
+          closePalette();
+          const href = el.dataset.cpHref || '';
+          if (href.includes('#')) {
+            const hash = href.split('#')[1];
+            document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+          }
+          go(href);
+          return;
+        }
         if (e.shiftKey && el.dataset.cpBook) go(el.dataset.cpBook);
         else go(el.dataset.cpHref);
       });
@@ -460,6 +557,24 @@ export function initCommandPalette(roster = []) {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const active = items[activeIdx] || items[0];
+      if (active?.dataset.cpAction === 'qualify') {
+        closePalette();
+        openQualifyModal('');
+        return;
+      }
+      if (active?.dataset.cpAction === 'hold') {
+        closePalette();
+        triggerWindowHold(active.dataset.cpId, active.dataset.cpName);
+        return;
+      }
+      if (active?.dataset.cpAction === 'path') {
+        closePalette();
+        const href = active.dataset.cpHref || '';
+        if (href.includes('#')) {
+          document.getElementById(href.split('#')[1])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else go(href);
+        return;
+      }
       if (active) go(active.dataset.cpHref);
       else {
         const intent = parsePaletteIntent(input.value, roster);

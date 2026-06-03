@@ -1,5 +1,5 @@
 /** All Talents Agency — shared platform utilities */
-export const ASSET_V = '20260608';
+export const ASSET_V = '20260609';
 export const SHORTLIST_KEY = 'ata_shortlist';
 export const SHORTLIST_MAX = 5;
 
@@ -245,9 +245,26 @@ export function parsePaletteIntent(query, roster) {
     booking: 'booking.html',
     login: 'login.html',
     home: 'index.html',
+    qualify: 'index.html#qualify',
   };
   for (const [key, href] of Object.entries(routes)) {
     if (q === key) return { type: 'route', href, label: key };
+  }
+  if (q === 'qualify' || q.startsWith('qualify ')) {
+    return { type: 'qualify', href: 'index.html', label: 'qualify' };
+  }
+  const pathMatch = q.match(/^path\s+(.+)$/);
+  if (pathMatch) {
+    const name = pathMatch[1];
+    const c = (roster || []).find(x => x.name.toLowerCase().includes(name));
+    if (c) return { type: 'path', href: `index.html?sim=${c.id}`, celeb: c };
+    return { type: 'path', href: 'index.html#accessPathSim', label: name };
+  }
+  const holdMatch = q.match(/^hold\s+(.+)$/);
+  if (holdMatch) {
+    const name = holdMatch[1];
+    const c = (roster || []).find(x => x.name.toLowerCase().includes(name));
+    if (c) return { type: 'hold', href: `talent.html?id=${c.id}&hold=1`, celeb: c };
   }
   const bookMatch = q.match(/^book\s+(.+)$/);
   if (bookMatch) {

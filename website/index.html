@@ -41,7 +41,7 @@
 		}
 	}
 	</script>
-	<link rel='stylesheet' href='assets/styles.css?v=20260608'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260609'>
 </head>
 <body>
 	<div class='container' id='app'></div>
@@ -82,7 +82,7 @@
 		<div class='fmp-footer'>Encrypted &middot; NDA-default &middot; All Talents Agency</div>
 	</div>
 	<script type='module'>
-		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, getLocalDemandPulse, demandPulseHTML, renderDemandPulse } from './assets/app.js?v=20260608';
+		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, getLocalDemandPulse, demandPulseHTML, renderDemandPulse, renderProtocolSpine, renderThreePathBait, renderAccessPathSimulator, bindAccessPathSimulator, displayPrice, initAccessProtocol, initConciergeTriggers, openAccessPortal, bindPathBaitHandlers, getAccessProgress, openQualifyModal } from './assets/app.js?v=20260609';
 		import { CELEBRITIES } from './assets/celebrities-data.js';
 
 		let featuredCelebrity = { id: '', name: '' };
@@ -124,6 +124,8 @@
 			<section class='hero-cinematic section reveal-on-scroll' id='hero'>
 				<p class='small muted' style='position:relative;z-index:2;padding:48px'>Loading featured access…</p>
 			</section>
+			<div id='protocolSpineMount'></div>
+			<div id='pathBaitMount'></div>
 			<section class='grid g4 section vitals-strip reveal-on-scroll' id='kpis'>
 				<div class='card stack'><p class='eyebrow'>Live Vitals</p><div class='small muted'>Loading…</div></div>
 				${['','',''].map(()=>`<div class='card' style='height:72px'></div>`).join('')}
@@ -173,12 +175,17 @@
 						<h4>Top Demand Profiles</h4>
 						<div class='demand-mini-grid' id='demandMiniGrid'>Loading…</div>
 					</div>
+					<div class='situation-panel situation-urgency' id='situationUrgency'>
+						<h4>If you move today</h4>
+						<div id='urgencyBody' class='small muted'>Analyzing waitlist pressure…</div>
+					</div>
 				</div>
 				<div class='situation-footer'>
 					<span class='small muted'>Real-time demand signals across the verified roster. API-enriched when live.</span>
 					<a href='portal.html'><button class='secondary' style='width:auto;padding:10px 20px;font-size:11px'>Client intelligence →</button></a>
 				</div>
 			</section>
+			<div id='accessSimMount'></div>
 		`;
 
 		const panel = document.getElementById('floatMsgPanel');
@@ -201,6 +208,7 @@
 		initScrollReveal();
 		initDynamicTheme();
 		initCommandPalette(CELEBRITIES);
+		initAccessProtocol({ onQualified: () => location.reload() });
 		bindShortlistTray(CELEBRITIES);
 		document.querySelectorAll('.quick-chip').forEach((btn) => {
 			btn.addEventListener('click', () => {
@@ -231,13 +239,15 @@
 					<h1 class='headline'>${c.name}</h1>
 					${c.eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:var(--text-2);font-style:italic;margin:0 0 10px;border-left:2px solid var(--accent);padding-left:12px'>${c.eliteSignal}</p>` : ''}
 					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px;align-items:center'>
-						<span class='small'><span class='muted'>Private access</span> <strong class='num-mono' style='color:var(--vital-heart)'>${fmtP(c.startingPrice)}</strong></span>
-						<span class='small'><span class='muted'>Reach</span> <strong style='color:var(--accent-text)'>${c.socialReachMillions}M</strong></span>
+						<span class='small'><span class='muted'>Access</span> <strong class='num-mono' style='color:var(--vital-heart)'>${displayPrice(c.startingPrice)}</strong></span>
+						<span class='small'><span class='muted'>Reach</span> <strong>${c.socialReachMillions}M</strong></span>
 						<span class='small' style='display:inline-flex;align-items:center;gap:6px'><span class='muted'>Status</span> ${demandPulseHTML(getLocalDemandPulse(c), true)} <strong>${c.availability}</strong></span>
 					</div>
-					<div style='margin-top:14px;display:flex;gap:10px;flex-wrap:wrap'>
-						<a href='talent.html?id=${c.id}'><button class='primary' style='width:auto;padding:12px 24px'>Open dossier →</button></a>
-						<a href='booking.html?id=${c.id}'><button class='secondary' style='width:auto;padding:12px 24px'>Book now</button></a>
+					<div style='margin-top:14px;display:flex;gap:8px;flex-wrap:wrap'>
+						<a href='crowdbooking.html?celeb=${c.id}'><button class='secondary' style='width:auto;padding:10px 18px;font-size:11px'>Crowd · from $1.8K</button></a>
+						<button type='button' class='secondary hero-hold-btn' data-hold-id='${c.id}' data-hold-name='${c.name.replace(/'/g, "\\'")}' style='width:auto;padding:10px 18px;font-size:11px'>Hold window</button>
+						<a href='booking.html?id=${c.id}'><button class='primary' style='width:auto;padding:10px 18px;font-size:11px'>Mandate →</button></a>
+						<a href='talent.html?id=${c.id}'><button class='secondary' style='width:auto;padding:10px 18px;font-size:11px'>Dossier</button></a>
 					</div>
 				</div>
 			`).join('');
@@ -272,8 +282,23 @@
 		}
 
 		hero.innerHTML = buildHeroHTML();
+		document.getElementById('protocolSpineMount').innerHTML = renderProtocolSpine(getAccessProgress().step);
+		document.getElementById('pathBaitMount').innerHTML = renderThreePathBait(featured[0]);
+		document.getElementById('accessSimMount').innerHTML = renderAccessPathSimulator(featured[0], CELEBRITIES);
+		bindAccessPathSimulator(featured[0], CELEBRITIES);
+		bindPathBaitHandlers(document.getElementById('pathBaitMount'));
+		bindPathBaitHandlers(hero);
 		setCategoryTint(featured[0].category);
 		trackEvent('home_view', { id: featured[0].id, name: featured[0].name });
+		initConciergeTriggers({ dwellMs: 20000, celebName: featured[0].name, addBubble });
+
+		const simId = new URLSearchParams(location.search).get('sim');
+		if (simId) {
+			const simCeleb = CELEBRITIES.find(x => x.id === simId) || featured[0];
+			document.getElementById('accessSimMount').innerHTML = renderAccessPathSimulator(simCeleb, CELEBRITIES);
+			bindAccessPathSimulator(simCeleb, CELEBRITIES);
+			setTimeout(() => document.getElementById('accessPathSim')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 400);
+		}
 
 		function goToSlide(newIdx) {
 			const slides = hero.querySelectorAll('.hero-slide:not(.hero-slide-sizer)');
@@ -291,6 +316,9 @@
 			const bg = document.getElementById('heroBg');
 			if (bg) bg.style.backgroundImage = `url('${featured[heroIdx].portrait}')`;
 			setCategoryTint(featured[heroIdx].category);
+			document.getElementById('pathBaitMount').innerHTML = renderThreePathBait(featured[heroIdx]);
+			bindPathBaitHandlers(document.getElementById('pathBaitMount'));
+			bindPathBaitHandlers(hero);
 
 			// progress bar reset
 			if (heroProg) { heroProg.style.transition = 'none'; heroProg.style.width = '0%'; }
@@ -359,7 +387,7 @@
 					</div>
 					<div class='wc-name'>${c.name}</div>
 					<div class='wc-meta'>${c.category} · ${c.region}</div>
-					<div class='wc-price num-mono'>From ${fmtPH(c.startingPrice)}</div>
+					<div class='wc-price num-mono'>${displayPrice(c.startingPrice)}</div>
 				</div>`;
 			}).join('');
 		}
@@ -407,6 +435,16 @@
 				}).join('');
 			}
 		} catch { /* teaser stays as skeleton placeholders */ }
+
+		const topWaitlist = CELEBRITIES.filter(c => c.availability === 'Waitlist').sort((a, b) => (b.demandIndex || 0) - (a.demandIndex || 0))[0];
+		const urgencyEl = document.getElementById('urgencyBody');
+		if (urgencyEl) {
+			const name = topWaitlist?.name || topDemand[0]?.name || 'top profiles';
+			urgencyEl.innerHTML = `
+				<p>Waitlist pressure elevated on <strong>${name}</strong>. Windows typically close within 72h for qualified clients.</p>
+				<button type='button' class='primary' style='width:auto;margin-top:12px;padding:10px 20px;font-size:11px' id='startQualifyBtn'>Start qualification →</button>`;
+			document.getElementById('startQualifyBtn')?.addEventListener('click', () => openQualifyModal(name));
+		}
 
 		try {
 			const pulse = await request('/intelligence/market-pulse');
