@@ -13,4 +13,4 @@ Disallow: /api/
 # Crawl-delay for bots
 Crawl-delay: 10
 
-Sitemap: https://alltalents-agency.vercel.app/sitemap.xml
+Sitemap: https://alltalentsagency.com/sitemap.xml
