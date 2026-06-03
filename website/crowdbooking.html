@@ -21,7 +21,7 @@
   <link rel="canonical" href="https://alltalentsagency.com/crowdbooking.html">
   <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
   <link rel='shortcut icon' href='/assets/favicon.svg'>
-  <link rel='stylesheet' href='assets/styles.css?v=20260605'>
+  <link rel='stylesheet' href='assets/styles.css?v=20260607'>
 </head>
 <body>
   <div class='container' id='app'></div>
@@ -32,7 +32,8 @@
   </div>
 
   <script type='module'>
-    import { request, nav, loadTicker, buildCryptoPaymentHTML, initCryptoWidget, initNav, initTheme, requireAuth, trackEvent } from './assets/app.js?v=20260605';
+    import { request, nav, loadTicker, buildCryptoPaymentHTML, initCryptoWidget, initNav, initTheme, requireAuth, trackEvent, initCommandPalette, initDynamicTheme } from './assets/app.js?v=20260607';
+    import { CELEBRITIES } from './assets/celebrities-data.js';
 
     (async () => {
 
@@ -118,6 +119,8 @@
     loadTicker();
     initTheme();
     initNav();
+    initDynamicTheme();
+    initCommandPalette(CELEBRITIES);
 
     let allEvents = [];
     try {

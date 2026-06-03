@@ -45,6 +45,27 @@ export function consumeReturnUrl(defaultPath = 'explorer.html') {
   return false;
 }
 
+import {
+  ASSET_V,
+  formatPrice,
+  getShortlist,
+  setShortlist,
+  toggleShortlist,
+  getRelatedTalents,
+  renderRelatedRail,
+  renderShortlistTray,
+  bindShortlistTray,
+  trackEvent,
+  renderCompareMatrix,
+  getLocalDemandPulse,
+  demandPulseHTML,
+  renderDemandPulse,
+  getRecentViews,
+  paletteSearchRoster,
+  parsePaletteIntent,
+  recordRecentView,
+} from './platform.js';
+
 export {
   ASSET_V,
   formatPrice,
@@ -57,7 +78,14 @@ export {
   bindShortlistTray,
   trackEvent,
   renderCompareMatrix,
-} from './platform.js';
+  getLocalDemandPulse,
+  demandPulseHTML,
+  renderDemandPulse,
+  getRecentViews,
+  paletteSearchRoster,
+  parsePaletteIntent,
+  recordRecentView,
+};
 
 export async function request(path, options = {}) {
   const response = await fetch(`${_API}${path}`, {
@@ -74,8 +102,31 @@ export async function request(path, options = {}) {
 }
 
 export function nav(active){
-  return `<header class="nav"><div class="nav-inner"><a class="nav-brand" href="index.html"><div class="brand-mark">AT</div><div><div class="brand">All Talents Agency</div><div class="brand-sub">Sovereign Celebrity Representation</div></div></a><div style="display:flex;align-items:center;gap:10px"><button class="nav-search-btn" id="navSearchBtn" title="Search celebrities" aria-label="Search celebrities"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button><button class="theme-toggle" id="themeToggle" title="Toggle theme">◐</button><button class="nav-access-btn" id="navAccessBtn" aria-label="Open navigation" aria-expanded="false"><span class="nab-burger"><span></span><span></span></span><span class="nab-text">ACCESS</span></button></div></div></header>
-  <div class="nav-search-overlay" id="navSearchOverlay" role="search" aria-hidden="true"><button class="nso-close" id="nsoClose" aria-label="Close search">&#x2715; ESC</button><div class="nso-inner"><p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.35);margin:0 0 16px">Search Celebrities</p><div class="nso-input-wrap"><input class="nso-input" id="nsoInput" placeholder="Beyonc\u00e9, Ronaldo, Taylor Swift\u2026" autocomplete="off" spellcheck="false" type="search"><button class="nso-submit" id="nsoSubmit">Search \u2192</button></div><p class="nso-hint">Type a name, category, or region &nbsp;·&nbsp; Press Enter or click Search</p></div></div>
+  return `<header class="nav"><div class="nav-inner"><a class="nav-brand" href="index.html"><div class="brand-mark">AT</div><div><div class="brand">All Talents Agency</div><div class="brand-sub">Sovereign Celebrity Representation</div></div></a><div style="display:flex;align-items:center;gap:10px"><span class="desk-status-chip" id="deskStatusChip"><span class="ds-dot"></span><span id="deskStatusText">Live desks</span></span><button class="nav-search-btn" id="navSearchBtn" title="Command palette (Ctrl+K)" aria-label="Command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button><button class="theme-toggle" id="themeToggle" title="Toggle theme">◐</button><button class="nav-access-btn" id="navAccessBtn" aria-label="Open navigation" aria-expanded="false"><span class="nab-burger"><span></span><span></span></span><span class="nab-text">ACCESS</span></button></div></div></header>
+  <div class="command-palette" id="commandPalette" role="dialog" aria-modal="true" aria-label="Command palette" aria-hidden="true">
+    <div class="cp-panel">
+      <div class="cp-header">
+        <span class="cp-kbd">⌘K</span>
+        <input class="cp-input" id="cpInput" placeholder="Search talent, routes, or type book Beyonce…" autocomplete="off" spellcheck="false">
+        <button class="cp-kbd" id="cpClose" type="button" style="cursor:pointer;background:transparent">ESC</button>
+      </div>
+      <div class="cp-section" id="cpRoutes">
+        <div class="cp-section-label">Quick routes</div>
+        <a class="cp-item" data-cp-href="explorer.html"><span class="cp-item-icon">02</span><span>Explore Talents</span></a>
+        <a class="cp-item" data-cp-href="booking.html"><span class="cp-item-icon">04</span><span>Initiate Engagement</span></a>
+        <a class="cp-item" data-cp-href="crowdbooking.html"><span class="cp-item-icon">03</span><span>Crowd Access</span></a>
+        <a class="cp-item" data-cp-href="portal.html"><span class="cp-item-icon">05</span><span>Client Portal</span></a>
+      </div>
+      <div class="cp-section" id="cpRecentSection" style="display:none">
+        <div class="cp-section-label">Recent</div>
+        <div id="cpRecentList"></div>
+      </div>
+      <div class="cp-section">
+        <div class="cp-section-label">Roster matches</div>
+        <div class="cp-results" id="cpResults"><div class="cp-empty">Type to search ${active === 'home' ? '166+' : ''} verified talents</div></div>
+      </div>
+    </div>
+  </div>
   <div class="nav-overlay" id="navOverlay" role="dialog" aria-modal="true" aria-label="Site navigation">
     <button class="nov-close" id="navOverlayClose" aria-label="Close navigation">&#x2715; CLOSE</button>
     <nav class="nov-menu">
@@ -299,52 +350,147 @@ export function initNav() {
   closeBtn?.addEventListener('click', closeNav);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeNav(); });
 
-  const searchOverlay = document.getElementById('navSearchOverlay');
-  const searchBtn = document.getElementById('navSearchBtn');
-  const nsoClose = document.getElementById('nsoClose');
-  const nsoInput = document.getElementById('nsoInput');
-  const nsoSubmit = document.getElementById('nsoSubmit');
-
-  function openSearch() {
-    closeNav();
-    searchOverlay?.classList.add('nso-open');
-    searchOverlay?.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => nsoInput?.focus(), 60);
-  }
-  function closeSearch() {
-    searchOverlay?.classList.remove('nso-open');
-    searchOverlay?.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  }
-  function doSearch() {
-    const q = nsoInput?.value.trim();
-    if (!q) return;
-    const localSearch = document.getElementById('search');
-    if (localSearch) {
-      closeSearch();
-      localSearch.value = q;
-      localSearch.dispatchEvent(new Event('input'));
-      localSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else {
-      window.location.href = 'explorer.html?search=' + encodeURIComponent(q);
-    }
-  }
-
-  searchBtn?.addEventListener('click', openSearch);
-  nsoClose?.addEventListener('click', closeSearch);
-  nsoSubmit?.addEventListener('click', doSearch);
-  nsoInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
-  searchOverlay?.addEventListener('click', (e) => { if (e.target === searchOverlay) closeSearch(); });
-
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closeNav(); closeSearch(); }
+    if (e.key === 'Escape') closeNav();
     if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
       const localSearch = document.getElementById('search');
       if (localSearch) { e.preventDefault(); localSearch.focus(); }
-      else { e.preventDefault(); openSearch(); }
     }
   });
+}
+
+export function initCommandPalette(roster = []) {
+  const palette = document.getElementById('commandPalette');
+  const input = document.getElementById('cpInput');
+  const results = document.getElementById('cpResults');
+  const recentSection = document.getElementById('cpRecentSection');
+  const recentList = document.getElementById('cpRecentList');
+  const searchBtn = document.getElementById('navSearchBtn');
+  const closeBtn = document.getElementById('cpClose');
+  if (!palette || !input || !results) return;
+
+  let activeIdx = -1;
+  let currentItems = [];
+
+  function renderRecent() {
+    const recent = getRecentViews();
+    if (!recent.length || !recentSection || !recentList) return;
+    recentSection.style.display = '';
+    recentList.innerHTML = recent.map(r => {
+      const c = roster.find(x => x.id === r.id);
+      const name = c?.name || r.name || r.id;
+      return `<a class="cp-item" data-cp-href="talent.html?id=${r.id}"><span class="cp-item-icon">↺</span><span>${name}</span><span class="cp-item-meta">${r.id}</span></a>`;
+    }).join('');
+    recentList.querySelectorAll('[data-cp-href]').forEach(el => {
+      el.addEventListener('click', (e) => { e.preventDefault(); go(el.dataset.cpHref); });
+    });
+  }
+
+  function renderResults(q) {
+    const intent = parsePaletteIntent(q, roster);
+    const matches = paletteSearchRoster(q, roster, 8);
+    currentItems = [];
+    let html = '';
+    if (intent && intent.type === 'route') {
+      html += `<a class="cp-item cp-active" data-cp-href="${intent.href}"><span class="cp-item-icon">→</span><span>Go to ${intent.label}</span></a>`;
+      currentItems.push(intent.href);
+    } else if (intent && (intent.type === 'dossier' || intent.type === 'book')) {
+      html += `<a class="cp-item cp-active" data-cp-href="${intent.href}"><span class="cp-item-icon">${intent.type === 'book' ? 'B' : 'D'}</span><span>${intent.type === 'book' ? 'Book' : 'Open dossier'}: ${intent.celeb.name}</span><span class="cp-item-meta">${formatPrice(intent.celeb.startingPrice)}</span></a>`;
+      currentItems.push(intent.href);
+    } else if (intent && intent.type === 'search') {
+      html += `<a class="cp-item cp-active" data-cp-href="${intent.href}"><span class="cp-item-icon">⌕</span><span>Search roster for "${q.trim()}"</span></a>`;
+      currentItems.push(intent.href);
+    }
+    matches.forEach((c, i) => {
+      const href = `talent.html?id=${c.id}`;
+      html += `<a class="cp-item${!html && i === 0 ? ' cp-active' : ''}" data-cp-href="${href}" data-cp-book="booking.html?id=${c.id}"><span class="cp-item-icon">${(c.name[0] || 'T').toUpperCase()}</span><span>${c.name}</span><span class="cp-item-meta">${c.category} · ${formatPrice(c.startingPrice)}</span></a>`;
+      if (!currentItems.length) currentItems.push(href);
+      currentItems.push(href);
+    });
+    if (!html) {
+      results.innerHTML = `<div class="cp-empty">${q.trim() ? 'No matches — try a route name or celebrity' : 'Type to search verified talents'}</div>`;
+      return;
+    }
+    results.innerHTML = html;
+    activeIdx = 0;
+    results.querySelectorAll('.cp-item').forEach((el, idx) => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (e.shiftKey && el.dataset.cpBook) go(el.dataset.cpBook);
+        else go(el.dataset.cpHref);
+      });
+      if (idx === 0) el.classList.add('cp-active');
+    });
+  }
+
+  function go(href) {
+    if (!href) return;
+    closePalette();
+    window.location.href = href;
+  }
+
+  function openPalette() {
+    palette.classList.add('cp-open');
+    palette.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    renderRecent();
+    input.value = '';
+    renderResults('');
+    setTimeout(() => input.focus(), 40);
+  }
+
+  function closePalette() {
+    palette.classList.remove('cp-open');
+    palette.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    activeIdx = -1;
+  }
+
+  searchBtn?.addEventListener('click', openPalette);
+  closeBtn?.addEventListener('click', closePalette);
+  palette.addEventListener('click', (e) => { if (e.target === palette) closePalette(); });
+
+  input.addEventListener('input', () => renderResults(input.value));
+  input.addEventListener('keydown', (e) => {
+    const items = [...results.querySelectorAll('.cp-item')];
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIdx = Math.min(activeIdx + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle('cp-active', i === activeIdx));
+      items[activeIdx]?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIdx = Math.max(activeIdx - 1, 0);
+      items.forEach((el, i) => el.classList.toggle('cp-active', i === activeIdx));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const active = items[activeIdx] || items[0];
+      if (active) go(active.dataset.cpHref);
+      else {
+        const intent = parsePaletteIntent(input.value, roster);
+        if (intent) go(intent.href);
+      }
+    } else if (e.key === 'Escape') {
+      closePalette();
+    }
+  });
+
+  document.querySelectorAll('#cpRoutes [data-cp-href]').forEach(el => {
+    el.addEventListener('click', (e) => { e.preventDefault(); go(el.dataset.cpHref); });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      if (palette.classList.contains('cp-open')) closePalette();
+      else openPalette();
+    }
+  });
+}
+
+export function setCategoryTint(category) {
+  if (!category) return;
+  document.body.setAttribute('data-category', category);
 }
 
 export function initScrollReveal() {
@@ -360,6 +506,16 @@ export function initDynamicTheme() {
   const h = new Date().getHours();
   const period = h >= 22 || h < 6 ? 'night' : h < 10 ? 'morning' : h < 18 ? 'day' : 'evening';
   document.documentElement.setAttribute('data-time-period', period);
+  const chip = document.getElementById('deskStatusText');
+  if (chip) {
+    const labels = {
+      night: 'After-hours desk · UTC',
+      morning: 'Morning desks opening',
+      day: 'Live desks open',
+      evening: 'Event windows active',
+    };
+    chip.textContent = labels[period] || 'Live desks';
+  }
 }
 
 export function initFlipFilter(containerSel, itemSel) {

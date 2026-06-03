@@ -7,7 +7,7 @@
 	<meta name='referrer' content='no-referrer'>
 	<title>Sovereign Booking | All Talents Agency</title>
 	<meta name="robots" content="noindex, nofollow">
-	<link rel='stylesheet' href='assets/styles.css?v=20260605'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260607'>
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
 </head>
 <body>
@@ -16,8 +16,8 @@
 		import {
 			request, nav, currentUser, loadTicker, buildCryptoPaymentHTML, initCryptoWidget,
 			initNav, initTheme, requireAuth, formatPrice, renderRelatedRail, getRelatedTalents,
-			bindShortlistTray, trackEvent
-		} from './assets/app.js?v=20260605';
+			bindShortlistTray, trackEvent, initCommandPalette, initDynamicTheme
+		} from './assets/app.js?v=20260607';
 		import { CELEBRITIES } from './assets/celebrities-data.js';
 
 		const qs = new URLSearchParams(location.search);
@@ -28,6 +28,7 @@
 		const app = document.getElementById('app');
 		app.innerHTML = `${nav('booking')}<section class='section' id='bkRoot'></section>`;
 		loadTicker(); initTheme(); initNav();
+		initDynamicTheme(); initCommandPalette(CELEBRITIES);
 		bindShortlistTray(CELEBRITIES);
 
 		if (!id) {

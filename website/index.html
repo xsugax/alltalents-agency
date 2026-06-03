@@ -41,7 +41,7 @@
 		}
 	}
 	</script>
-	<link rel='stylesheet' href='assets/styles.css?v=20260606'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260607'>
 </head>
 <body>
 	<div class='container' id='app'></div>
@@ -82,7 +82,7 @@
 		<div class='fmp-footer'>Encrypted &middot; NDA-default &middot; All Talents Agency</div>
 	</div>
 	<script type='module'>
-		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice } from './assets/app.js?v=20260606';
+		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, getLocalDemandPulse, demandPulseHTML, renderDemandPulse } from './assets/app.js?v=20260607';
 		import { CELEBRITIES } from './assets/celebrities-data.js';
 
 		let featuredCelebrity = { id: '', name: '' };
@@ -124,8 +124,9 @@
 			<section class='hero-cinematic section reveal-on-scroll' id='hero'>
 				<p class='small muted' style='position:relative;z-index:2;padding:48px'>Loading featured access…</p>
 			</section>
-			<section class='grid g4 section' id='kpis'>
-				${['','','',''].map(()=>`<div class='card' style='height:72px'></div>`).join('')}
+			<section class='grid g4 section vitals-strip reveal-on-scroll' id='kpis'>
+				<div class='card stack'><p class='eyebrow'>Live Vitals</p><div class='small muted'>Loading…</div></div>
+				${['','',''].map(()=>`<div class='card' style='height:72px'></div>`).join('')}
 			</section>
 			<section class='access-strip section'>
 				<div class='live-badge'><span class='live-dot'></span>Live Access Status</div>
@@ -155,66 +156,28 @@
 					<span class='small muted'>From $1,800 /person - Pay in 3 or 6 installments</span>
 				</div>
 			</section>
-			<section class='card section stack'>
-				<p class='eyebrow'>Client Entry Logic</p>
-				<h3>Structured Executive Journey</h3>
-				<div class='flow-grid'>
-					<article class='flow-step'>
-						<p class='num'>Step 01</p>
-						<h4>Discover Profiles</h4>
-						<p>Review verified talent records, pricing entry points, and representation authority in Explorer.</p>
-					</article>
-					<article class='flow-step'>
-						<p class='num'>Step 02</p>
-						<h4>Qualify Opportunity</h4>
-						<p>Confirm timing windows and event fit before committing resources to legal and commercial drafting.</p>
-					</article>
-					<article class='flow-step'>
-						<p class='num'>Step 03</p>
-						<h4>Engage Representatives</h4>
-						<p>Use the messaging desk to open direct representative communication and activate the booking pathway.</p>
-					</article>
-				</div>
-			</section>
-			<section class='grid g3 section'>
-				<article class='card stack'>
-					<p class='eyebrow'>Mandate</p>
-					<h3>Elite Access With Executive Discipline</h3>
-					<p class='lead'>All Talents Agency serves private offices, global brands, and senior planners who require reputational precision, legal discretion, and premium outcomes. Each engagement is framed with structured due diligence and clear governance.</p>
-				</article>
-				<article class='card stack'>
-					<p class='eyebrow'>Operating Model</p>
-					<h3>Representation-First Booking Workflow</h3>
-					<p class='lead'>All inquiries are screened through official representatives before terms are drafted. This protects reputation, removes low-intent requests, and aligns every proposal with security, confidentiality, and strategic fit.</p>
-				</article>
-				<article class='card stack'>
-					<p class='eyebrow'>Client Value</p>
-					<h3>From Inquiry to Confirmed Presence</h3>
-					<p class='lead'>Clients can discover talent, evaluate demand signals, verify availability windows, open representative communication, and initiate bookings from one controlled executive interface.</p>
-				</article>
-			</section>
-			<section class='grid g2 section'>
-				<article class='card stack' id='pulseCard'>
-					<p class='eyebrow'>Live Intelligence</p>
-					<h3>Market Pulse Radar</h3>
-					<p class='small muted'>Tracking demand heat and top waitlist pressure across the verified roster.</p>
-					<div id='pulseBody' class='small muted'>Loading market pulse...</div>
-				</article>
-				<article class='card stack'>
-					<p class='eyebrow'>AI Strategy Lab</p>
-					<h3>Executive Event Blueprint Generator</h3>
-					<p class='small muted'>Generate a strategic plan with fit, pressure, and exclusivity scoring in one click.</p>
-					<div class='grid g2'>
-						<select id='bpCelebrity'></select>
-						<input id='bpObjective' value='Brand Elevation' placeholder='Objective'>
-						<input id='bpAudience' value='Executive Guests' placeholder='Audience Type'>
-						<input id='bpRegion' value='Global' placeholder='Target Region'>
-						<input id='bpBudget' type='number' value='350000' placeholder='Budget'>
-						<input id='bpTimeline' type='number' value='30' placeholder='Timeline Days'>
+			<section class='situation-room section reveal-on-scroll' id='situationRoom'>
+				<div class='situation-room-head'>
+					<div>
+						<p class='eyebrow'>Situation Room</p>
+						<h3 style='margin:6px 0 0'>Live Intelligence · Demand Heat</h3>
 					</div>
-					<button class='primary' id='bpGenerate'>Generate Blueprint</button>
-					<div id='bpOut' class='small muted'>Login to unlock blueprint generation.</div>
-				</article>
+					<a href='explorer.html' class='small' style='color:var(--vital-nerve);text-decoration:none;font-weight:700'>Open full roster →</a>
+				</div>
+				<div class='situation-grid'>
+					<div class='situation-panel'>
+						<h4>Market Pulse</h4>
+						<div id='pulseBody' class='small muted'>Loading market pulse…</div>
+					</div>
+					<div class='situation-panel'>
+						<h4>Top Demand Profiles</h4>
+						<div class='demand-mini-grid' id='demandMiniGrid'>Loading…</div>
+					</div>
+				</div>
+				<div class='situation-footer'>
+					<span class='small muted'>Real-time demand signals across the verified roster. API-enriched when live.</span>
+					<a href='portal.html'><button class='secondary' style='width:auto;padding:10px 20px;font-size:11px'>Client intelligence →</button></a>
+				</div>
 			</section>
 		`;
 
@@ -237,6 +200,7 @@
 		initNav();
 		initScrollReveal();
 		initDynamicTheme();
+		initCommandPalette(CELEBRITIES);
 		bindShortlistTray(CELEBRITIES);
 		document.querySelectorAll('.quick-chip').forEach((btn) => {
 			btn.addEventListener('click', () => {
@@ -266,10 +230,10 @@
 					<p class='eyebrow'>Featured · ${i + 1} / ${featured.length} · ${c.category}</p>
 					<h1 class='headline'>${c.name}</h1>
 					${c.eliteSignal ? `<p style='font-size:13px;line-height:1.55;color:var(--text-2);font-style:italic;margin:0 0 10px;border-left:2px solid var(--accent);padding-left:12px'>${c.eliteSignal}</p>` : ''}
-					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px'>
-						<span class='small'><span class='muted'>Private access</span> <strong style='color:var(--accent-text)'>${fmtP(c.startingPrice)}</strong></span>
+					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px;align-items:center'>
+						<span class='small'><span class='muted'>Private access</span> <strong class='num-mono' style='color:var(--vital-heart)'>${fmtP(c.startingPrice)}</strong></span>
 						<span class='small'><span class='muted'>Reach</span> <strong style='color:var(--accent-text)'>${c.socialReachMillions}M</strong></span>
-						<span class='small'><span class='muted'>Status</span> <strong>${c.availability}</strong></span>
+						<span class='small' style='display:inline-flex;align-items:center;gap:6px'><span class='muted'>Status</span> ${demandPulseHTML(getLocalDemandPulse(c), true)} <strong>${c.availability}</strong></span>
 					</div>
 					<div style='margin-top:14px;display:flex;gap:10px;flex-wrap:wrap'>
 						<a href='talent.html?id=${c.id}'><button class='primary' style='width:auto;padding:12px 24px'>Open dossier →</button></a>
@@ -308,7 +272,8 @@
 		}
 
 		hero.innerHTML = buildHeroHTML();
-		trackEvent('home_view');
+		setCategoryTint(featured[0].category);
+		trackEvent('home_view', { id: featured[0].id, name: featured[0].name });
 
 		function goToSlide(newIdx) {
 			const slides = hero.querySelectorAll('.hero-slide:not(.hero-slide-sizer)');
@@ -325,6 +290,7 @@
 			setHomeTemplate(document.getElementById('homeType').value, featured[heroIdx].name);
 			const bg = document.getElementById('heroBg');
 			if (bg) bg.style.backgroundImage = `url('${featured[heroIdx].portrait}')`;
+			setCategoryTint(featured[heroIdx].category);
 
 			// progress bar reset
 			if (heroProg) { heroProg.style.transition = 'none'; heroProg.style.width = '0%'; }
@@ -361,12 +327,19 @@
 			verifiedCelebrities: CELEBRITIES.length,
 		};
 		const renderKPIs = (m) => {
-			document.getElementById('kpis').innerHTML = [
+			const items = [
 				['Total Global Bookings', m.totalGlobalBookings.toLocaleString()],
 				['Managed Portfolio Value', (() => { const v = m.managedPortfolioValue; return v >= 1e12 ? `$${(v/1e12).toFixed(2)}T` : v >= 1e9 ? `$${(v/1e9).toFixed(1)}B` : `$${(v/1e6).toFixed(0)}M`; })()],
 				['Active Negotiations', m.activeNegotiations.toLocaleString()],
-				['Verified Celebrities', m.verifiedCelebrities],
-			].map(([name, value]) => `<div class='card'><div class='small muted'>${name}</div><div class='kpi'>${value}</div></div>`).join('');
+				['Verified Talents', m.verifiedCelebrities],
+			];
+			document.getElementById('kpis').innerHTML = items.map(([name, value], i) => `
+				<div class='card stack'>
+					${i === 0 ? `<p class='eyebrow'>Live Vitals</p>` : ''}
+					<div class='small muted'>${name}</div>
+					<div class='kpi num-mono' data-kpi-target='${value.replace(/[^0-9.]/g,'')}' style='color:${i === 3 ? 'var(--vital-nerve)' : 'var(--vital-heart)'}'>${value}</div>
+				</div>
+			`).join('');
 		};
 		renderKPIs(kpiData);
 		// Try to enrich KPIs from API async (non-blocking)
@@ -376,23 +349,33 @@
 		const fmtPH = p => p >= 1e6 ? `$${(p/1e6).toFixed(1)}M` : `$${Math.round(p/1000)}K`;
 		const windowGrid = document.getElementById('windowGrid');
 		if (windowGrid) {
-			windowGrid.innerHTML = featured.slice(0, 4).map(c => `
-				<div class='window-card' onclick="window.location.href='explorer.html'" style='display:flex;flex-direction:column;gap:6px'>
-					<div class='wc-avail ${c.availability === "Open" ? "wa-open" : "wa-limited"}'>- ${c.availability === "Open" ? "OPEN WINDOW" : c.availability === "Waitlist" ? "WAITLIST" : "LIMITED WINDOW"}</div>
-					<div class='wc-name'>${c.name}</div>
-					<div class='wc-meta'>${c.category} - ${c.region}</div>
-					<div style='display:flex;gap:10px;flex-wrap:wrap;margin-top:2px'>
-						${c.netWorth ? `<span style='font-size:10px;color:var(--text-2)'>${c.netWorth} est. worth</span>` : ''}
-						<span style='font-size:10px;color:var(--text-2)'>${c.socialReachMillions}M reach</span>
+			windowGrid.innerHTML = featured.slice(0, 4).map(c => {
+				const pulse = getLocalDemandPulse(c);
+				return `
+				<div class='window-card' onclick="window.location.href='talent.html?id=${c.id}'" style='display:flex;flex-direction:column;gap:6px'>
+					<div style='display:flex;justify-content:space-between;align-items:center;gap:8px'>
+						<div class='wc-avail ${c.availability === "Open" ? "wa-open" : "wa-limited"}'>${c.availability === "Open" ? "OPEN" : c.availability === "Waitlist" ? "WAITLIST" : "LIMITED"}</div>
+						${demandPulseHTML(pulse, true)}
 					</div>
-					<div class='wc-price'>Private access from ${fmtPH(c.startingPrice)}</div>
-				</div>
-			`).join('');
+					<div class='wc-name'>${c.name}</div>
+					<div class='wc-meta'>${c.category} · ${c.region}</div>
+					<div class='wc-price num-mono'>From ${fmtPH(c.startingPrice)}</div>
+				</div>`;
+			}).join('');
 		}
 
-		document.getElementById('bpCelebrity').innerHTML = featured
-			.map((item) => `<option value='${item.id}'>${item.name} - $${item.startingPrice.toLocaleString()}</option>`)
-			.join('');
+		const topDemand = [...CELEBRITIES].sort((a, b) => (b.demandIndex || 0) - (a.demandIndex || 0)).slice(0, 5);
+		const demandMiniGrid = document.getElementById('demandMiniGrid');
+		if (demandMiniGrid) {
+			demandMiniGrid.innerHTML = topDemand.map(c => {
+				const pulse = getLocalDemandPulse(c);
+				return `<a class='demand-mini-row' href='talent.html?id=${c.id}'>
+					<img src='${c.portrait}' alt='' loading='lazy'>
+					<div><h5>${c.name}</h5><p>${c.category} · ${c.availability}</p></div>
+					${demandPulseHTML(pulse, true)}
+				</a>`;
+			}).join('');
+		}
 
 		// -- Populate Crowd Teaser Grid --------------------------
 		try {
@@ -429,15 +412,15 @@
 			const pulse = await request('/intelligence/market-pulse');
 			document.getElementById('pulseBody').innerHTML = `
 				<div class='flow-grid'>
-					<div class='flow-step'><p class='num'>Demand Heat</p><h4>${pulse.metrics.demandHeat}%</h4><p>Average roster demand velocity.</p></div>
-					<div class='flow-step'><p class='num'>Entry Quote</p><h4>$${pulse.metrics.averageEntryQuote.toLocaleString()}</h4><p>Average opening commercial posture.</p></div>
-					<div class='flow-step'><p class='num'>Waitlist Pressure</p><h4>${pulse.metrics.topWaitlistPressure}</h4><p>Profiles currently in waitlist state.</p></div>
+					<div class='flow-step'><p class='num'>Demand Heat</p><h4 class='num-mono' style='color:var(--vital-blood)'>${pulse.metrics.demandHeat}%</h4><p>Average roster demand velocity.</p></div>
+					<div class='flow-step'><p class='num'>Entry Quote</p><h4 class='num-mono' style='color:var(--vital-heart)'>$${pulse.metrics.averageEntryQuote.toLocaleString()}</h4><p>Average opening commercial posture.</p></div>
+					<div class='flow-step'><p class='num'>Waitlist Pressure</p><h4 class='num-mono' style='color:var(--vital-nerve)'>${pulse.metrics.topWaitlistPressure}</h4><p>Profiles in waitlist state.</p></div>
 				</div>
 				<div class='hr'></div>
-				<p class='small muted'><b>Top Demand Profiles:</b> ${pulse.top.map((t) => `${t.name} (${t.demandIndex}%)`).join(' - ')}</p>
+				<p class='small muted'><b>Top Demand:</b> ${pulse.top.map((t) => `${t.name} (${t.demandIndex}%)`).join(' · ')}</p>
 			`;
 		} catch {
-			document.getElementById('pulseBody').textContent = 'Market pulse unavailable.';
+			document.getElementById('pulseBody').innerHTML = `<p class='small muted'>Market pulse offline — showing local demand signals above.</p>`;
 		}
 
 		document.getElementById('homeType').addEventListener('change', (e) => {
@@ -477,31 +460,6 @@
 			} catch (error) {
 				typingBubble.remove();
 				addBubble(thread, 'desk', error.message + ' - login first to send.');
-			}
-		};
-
-		document.getElementById('bpGenerate').onclick = async () => {
-			const out = document.getElementById('bpOut');
-			try {
-				const response = await request('/intelligence/blueprint', {
-					method: 'POST',
-					body: JSON.stringify({
-						celebrityId: document.getElementById('bpCelebrity').value,
-						objective: document.getElementById('bpObjective').value,
-						audienceType: document.getElementById('bpAudience').value,
-						region: document.getElementById('bpRegion').value,
-						budget: Number(document.getElementById('bpBudget').value || 0),
-						timelineDays: Number(document.getElementById('bpTimeline').value || 30),
-					}),
-				});
-				out.innerHTML = `
-					<p class='small'><b>Blueprint:</b> ${response.blueprintId}</p>
-					<p class='small'><b>Recommendation:</b> ${response.strategy.recommendation}</p>
-					<p class='small'><b>Scores:</b> Fit ${response.scores.fitScore} - Pressure ${response.scores.pressureScore} - Budget ${response.scores.budgetAlignment} - Exclusivity ${response.scores.exclusivityIndex}</p>
-					<p class='small'><b>Execution Plan:</b> ${response.executionPlan.join(' - ')}</p>
-				`;
-			} catch (error) {
-				out.textContent = error.message + ' (login first for AI strategy generation)';
 			}
 		};
 	</script>

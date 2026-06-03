@@ -1,5 +1,5 @@
 /** All Talents Agency — shared platform utilities */
-export const ASSET_V = '20260606';
+export const ASSET_V = '20260607';
 export const SHORTLIST_KEY = 'ata_shortlist';
 export const SHORTLIST_MAX = 5;
 
@@ -147,7 +147,118 @@ export function trackEvent(name, detail = {}) {
     const buf = JSON.parse(sessionStorage.getItem('ata_events') || '[]');
     buf.push({ name, detail, t: Date.now() });
     sessionStorage.setItem('ata_events', JSON.stringify(buf.slice(-50)));
+    if (detail.id && (name.includes('view') || name.includes('dossier') || name.includes('booking'))) {
+      recordRecentView(detail.id, detail.name || detail.id);
+    }
   } catch { /* ignore */ }
+}
+
+const RECENT_KEY = 'ata_recent_views';
+
+export function recordRecentView(id, name) {
+  try {
+    let list = JSON.parse(sessionStorage.getItem(RECENT_KEY) || '[]');
+    list = list.filter(x => x.id !== id);
+    list.unshift({ id, name: name || id, t: Date.now() });
+    sessionStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 8)));
+  } catch { /* ignore */ }
+}
+
+export function getRecentViews() {
+  try {
+    return JSON.parse(sessionStorage.getItem(RECENT_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function getLocalDemandPulse(celeb) {
+  if (!celeb) return { heatLevel: 'normal', label: 'STABLE', message: 'Demand stable' };
+  const avail = (celeb.availability || '').toLowerCase();
+  const demand = celeb.demandIndex || 0;
+  if (avail === 'waitlist' || demand >= 95) {
+    return { heatLevel: 'critical', label: 'CRITICAL', message: 'Waitlist pressure — immediate qualification required' };
+  }
+  if (avail === 'limited' || demand >= 85) {
+    return { heatLevel: 'high', label: 'HIGH', message: 'Limited window — inquiry volume elevated' };
+  }
+  if (demand >= 72) {
+    return { heatLevel: 'elevated', label: 'ELEVATED', message: 'Active demand — windows closing' };
+  }
+  return { heatLevel: 'normal', label: 'STABLE', message: 'Open demand channel' };
+}
+
+export function demandPulseHTML(pulse, compact = false) {
+  const p = pulse || { heatLevel: 'normal', label: 'STABLE', message: '' };
+  if (compact) {
+    return `<span class="demand-pulse"><span class="demand-dot dp-${p.heatLevel}"></span><span class="demand-tag dt-${p.heatLevel}">${p.label}</span></span>`;
+  }
+  return `<div class="demand-pulse"><span class="demand-dot dp-${p.heatLevel}"></span><span class="demand-tag dt-${p.heatLevel}">${p.label}</span><span class="pressure-msg">${p.message || ''}</span></div>`;
+}
+
+export async function renderDemandPulse(el, celeb, requestFn, { tryApi = true } = {}) {
+  if (!el || !celeb) return;
+  const local = getLocalDemandPulse(celeb);
+  el.innerHTML = demandPulseHTML(local);
+  if (!tryApi || !requestFn) return;
+  try {
+    const p = await requestFn('/intelligence/pressure/' + celeb.id);
+    el.innerHTML = `
+      <div class="demand-pulse">
+        <span class="demand-dot dp-${p.heatLevel}"></span>
+        <span class="demand-tag dt-${p.heatLevel}">${p.heatLevel === 'critical' ? 'CRITICAL' : (p.heatLevel || 'normal').toUpperCase()}</span>
+        <span class="pressure-msg">${p.urgencyMessage || local.message}</span>
+      </div>`;
+  } catch { /* keep local */ }
+}
+
+export function observeDemandPulse(container, celeb, requestFn) {
+  if (!container || !celeb) return;
+  const el = typeof container === 'string' ? document.getElementById(container) : container;
+  if (!el) return;
+  renderDemandPulse(el, celeb, requestFn);
+  if (requestFn) {
+    renderDemandPulse(el, celeb, requestFn, { tryApi: true });
+  }
+}
+
+export function paletteSearchRoster(query, roster, limit = 8) {
+  const q = (query || '').trim().toLowerCase();
+  if (!q) return (roster || []).slice(0, limit);
+  return (roster || [])
+    .filter(c =>
+      c.name.toLowerCase().includes(q) ||
+      (c.category || '').toLowerCase().includes(q) ||
+      (c.region || '').toLowerCase().includes(q)
+    )
+    .slice(0, limit);
+}
+
+export function parsePaletteIntent(query, roster) {
+  const q = (query || '').trim().toLowerCase();
+  const routes = {
+    explorer: 'explorer.html',
+    explore: 'explorer.html',
+    roster: 'explorer.html',
+    crowd: 'crowdbooking.html',
+    portal: 'portal.html',
+    booking: 'booking.html',
+    login: 'login.html',
+    home: 'index.html',
+  };
+  for (const [key, href] of Object.entries(routes)) {
+    if (q === key) return { type: 'route', href, label: key };
+  }
+  const bookMatch = q.match(/^book\s+(.+)$/);
+  if (bookMatch) {
+    const name = bookMatch[1];
+    const c = (roster || []).find(x => x.name.toLowerCase().includes(name));
+    if (c) return { type: 'book', href: `booking.html?id=${c.id}`, celeb: c };
+  }
+  const c = (roster || []).find(x => x.name.toLowerCase().includes(q));
+  if (c) return { type: 'dossier', href: `talent.html?id=${c.id}`, celeb: c };
+  if (q.length > 1) return { type: 'search', href: `explorer.html?search=${encodeURIComponent(query.trim())}` };
+  return null;
 }
 
 export function bindShortlistTray(roster) {

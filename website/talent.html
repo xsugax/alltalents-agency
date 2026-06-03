@@ -6,7 +6,7 @@
 	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<title>Talent Dossier | All Talents Agency</title>
 	<meta name="robots" content="noindex, nofollow">
-	<link rel="stylesheet" href="assets/styles.css?v=20260605">
+	<link rel="stylesheet" href="assets/styles.css?v=20260607">
 	<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -15,8 +15,9 @@
 		import {
 			request, nav, loadTicker, initNav, initTheme, initScrollReveal,
 			formatPrice, toggleShortlist, getShortlist, renderRelatedRail,
-			bindShortlistTray, trackEvent, requireAuth, getRelatedTalents
-		} from './assets/app.js?v=20260605';
+			bindShortlistTray, trackEvent, requireAuth, getRelatedTalents,
+			initCommandPalette, initDynamicTheme, setCategoryTint
+		} from './assets/app.js?v=20260607';
 		import { CELEBRITIES } from './assets/celebrities-data.js';
 
 		const params = new URLSearchParams(location.search);
@@ -26,11 +27,13 @@
 		if (!id) {
 			app.innerHTML = `${nav('explorer')}<section class="card section"><h2>No talent selected</h2><p class="muted"><a href="explorer.html">Return to explorer</a></p></section>`;
 			loadTicker(); initTheme(); initNav();
+			initDynamicTheme(); initCommandPalette(CELEBRITIES);
 			throw new Error('no id');
 		}
 
 		app.innerHTML = `${nav('explorer')}<div id="talentRoot"><p class="small muted">Loading dossier…</p></div>`;
 		loadTicker(); initTheme(); initNav(); initScrollReveal();
+		initDynamicTheme(); initCommandPalette(CELEBRITIES);
 		bindShortlistTray(CELEBRITIES);
 		trackEvent('dossier_view', { id });
 
@@ -44,6 +47,7 @@
 				) })),
 			]);
 			celeb = c;
+			setCategoryTint(c.category);
 			const d = dossierRes?.dossier;
 			const related = relatedRes?.data || [];
 			const listed = getShortlist().includes(id);

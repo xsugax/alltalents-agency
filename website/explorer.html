@@ -33,7 +33,7 @@
     "isPartOf": { "@type": "WebSite", "name": "All Talents Agency", "url": "https://alltalentsagency.com" }
   }
   </script>
-  <link rel='stylesheet' href='assets/styles.css?v=20260605'>
+  <link rel='stylesheet' href='assets/styles.css?v=20260607'>
   <style>
     /* Explorer filter bar — obsidian */
     #search{background:var(--bg-alt);border:1px solid var(--line);color:var(--text);transition:all .2s ease}
@@ -121,7 +121,7 @@
   </div>
 
   <script type='module'>
-    import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, initFlipFilter, toggleShortlist, getShortlist, bindShortlistTray, renderCompareMatrix, renderRelatedRail, getRelatedTalents, trackEvent, formatPrice } from './assets/app.js?v=20260605';
+    import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, initFlipFilter, toggleShortlist, getShortlist, bindShortlistTray, renderCompareMatrix, renderRelatedRail, getRelatedTalents, trackEvent, formatPrice, initCommandPalette, renderDemandPulse, getLocalDemandPulse, demandPulseHTML } from './assets/app.js?v=20260607';
     import { CELEBRITIES } from './assets/celebrities-data.js';
 
     let selectedCelebrity = { id: '', name: '' };
@@ -525,7 +525,7 @@
             <button class='meet-direct-btn' data-a='portal' data-id='${c.id}'>- &nbsp;Meet ${c.name.split(' ')[0]} Privately -</button>
             <button class='mob-see-more-btn' data-a='expand'>Details &amp; actions &#x25BE;</button>
             <div class='celeb-card-extra'>
-              <div class='pressure-bar' id='press-${c.id}' data-pid='${c.id}' style='margin-top:10px'><div class='pressure-dot pd-normal'></div><span class='pressure-msg'>Reading demand signal-</span></div>
+              <div class='pressure-bar demand-pulse-wrap' id='press-${c.id}' data-pid='${c.id}' style='margin-top:10px'>${demandPulseHTML(getLocalDemandPulse(c))}</div>
               <div class='celeb-stat-bar' style='margin-top:10px'>
                 <div class='celeb-stat'><div class='cs-label'>Est. Net Worth</div><div class='cs-value'>${c.netWorth || '-'}</div></div>
                 <div class='celeb-stat'><div class='cs-label'>Global Reach</div><div class='cs-value'>${c.socialReachMillions}M</div></div>
@@ -637,16 +637,9 @@
             if (!entry.isIntersecting) return;
             _pressureObserver.unobserve(entry.target);
             const id = entry.target.dataset.pid;
-            request('/intelligence/pressure/' + id).then((p) => {
-              const el = document.getElementById('press-' + id);
-              if (!el) return;
-              el.innerHTML = `
-                <div class='pressure-dot pd-${p.heatLevel}'></div>
-                <span class='pressure-tag pt-${p.heatLevel}'>${p.heatLevel === 'critical' ? 'SOLD OUT' : p.heatLevel.toUpperCase()}</span>
-                <span class='pressure-msg'>${p.urgencyMessage}</span>
-                <span class='pressure-msg' style='margin-left:4px;opacity:.65'>- Last inquiry ${p.lastInquiryMinutesAgo}m ago</span>
-              `;
-            }).catch(() => {});
+            const celeb = celebMap.get(id);
+            const el = document.getElementById('press-' + id);
+            if (el && celeb) renderDemandPulse(el, celeb, request, { tryApi: true });
           });
         }, { rootMargin: '120px' });
       }
@@ -715,6 +708,7 @@
     initNav();
     initScrollReveal();
     initDynamicTheme();
+    initCommandPalette(CELEBRITIES);
     await init();
     bindShortlistTray(CELEBRITIES);
 
