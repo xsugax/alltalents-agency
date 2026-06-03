@@ -121,7 +121,7 @@
   </div>
 
   <script type='module'>
-    import { request, nav, loadTicker } from './assets/app.js';
+    import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, initFlipFilter } from './assets/app.js';
     import { CELEBRITIES } from './assets/celebrities-data.js';
 
     let selectedCelebrity = { id: '', name: '' };
@@ -704,7 +704,11 @@
 
     renderShortlistState();
 
-    await loadTicker();
+    loadTicker();
+    initTheme();
+    initNav();
+    initScrollReveal();
+    initDynamicTheme();
     await init();
 
     // -- Celebrity Inquiry Form handler ---------------------------------------

@@ -14,12 +14,14 @@
 <body>
 	<div class='container' id='app'></div>
 	<script type='module'>
-		import { request, nav, loadTicker } from './assets/app.js';
+		import { request, nav, loadTicker, initNav, initTheme } from './assets/app.js';
 
 		const app = document.getElementById('app');
 		app.innerHTML = `${nav('portal')}<section id='p' class='section'></section>`;
 
-		await loadTicker();
+		loadTicker();
+		initTheme();
+		initNav();
 
 		const PHASES = [
 			'Inquiry Received',

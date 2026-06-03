@@ -82,7 +82,7 @@
 		<div class='fmp-footer'>Encrypted &middot; NDA-default &middot; All Talents Agency</div>
 	</div>
 	<script type='module'>
-		import { request, nav, loadTicker } from './assets/app.js';
+		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme } from './assets/app.js';
 		import { CELEBRITIES } from './assets/celebrities-data.js';
 
 		let featuredCelebrity = { id: '', name: '' };
@@ -236,7 +236,11 @@
 			}
 		}
 
-		await loadTicker();
+		loadTicker();
+		initTheme();
+		initNav();
+		initScrollReveal();
+		initDynamicTheme();
 
 		// Use local static data — no cold-start delay
 		const hero = document.getElementById('hero');

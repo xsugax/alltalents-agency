@@ -32,7 +32,7 @@
   </div>
 
   <script type='module'>
-    import { request, nav, loadTicker, buildCryptoPaymentHTML, initCryptoWidget } from './assets/app.js';
+    import { request, nav, loadTicker, buildCryptoPaymentHTML, initCryptoWidget, initNav, initTheme } from './assets/app.js';
 
     (async () => {
 
@@ -115,7 +115,9 @@
       </section>
     `;
 
-    await loadTicker();
+    loadTicker();
+    initTheme();
+    initNav();
 
     let allEvents = [];
     try {
