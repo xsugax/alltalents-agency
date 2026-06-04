@@ -14,7 +14,7 @@
 	<meta name="robots" content="noindex, nofollow">
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
 	<link rel='shortcut icon' href='/assets/favicon.svg'>
-	<link rel='stylesheet' href='assets/styles.css?v=20260611'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260612'>
 	<style>
 		/* Login page - full-viewport cinematic gate */
 		html,body{height:100%;margin:0}
@@ -56,8 +56,8 @@
 		.login-field input{background:var(--bg-alt);border:1px solid rgba(0,0,0,.12);color:var(--text);padding:13px 16px;border-radius:10px;font-size:14px;transition:all .2s ease;width:100%;box-sizing:border-box}
 		.login-field input:focus{outline:none;border-color:rgba(112,143,168,.6);background:#fff;box-shadow:0 0 0 3px rgba(112,143,168,.1)}
 		.login-field input::placeholder{color:rgba(0,0,0,.25)}
-		.login-submit{width:100%;padding:15px 24px;background:var(--bg-dark);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .22s ease;box-shadow:0 4px 16px rgba(0,0,0,.12);position:relative;overflow:hidden;margin-top:6px}
-		.login-submit:hover{box-shadow:0 8px 24px rgba(0,0,0,.18);transform:translateY(-1px)}
+		.login-submit{width:100%;padding:15px 24px;background:linear-gradient(145deg,#8A9EEB,#5C6FD4);color:#060809;border:none;border-radius:10px;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .22s ease;box-shadow:0 4px 20px rgba(138,158,235,.32);position:relative;overflow:hidden;margin-top:6px}
+		.login-submit:hover{box-shadow:0 8px 28px rgba(138,158,235,.4);transform:translateY(-1px)}
 		.login-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
 		.login-submit::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.06) 50%,transparent 70%);transform:translateX(-100%);transition:transform .45s ease}
 		.login-submit:hover::after{transform:translateX(100%)}
@@ -149,7 +149,7 @@
 	</div>
 
 	<script type='module'>
-		import { request, setAuth, consumeReturnUrl } from './assets/app.js?v=20260611';
+		import { request, setAuth, consumeReturnUrl } from './assets/app.js?v=20260612';
 
 		// Click-to-fill demo credentials
 		document.querySelectorAll('.login-demo-row').forEach(row => {
