@@ -9,7 +9,7 @@
 	<meta name="application-name" content="All Talents Agency">
 	<meta name="apple-mobile-web-app-title" content="ATA">
 	<meta name="theme-color" content="#060809">
-	<meta name="msapplication-TileColor" content="#C9A962">
+	<meta name="msapplication-TileColor" content="#A8BDD9">
 	<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 	<link rel="shortcut icon" href="/assets/favicon.svg">
 	<link rel="apple-touch-icon" href="/assets/ata-mark.svg">
@@ -66,7 +66,7 @@
 		"description": "Search All Talents Agency or ATA for sovereign celebrity booking and verified talent access."
 	}
 	</script>
-	<link rel='stylesheet' href='assets/styles.css?v=20260610'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260611'>
 </head>
 <body>
 	<div class='container' id='app'></div>
@@ -107,7 +107,7 @@
 		<div class='fmp-footer'>Encrypted &middot; NDA-default &middot; All Talents Agency</div>
 	</div>
 	<script type='module'>
-		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, getLocalDemandPulse, demandPulseHTML, renderDemandPulse, renderProtocolSpine, renderThreePathBait, renderAccessPathSimulator, bindAccessPathSimulator, displayPrice, initAccessProtocol, initConciergeTriggers, openAccessPortal, bindPathBaitHandlers, getAccessProgress, openQualifyModal } from './assets/app.js?v=20260610';
+		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, getLocalDemandPulse, demandPulseHTML, renderDemandPulse, renderProtocolSpine, renderThreePathBait, renderAccessPathSimulator, bindAccessPathSimulator, displayPrice, initAccessProtocol, initConciergeTriggers, openAccessPortal, bindPathBaitHandlers, getAccessProgress, openQualifyModal } from './assets/app.js?v=20260611';
 		import { CELEBRITIES } from './assets/celebrities-data.js';
 
 		let featuredCelebrity = { id: '', name: '' };
@@ -146,24 +146,24 @@
 		const app = document.getElementById('app');
 		app.innerHTML = `
 			${nav('home')}
-			<section class="elite-intro-strip reveal-on-scroll scroll-stay" data-reveal="scale">
+			<section class="elite-intro-strip persist-visible scroll-stay">
 				<div class="eis-mark">ATA</div>
 				<div class="eis-body">
-					<p class="eis-rating"><span class="eis-stars">★★★★★</span> 4.9 institutional rating · 847 verified client pathways</p>
+					<p class="eis-rating"><span class="eis-badge">Record grade</span><span class="eis-stars">★★★★★</span> 4.9 institutional rating · 847 verified client pathways</p>
 					<h2 class="eis-headline">The authorized way to meet them — not the internet's guesswork.</h2>
-					<p class="eis-sub">All Talents Agency (ATA) is the sovereign corridor for celebrity representation — verified roster, confidential qualification, and escrow-protected booking for clients who move with intent.</p>
+					<p class="eis-sub">All Talents Agency (ATA) operates at mandate velocity: verified roster, autonomous qualification, escrow-protected booking — built for clients who break records, not browse catalogs.</p>
 				</div>
 			</section>
-			<section class='hero-cinematic section reveal-on-scroll' id='hero' data-reveal='left'>
+			<section class='hero-cinematic section persist-visible reveal-on-scroll' id='hero'>
 				<p class='small muted' style='position:relative;z-index:2;padding:48px'>Loading featured access…</p>
 			</section>
-			<div id='protocolSpineMount'></div>
-			<div id='pathBaitMount' class='reveal-on-scroll' data-reveal='right' data-reveal-delay='80'></div>
-			<section class='grid g4 section vitals-strip reveal-on-scroll scroll-stay' id='kpis' data-reveal='scale'>
+			<div id='protocolSpineMount' class='persist-visible'></div>
+			<div id='pathBaitMount' class='persist-visible reveal-on-scroll'></div>
+			<section class='grid g4 section vitals-strip persist-visible scroll-stay' id='kpis'>
 				<div class='card stack'><p class='eyebrow'>Live Vitals</p><div class='small muted'>Loading…</div></div>
 				${['','',''].map(()=>`<div class='card' style='height:72px'></div>`).join('')}
 			</section>
-			<section class='access-strip section'>
+			<section class='access-strip section persist-visible'>
 				<div class='live-badge'><span class='live-dot'></span>Live Access Status</div>
 				<h2 class='access-strip-title'>${CELEBRITIES.length} Verified Celebrities.<br>Direct Access. Right Now.</h2>
 				<p class='access-strip-sub'>Every talent on this platform is reachable through All Talents Agency's sovereign authorized channels. Your qualification as a registered client unlocks exclusive meeting windows, direct representative outreach, and priority booking rights — unavailable anywhere else.</p>
@@ -191,7 +191,7 @@
 					<span class='small muted'>From $1,800 /person - Pay in 3 or 6 installments</span>
 				</div>
 			</section>
-			<section class='situation-room section reveal-on-scroll' id='situationRoom'>
+			<section class='situation-room section persist-visible' id='situationRoom'>
 				<div class='situation-room-head'>
 					<div>
 						<p class='eyebrow'>Situation Room</p>
@@ -303,7 +303,7 @@
 				</div>`;
 			const dots = featured.map((_, i) => `<div class='hero-dot${i === 0 ? ' hd-active' : ''}' data-dot='${i}'></div>`).join('');
 			return `
-				<div class='hero-cinematic-bg' id='heroBg' data-parallax='0.05' style="background-image:url('${featured[0].portrait}')"></div>
+				<div class='hero-cinematic-bg' id='heroBg' data-parallax='0.02' style="background-image:url('${featured[0].portrait}')"></div>
 				<div class='hero-cinematic-content'>
 					<form class='hero-search-mega' id='heroSearchForm' onsubmit='event.preventDefault();const q=document.getElementById("heroSearchInput").value.trim();if(q)location.href="explorer.html?search="+encodeURIComponent(q);'>
 						<input id='heroSearchInput' type='search' placeholder='Search any celebrity — Beyoncé, Messi, Taylor Swift…' autocomplete='off'>

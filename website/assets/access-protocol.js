@@ -386,7 +386,7 @@ export function openAccessPortal(c) {
     <div class="ap-stamp"><div class="ap-stamp-dot"></div>All Talents Agency · Sovereign Private Access</div>
     <h1 class="ap-celeb-name">${c.name}</h1>
     <p class="ap-celeb-meta">${c.category} · ${c.region} · ${c.agencyRepresentation}</p>
-    <p style="font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.72);font-style:italic;margin:0 0 18px;padding:12px 14px;border-left:2px solid var(--accent);background:rgba(201,169,98,.08);border-radius:0 8px 8px 0">"${c.eliteSignal || ''}"</p>
+    <p style="font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.72);font-style:italic;margin:0 0 18px;padding:12px 14px;border-left:2px solid var(--accent);background:rgba(148,176,214,.08);border-radius:0 8px 8px 0">"${c.eliteSignal || ''}"</p>
     <div class="ap-live-status"><div class="ap-live-dot"></div>Direct meeting access LIVE — closes in 72h</div>
     <div class="ap-brief-row">${briefHtml}</div>
     <div class="ap-divider"></div>

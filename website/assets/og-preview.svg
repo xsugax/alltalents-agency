@@ -4,22 +4,22 @@
       <stop offset="0%" stop-color="#060809"/>
       <stop offset="100%" stop-color="#111418"/>
     </linearGradient>
-    <linearGradient id="brass" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#E8D5A3"/>
-      <stop offset="50%" stop-color="#C9A962"/>
-      <stop offset="100%" stop-color="#9A7840"/>
+    <linearGradient id="record" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4E4F4"/>
+      <stop offset="50%" stop-color="#A8BDD9"/>
+      <stop offset="100%" stop-color="#6E8EAE"/>
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <rect x="0" y="0" width="1200" height="3" fill="url(#brass)"/>
-  <rect x="56" y="54" width="64" height="64" rx="10" fill="#060809" stroke="url(#brass)" stroke-width="1.5"/>
-  <text x="88" y="98" font-family="ui-monospace,monospace" font-size="22" font-weight="700" fill="url(#brass)" text-anchor="middle" letter-spacing="-1">ATA</text>
-  <text x="140" y="82" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="12" font-weight="700" fill="#C9A962" letter-spacing="3">ALL TALENTS AGENCY</text>
-  <text x="140" y="102" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="10" fill="#8A9199" letter-spacing="2">SOVEREIGN CELEBRITY REPRESENTATION</text>
-  <text x="56" y="200" font-family="Georgia,serif" font-size="52" font-weight="400" fill="#D4D0C8">The authorized way to meet them.</text>
+  <rect x="0" y="0" width="1200" height="3" fill="url(#record)"/>
+  <rect x="56" y="54" width="64" height="64" rx="10" fill="#060809" stroke="url(#record)" stroke-width="1.5"/>
+  <text x="88" y="98" font-family="ui-monospace,monospace" font-size="22" font-weight="700" fill="url(#record)" text-anchor="middle">ATA</text>
+  <text x="140" y="82" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="12" font-weight="700" fill="#B8CDE8" letter-spacing="3">ALL TALENTS AGENCY</text>
+  <text x="140" y="102" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="10" fill="#8A9199" letter-spacing="2">RECORD-GRADE REPRESENTATION</text>
+  <text x="56" y="200" font-family="Georgia,serif" font-size="52" fill="#E2E8F0">The authorized way to meet them.</text>
   <text x="56" y="268" font-family="Georgia,serif" font-size="36" fill="#8A9199" font-style="italic">Not the internet's guesswork.</text>
-  <text x="56" y="340" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="16" fill="#8A9199">119+ verified A-list talents · Confidential qualification · Escrow-protected booking</text>
-  <rect x="56" y="380" width="220" height="36" rx="6" fill="rgba(201,169,98,.12)" stroke="#C9A962" stroke-width="1"/>
-  <text x="166" y="403" font-family="ui-monospace,monospace" font-size="13" fill="#C9A962" text-anchor="middle">★ 4.9 · INSTITUTIONAL RATING</text>
-  <text x="56" y="610" font-family="ui-monospace,monospace" font-size="12" fill="#9A7840" letter-spacing="1">alltalentsagency.com</text>
+  <text x="56" y="340" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="16" fill="#8A9199">119+ verified talents · Platinum desk · Escrow-protected mandates</text>
+  <rect x="56" y="380" width="280" height="36" rx="6" fill="rgba(148,176,214,.12)" stroke="#A8BDD9" stroke-width="1"/>
+  <text x="196" y="403" font-family="ui-monospace,monospace" font-size="13" fill="#D4E4F4" text-anchor="middle">★ 4.9 · RECORD INSTITUTIONAL RATING</text>
+  <text x="56" y="610" font-family="ui-monospace,monospace" font-size="12" fill="#6E8EAE" letter-spacing="1">alltalentsagency.com</text>
 </svg>

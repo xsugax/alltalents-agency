@@ -164,7 +164,7 @@ export async function request(path, options = {}) {
 }
 
 export function nav(active){
-  return `<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div><header class="nav"><div class="nav-inner"><a class="nav-brand" href="index.html" title="All Talents Agency — ATA"><div class="brand-mark brand-mark-ata" aria-hidden="true"><svg class="ata-mark-svg" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="navBrass" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E8D5A3"/><stop offset="50%" stop-color="#C9A962"/><stop offset="100%" stop-color="#9A7840"/></linearGradient></defs><rect width="44" height="44" rx="6" fill="#060809"/><rect x="1" y="1" width="42" height="42" rx="5" fill="none" stroke="url(#navBrass)" stroke-width="1"/><text x="22" y="28" font-family="IBM Plex Mono,ui-monospace,monospace" font-size="13" font-weight="700" fill="url(#navBrass)" text-anchor="middle" letter-spacing="-0.5">ATA</text><line x1="10" y1="33" x2="34" y2="33" stroke="url(#navBrass)" stroke-width="0.6" opacity="0.45"/></svg></div><div><div class="brand">All Talents Agency <span class="brand-ata-tag">ATA</span></div><div class="brand-sub">Sovereign Celebrity Representation</div></div></a><div style="display:flex;align-items:center;gap:10px"><span class="desk-status-chip" id="deskStatusChip"><span class="ds-dot"></span><span id="deskStatusText">Live desks</span></span><button class="nav-search-btn" id="navSearchBtn" title="Command palette (Ctrl+K)" aria-label="Command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button><button class="nav-access-btn" id="navAccessBtn" aria-label="Open navigation" aria-expanded="false"><span class="nab-burger"><span></span><span></span></span><span class="nab-text">ACCESS</span></button></div></div></header>
+  return `<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div><header class="nav"><div class="nav-inner"><a class="nav-brand" href="index.html" title="All Talents Agency — ATA"><div class="brand-mark brand-mark-ata" aria-hidden="true"><svg class="ata-mark-svg" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="navRecord" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D4E4F4"/><stop offset="50%" stop-color="#A8BDD9"/><stop offset="100%" stop-color="#6E8EAE"/></linearGradient></defs><rect width="44" height="44" rx="6" fill="#060809"/><rect x="1" y="1" width="42" height="42" rx="5" fill="none" stroke="url(#navRecord)" stroke-width="1"/><text x="22" y="28" font-family="IBM Plex Mono,ui-monospace,monospace" font-size="13" font-weight="700" fill="url(#navRecord)" text-anchor="middle" letter-spacing="-0.5">ATA</text><line x1="10" y1="33" x2="34" y2="33" stroke="url(#navRecord)" stroke-width="0.6" opacity="0.45"/></svg></div><div><div class="brand">All Talents Agency <span class="brand-ata-tag">ATA</span></div><div class="brand-sub">Sovereign Celebrity Representation</div></div></a><div style="display:flex;align-items:center;gap:10px"><span class="desk-status-chip" id="deskStatusChip"><span class="ds-dot"></span><span id="deskStatusText">Live desks</span></span><button class="nav-search-btn" id="navSearchBtn" title="Command palette (Ctrl+K)" aria-label="Command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button><button class="nav-access-btn" id="navAccessBtn" aria-label="Open navigation" aria-expanded="false"><span class="nab-burger"><span></span><span></span></span><span class="nab-text">ACCESS</span></button></div></div></header>
   <div class="command-palette" id="commandPalette" role="dialog" aria-modal="true" aria-label="Command palette" aria-hidden="true">
     <div class="cp-panel">
       <div class="cp-header">
@@ -618,7 +618,7 @@ export function initScrollMotion() {
   update();
 
   document.querySelectorAll('[data-parallax]').forEach((el) => {
-    const rate = Number(el.dataset.parallax) || 0.06;
+    const rate = Number(el.dataset.parallax) || 0.025;
     const onScroll = () => {
       const rect = el.getBoundingClientRect();
       const shift = (window.innerHeight / 2 - rect.top) * rate;
@@ -641,17 +641,26 @@ export function initScrollMotion() {
 
 export function initScrollReveal() {
   initScrollMotion();
+  document.querySelectorAll('.reveal-on-scroll.persist-visible').forEach(el => el.classList.add('revealed'));
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
+      if (e.target.classList.contains('persist-visible')) {
+        e.target.classList.add('revealed');
+        io.unobserve(e.target);
+        return;
+      }
       const delay = Number(e.target.dataset.revealDelay) || 0;
       setTimeout(() => {
         e.target.classList.add('revealed');
         io.unobserve(e.target);
       }, delay);
     });
-  }, { threshold: 0.06, rootMargin: '0px 0px -32px 0px' });
-  document.querySelectorAll('.reveal-on-scroll').forEach(el => io.observe(el));
+  }, { threshold: 0.04, rootMargin: '0px 0px -20px 0px' });
+  document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+    if (el.classList.contains('persist-visible')) el.classList.add('revealed');
+    else io.observe(el);
+  });
 }
 
 export function initDynamicTheme() {

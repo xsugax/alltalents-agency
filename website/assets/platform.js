@@ -1,5 +1,5 @@
 /** All Talents Agency — shared platform utilities */
-export const ASSET_V = '20260610';
+export const ASSET_V = '20260611';
 export const SHORTLIST_KEY = 'ata_shortlist';
 export const SHORTLIST_MAX = 5;
 
