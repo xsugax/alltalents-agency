@@ -108,22 +108,37 @@ import { getMeetingPlaybook, renderMeetingPlaybookCard } from './meeting-playboo
 
 let liveRoster = [];
 
-export async function loadRoster() {
+async function fetchRosterOnce(ms) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 20000);
+  const timer = setTimeout(() => ctrl.abort(), ms);
   try {
-    const res = await request('/celebrities', { signal: ctrl.signal });
-    liveRoster = Array.isArray(res?.data) ? res.data : [];
+    const res = await request('/celebrities', { signal: ctrl.signal, timeoutMs: 0 });
+    const data = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+    if (data.length) {
+      liveRoster = data;
+      return true;
+    }
   } catch (err) {
     console.error(err);
-    if (!liveRoster.length) liveRoster = [];
   } finally {
     clearTimeout(timer);
+  }
+  return false;
+}
+
+export async function loadRoster() {
+  if (liveRoster.length) return liveRoster;
+  const waits = [30000, 45000, 45000];
+  for (let i = 0; i < waits.length && !liveRoster.length; i++) {
+    if (i) await new Promise((r) => setTimeout(r, 1200));
+    await fetchRosterOnce(waits[i]);
   }
   return liveRoster;
 }
 
 export function finishBoot() {
+  const hero = document.getElementById('hero');
+  if (hero && !hero.querySelector('h1')) return;
   document.documentElement.classList.add('is-hydrated', 'is-loaded');
   const boot = document.getElementById('ataBoot');
   if (!boot || boot.dataset.done === '1') return;
