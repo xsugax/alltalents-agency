@@ -85,7 +85,8 @@ const rateLimit = (req, res, next) => {
 
 const auth = (req, res, next) => {
   const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+  let token = header.startsWith("Bearer ") ? header.slice(7) : null;
+  if (!token && String(req.path || "").endsWith("/events") && req.query?.token) token = String(req.query.token);
   if (!token) return res.status(401).json({ error: "Unauthorized" });
   try {
     const payload = jwt.verify(token, JWT_SECRET);
@@ -666,7 +667,11 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: "An unexpected error occurred. Please try again." });
 });
 
-onAdminEvent((type, payload) => emitAdminEvent(type, payload));
+onAdminEvent((type, payload = {}) => {
+  if (type === "CASE_OPENED") emitAdminEvent("NEW_BOOKING", { celebrity: payload.talent });
+  else if (type === "CASE_STATUS") emitAdminEvent(payload.status === "Cancelled" ? "BOOKING_CANCELLED" : "BOOKING_STATUS_UPDATED", { stage: payload.status });
+  else emitAdminEvent(type, payload);
+});
 
 if (!process.env.VERCEL) {
   initDb().then(async () => {

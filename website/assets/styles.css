@@ -728,7 +728,15 @@ body[data-category="Fashion"]{--category-tint:rgba(148,180,216,.04)}
 
 /* ── SCROLL REVEAL & MOTION (persistent — no fade-away) ─────── */
 .scroll-progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:101;background:linear-gradient(90deg,var(--cta-deep),var(--cta),var(--cta-bright));box-shadow:0 0 14px var(--cta-glow);pointer-events:none;transition:width .06s linear}
-html.is-loaded body{opacity:1}
+html.is-loaded body,html.is-hydrated body{opacity:1;visibility:visible}
+.ata-boot{position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#060809;color:#E2E8F0}
+.ata-boot-mark{width:88px;height:88px;border-radius:18px;border:1px solid rgba(168,189,217,.6);display:grid;place-items:center;font-family:var(--mono);font-size:18px;font-weight:700;letter-spacing:.14em;color:#D4E4F4;background:#0C0E10;box-shadow:0 0 0 10px rgba(168,189,217,.06);animation:ataBoot 1.5s ease-in-out infinite}
+.ata-boot-track{width:108px;height:2px;border-radius:2px;background:rgba(168,189,217,.16);overflow:hidden}
+.ata-boot-track span{display:block;height:100%;width:42%;background:#A8BDD9;animation:ataBootBar 1.05s ease-in-out infinite}
+.ata-boot-label{margin:0;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#8EA0B5}
+.ata-boot.ata-boot-done{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .4s ease,visibility .4s ease}
+@keyframes ataBoot{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes ataBootBar{0%{transform:translateX(-130%)}100%{transform:translateX(280%)}}
 .reveal-on-scroll{opacity:1;transform:translateY(14px);transition:transform .55s cubic-bezier(.22,1,.36,1)}
 .reveal-on-scroll[data-reveal="left"]{transform:translateX(-16px)}
 .reveal-on-scroll[data-reveal="right"]{transform:translateX(16px)}

@@ -109,14 +109,28 @@ import { getMeetingPlaybook, renderMeetingPlaybookCard } from './meeting-playboo
 let liveRoster = [];
 
 export async function loadRoster() {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 20000);
   try {
-    const res = await request('/celebrities');
+    const res = await request('/celebrities', { signal: ctrl.signal });
     liveRoster = Array.isArray(res?.data) ? res.data : [];
   } catch (err) {
     console.error(err);
-    liveRoster = [];
+    if (!liveRoster.length) liveRoster = [];
+  } finally {
+    clearTimeout(timer);
   }
   return liveRoster;
+}
+
+export function finishBoot() {
+  document.documentElement.classList.add('is-hydrated', 'is-loaded');
+  const boot = document.getElementById('ataBoot');
+  if (!boot || boot.dataset.done === '1') return;
+  boot.dataset.done = '1';
+  const started = Number(window.__ataBootAt || Date.now());
+  const wait = Math.max(0, 900 - (Date.now() - started));
+  setTimeout(() => boot.classList.add('ata-boot-done'), wait);
 }
 
 export function getRoster() {
@@ -198,14 +212,24 @@ export {
 };
 
 export async function request(path, options = {}) {
+  const timeoutMs = options.timeoutMs ?? 20000;
+  let signal = options.signal;
+  let timer;
+  if (!signal && timeoutMs) {
+    const ctrl = new AbortController();
+    signal = ctrl.signal;
+    timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  }
+  const { timeoutMs: _ignored, signal: _callerSignal, ...rest } = options;
   const response = await fetch(`${_API}${path}`, {
-    ...options,
+    ...rest,
+    signal,
     headers: {
       'Content-Type': 'application/json',
       ...(token() ? { Authorization: `Bearer ${token()}` } : {}),
       ...(options.headers || {}),
     },
-  });
+  }).finally(() => clearTimeout(timer));
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.error || 'Request failed');
   return payload;
@@ -481,6 +505,7 @@ export function initCryptoWidget(uid = 'cp', onMethodChange) {
 // ── FULLSCREEN NAV OVERLAY ─────────────────────────────────────────────
 export function initNav() {
   mountSmartsupp();
+  finishBoot();
   hydrateShortlist();
   const overlay = document.getElementById('navOverlay');
   const openBtn = document.getElementById('navAccessBtn');

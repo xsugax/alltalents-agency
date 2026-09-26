@@ -26,9 +26,11 @@
   <link rel="canonical" href="https://alltalentsagency.com/crowdbooking.html">
   <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
   <link rel='shortcut icon' href='/assets/favicon.svg'>
-  <link rel='stylesheet' href='assets/styles.css?v=20260926b'>
+  <link rel='stylesheet' href='assets/styles.css?v=20260926c'>
 </head>
 <body>
+	<div id="ataBoot" class="ata-boot" role="status" aria-live="polite"><div class="ata-boot-mark" aria-hidden="true">ATA</div><div class="ata-boot-track" aria-hidden="true"><span></span></div><p class="ata-boot-label">Opening the desk</p></div>
+	<script>window.__ataBootAt=Date.now();setTimeout(function(){var b=document.getElementById('ataBoot');if(b)b.classList.add('ata-boot-done');document.documentElement.classList.add('is-hydrated');},24000);</script>
   <div class='container' id='app'></div>
 
   <!-- -- CROWD CONFIRM MODAL --- -->
@@ -37,7 +39,7 @@
   </div>
 
   <script type='module'>
-    import { request, nav, currentUser, initNav, initTheme, trackEvent, initCommandPalette, initDynamicTheme, loadRoster } from './assets/app.js?v=20260925';
+    import { request, nav, currentUser, initNav, initTheme, trackEvent, initCommandPalette, initDynamicTheme, loadRoster } from './assets/app.js?v=20260926c';
     const CELEBRITIES = await loadRoster();
 
     (async () => {

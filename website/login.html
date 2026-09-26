@@ -14,7 +14,7 @@
 	<meta name="robots" content="noindex, nofollow">
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
 	<link rel='shortcut icon' href='/assets/favicon.svg'>
-	<link rel='stylesheet' href='assets/styles.css?v=20260926b'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260926c'>
 	<style>
 		/* Login page - full-viewport cinematic gate */
 		html,body{height:100%;margin:0;overflow-x:clip;max-width:100%}
@@ -83,6 +83,8 @@
 	</style>
 </head>
 <body>
+	<div id="ataBoot" class="ata-boot" role="status" aria-live="polite"><div class="ata-boot-mark" aria-hidden="true">ATA</div><div class="ata-boot-track" aria-hidden="true"><span></span></div><p class="ata-boot-label">Opening the desk</p></div>
+	<script>window.__ataBootAt=Date.now();setTimeout(function(){var b=document.getElementById('ataBoot');if(b)b.classList.add('ata-boot-done');document.documentElement.classList.add('is-hydrated');},24000);</script>
 	<div class='login-page'>
 
 		<!-- Left - atmospheric brand panel -->
@@ -142,7 +144,9 @@
 	</div>
 
 	<script type='module'>
-		import { request, setAuth, consumeReturnUrl } from './assets/app.js?v=20260619';
+		import { request, setAuth, consumeReturnUrl, finishBoot, mountSmartsupp } from './assets/app.js?v=20260926c';
+		mountSmartsupp();
+		finishBoot();
 
 		// Click-to-fill demo credentials
 		document.querySelectorAll('.login-demo-row').forEach(row => {

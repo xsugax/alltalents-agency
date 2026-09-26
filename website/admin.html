@@ -9,12 +9,12 @@
 	<meta name="robots" content="noindex, nofollow">
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
 	<link rel='shortcut icon' href='/assets/favicon.svg'>
-	<link rel='stylesheet' href='assets/styles.css?v=20260619'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260926c'>
 	<style>
 		body{margin:0;font-family:inherit}
 		.adm-shell{min-height:100vh;background:#05080F;color:#E6ECF4}
 		/* ── Header ── */
-		.adm-header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(148,180,216,.13);background:rgba(5,8,15,.92);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+		.adm-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 28px;border-bottom:1px solid rgba(148,180,216,.13);background:rgba(5,8,15,.92);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
 		.adm-brand{display:flex;align-items:center;gap:10px}
 		.adm-brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#94B4D8,#b8962e);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#05080F;letter-spacing:-.03em;flex-shrink:0}
 		.adm-brand-title{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#94B4D8}
@@ -85,6 +85,8 @@
 	</style>
 </head>
 <body>
+	<div id="ataBoot" class="ata-boot" role="status" aria-live="polite"><div class="ata-boot-mark" aria-hidden="true">ATA</div><div class="ata-boot-track" aria-hidden="true"><span></span></div><p class="ata-boot-label">Opening the desk</p></div>
+	<script>window.__ataBootAt=Date.now();setTimeout(function(){var b=document.getElementById('ataBoot');if(b)b.classList.add('ata-boot-done');},700);</script>
 <div class='adm-shell' id='adminShell'>
 	<!-- Header always visible -->
 	<header class='adm-header'>
@@ -195,7 +197,7 @@
 				</div>
 			</div>
 			<div>
-				<div class='adm-section-head'><span class='adm-section-title'>Crowd inventory</span></div>
+				<div class='adm-section-head'><span class='adm-section-title'>Crowd inventory</span><input id='crowdSearch' placeholder='Filter events' style='max-width:240px'></div>
 				<div class='adm-table-wrap' style='max-height:280px;overflow:auto'>
 					<table class='adm-table'><thead><tr><th>Event</th><th>Date</th><th>Slots</th><th>Price</th><th>Live</th><th></th></tr></thead>
 					<tbody id='crowdBody'></tbody></table>
@@ -457,12 +459,18 @@
 	let _experiences = [];
 	let _crowd = [];
 	async function loadDesk() {
-		const [cats, home, exps, crowd] = await Promise.all([
+		const settled = await Promise.allSettled([
 			api('/admin/categories'),
 			api('/admin/content'),
 			api('/admin/experiences'),
 			api('/admin/crowd-events'),
 		]);
+		const value = (i) => settled[i].status === 'fulfilled' ? settled[i].value : {};
+		const cats = value(0);
+		const home = value(1);
+		const exps = value(2);
+		const crowd = value(3);
+		if (settled.some(s => s.status === 'rejected')) showToast('Part of the desk is still opening');
 		$('categoryDesk').innerHTML = (cats.data || []).map(c => `<label class='adm-log-item'><input type='checkbox' data-cat='${c.name}' ${c.published ? 'checked' : ''}> ${c.name}</label>`).join('');
 		$('categoryDesk').querySelectorAll('[data-cat]').forEach(box => {
 			box.onchange = async () => {
@@ -501,7 +509,9 @@
 		});
 	}
 	function drawCrowd() {
-		$('crowdBody').innerHTML = _crowd.map(e => `<tr>
+		const q = ($('crowdSearch')?.value || '').toLowerCase();
+		const rows = _crowd.filter(e => !q || `${e.eventTitle || ''} ${e.name || ''}`.toLowerCase().includes(q)).slice(0, 40);
+		$('crowdBody').innerHTML = rows.map(e => `<tr>
 			<td>${e.eventTitle}<div class='small muted'>${e.name}</div></td>
 			<td><input data-crowd-date='${e.id}' value='${e.date || ''}' style='width:120px'></td>
 			<td><input data-crowd-slots='${e.id}' value='${e.slots}' style='width:64px'></td>
@@ -509,6 +519,7 @@
 			<td><input type='checkbox' data-crowd-live='${e.id}' ${e.published ? 'checked' : ''}></td>
 			<td><button class='adm-refresh' data-crowd-save='${e.id}' type='button'>Save</button></td>
 		</tr>`).join('') || `<tr><td colspan='6'>No crowd events</td></tr>`;
+		if (_crowd.length > rows.length) $('crowdBody').insertAdjacentHTML('beforeend', `<tr><td colspan='6' class='adm-empty'>Showing ${rows.length} of ${_crowd.length}. Filter to narrow the list.</td></tr>`);
 		$('crowdBody').querySelectorAll('[data-crowd-save]').forEach(btn => {
 			btn.onclick = async () => {
 				const id = btn.dataset.crowdSave;
@@ -529,12 +540,12 @@
 		$('loginScreen').style.display = 'none';
 		$('dashboard').style.display = 'block';
 		$('logoutBtn').style.display = '';
-		await loadBookings();
-		await loadDashboard();
-		await loadTalents();
-		await loadDesk();
+		for (const job of [loadBookings, loadDashboard, loadTalents, loadDesk]) {
+			try { await job(); } catch (e) { showToast(e.message || 'A desk panel did not load'); }
+		}
 		$('talentSearch').oninput = drawTalents;
 		$('expSearch').oninput = drawExperiences;
+		if ($('crowdSearch')) $('crowdSearch').oninput = drawCrowd;
 		$('saveHome').onclick = async () => {
 			await api('/admin/content/home', { method: 'PUT', body: JSON.stringify({ headline: $('homeHeadline').value, sub: $('homeSub').value }) });
 			showToast('Home copy saved');
@@ -542,10 +553,9 @@
 		connectSSE();
 		$('refreshBtn').onclick = async () => {
 			$('refreshBtn').textContent = '↻ Loading…';
-			await loadBookings();
-			await loadDashboard();
-			await loadTalents();
-			await loadDesk();
+			for (const job of [loadBookings, loadDashboard, loadTalents, loadDesk]) {
+				try { await job(); } catch (e) { showToast(e.message || 'A desk panel did not load'); }
+			}
 			$('newBadge').style.display = 'none';
 			$('refreshBtn').textContent = '↻ Refresh';
 		};

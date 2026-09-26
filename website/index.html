@@ -59,12 +59,37 @@
 		"description": "Search All Talents Agency or ATA for sovereign celebrity booking and verified talent access."
 	}
 	</script>
-	<link rel='stylesheet' href='assets/styles.css?v=20260926b'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260926c'>
 </head>
 <body>
+	<div id="ataBoot" class="ata-boot" role="status" aria-live="polite">
+		<div class="ata-boot-mark" aria-hidden="true">ATA</div>
+		<div class="ata-boot-track" aria-hidden="true"><span></span></div>
+		<p class="ata-boot-label">Opening the desk</p>
+	</div>
 	<div class='container' id='app'></div>
+	<script>
+		window.__ataBootAt = Date.now();
+		(function () {
+			var key = '97229f7ac536a4dc96013560ce8188410b721c28';
+			window._smartsupp = window._smartsupp || {};
+			window._smartsupp.key = key;
+			if (!document.getElementById('smartsupp-loader')) {
+				var s = document.createElement('script');
+				s.id = 'smartsupp-loader';
+				s.async = true;
+				s.src = 'https://www.smartsuppchat.com/loader.js?' + key;
+				document.head.appendChild(s);
+			}
+			setTimeout(function () {
+				var b = document.getElementById('ataBoot');
+				if (b) b.classList.add('ata-boot-done');
+				document.documentElement.classList.add('is-hydrated');
+			}, 24000);
+		})();
+	</script>
 	<script type='module'>
-		import { request, nav, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, displayPrice, initAccessProtocol, renderPathwayChooser, loadRoster } from './assets/app.js?v=20260925';
+		import { request, nav, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, displayPrice, initAccessProtocol, renderPathwayChooser, loadRoster } from './assets/app.js?v=20260926c';
 		const CELEBRITIES = await loadRoster();
 
 		let featuredCelebrity = { id: '', name: '' };
@@ -255,6 +280,10 @@
 				</div>`;
 		}
 
+		if (!featured.length) {
+			hero.innerHTML = `<div class='hero-cinematic-content' style='position:relative;z-index:2;padding:36px 8px'><p class='eyebrow'>Desk</p><h1 class='headline'>The roster is opening.</h1><p class='small muted'>The names will fill in as soon as the desk answers. Crowd Access and the directory stay open.</p></div>`;
+			document.getElementById('pathBaitMount').innerHTML = `<section class="section"><p class="eyebrow">Choose a path</p>${renderPathwayChooser(null)}</section>`;
+		} else {
 		hero.innerHTML = buildHeroHTML();
 		document.getElementById('heroSearchInput')?.addEventListener('focus', () => window.__ataOpenDiscover?.(document.getElementById('heroSearchInput').value));
 		document.getElementById('pathBaitMount').innerHTML = `<section class="section"><p class="eyebrow">Choose a path</p>${renderPathwayChooser(featured[0])}</section>`;
@@ -309,6 +338,7 @@
 		startHeroTimer();
 		stage.addEventListener('mouseenter', () => { clearInterval(heroTimer); if (heroProg) heroProg.style.animationPlayState = 'paused'; });
 		stage.addEventListener('mouseleave', () => { startHeroTimer(); if (heroProg) { heroProg.style.transition = `width ${HERO_INTERVAL}ms linear`; heroProg.style.width = '100%'; } });
+		}
 
 		const paintDeskClock = () => {
 			const clock = document.getElementById('deskClock');
