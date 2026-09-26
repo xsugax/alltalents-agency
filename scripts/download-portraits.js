@@ -131,6 +131,9 @@ const PORTRAITS = {
   c117: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Park_Seo-joon_for_Marie_Claire_Korea%2C_2023_%281%29.jpg/330px-Park_Seo-joon_for_Marie_Claire_Korea%2C_2023_%281%29.jpg',
   c118: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Lee_Min-ho_in_December_2025.png/330px-Lee_Min-ho_in_December_2025.png',
   c119: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Song_Joong-ki_at_Style_Icon_Asia_2016.jpg/330px-Song_Joong-ki_at_Style_Icon_Asia_2016.jpg',
+  c241: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Colin_Farrell_Cannes_2014.jpg/330px-Colin_Farrell_Cannes_2014.jpg',
+  c242: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Ryan_Gosling_-_Cannes_2011_%28cropped%29.jpg/330px-Ryan_Gosling_-_Cannes_2011_%28cropped%29.jpg',
+  c243: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Anne_Hathaway_2014.jpg/330px-Anne_Hathaway_2014.jpg',
 };
 
 function getExt(url) {

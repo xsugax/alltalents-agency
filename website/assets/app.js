@@ -50,6 +50,7 @@ import {
   formatPrice,
   getShortlist,
   setShortlist,
+  hydrateShortlist,
   toggleShortlist,
   getRelatedTalents,
   renderRelatedRail,
@@ -64,6 +65,9 @@ import {
   paletteSearchRoster,
   parsePaletteIntent,
   recordRecentView,
+  searchRoster,
+  getSearchSuggestions,
+  initSmartSearch,
 } from './platform.js';
 
 import {
@@ -95,9 +99,45 @@ import {
   refreshHoldUI,
   initAccessProtocol,
   initConciergeTriggers,
-  getPrestigeTickerEvents,
   ANCHOR_COPY,
+  renderBookingDeskSteps,
+  BOOKING_DESK_LABELS,
 } from './access-protocol.js';
+
+import { getMeetingPlaybook, renderMeetingPlaybookCard } from './meeting-playbooks.js';
+
+let liveRoster = [];
+
+export async function loadRoster() {
+  try {
+    const res = await request('/celebrities');
+    liveRoster = Array.isArray(res?.data) ? res.data : [];
+  } catch (err) {
+    console.error(err);
+    liveRoster = [];
+  }
+  return liveRoster;
+}
+
+export function getRoster() {
+  return liveRoster;
+}
+
+/** Static roster IDs that map to canonical API ids (e.g. Charlize c167 → API c7). */
+const STATIC_API_ID_ALIASES = {
+  c167: 'c7',
+};
+
+const DEFAULT_SECURITY_TIERS = ['Standard', 'Enhanced', 'Executive', 'Sovereign'];
+
+export function resolveApiCelebrityId(id) {
+  return STATIC_API_ID_ALIASES[id] || id;
+}
+
+export function bookingSecurityTiers(celeb) {
+  const tiers = celeb?.securityTiers;
+  return Array.isArray(tiers) && tiers.length ? tiers : DEFAULT_SECURITY_TIERS;
+}
 
 export {
   ASSET_V,
@@ -118,6 +158,9 @@ export {
   paletteSearchRoster,
   parsePaletteIntent,
   recordRecentView,
+  searchRoster,
+  getSearchSuggestions,
+  initSmartSearch,
   PROTOCOL_STEPS,
   renderProtocolSpine,
   renderThreePathBait,
@@ -145,8 +188,13 @@ export {
   refreshHoldUI,
   initAccessProtocol,
   initConciergeTriggers,
-  getPrestigeTickerEvents,
   ANCHOR_COPY,
+  renderBookingDeskSteps,
+  BOOKING_DESK_LABELS,
+  getMeetingPlaybook,
+  renderMeetingPlaybookCard,
+  fetchCelebrity,
+  fetchCelebrityDossier,
 };
 
 export async function request(path, options = {}) {
@@ -163,30 +211,124 @@ export async function request(path, options = {}) {
   return payload;
 }
 
+function localCelebrity(id, roster = liveRoster) {
+  return roster.find((x) => x.id === id) || null;
+}
+
+function mergeCelebrity(apiRow, localRow) {
+  if (!localRow) return apiRow;
+  if (!apiRow) return localRow;
+  const merged = { ...apiRow, id: localRow.id, name: localRow.name || apiRow.name };
+  const preferLocal = apiRow.name && localRow.name && apiRow.name !== localRow.name;
+  const keys = [
+    'portrait', 'eliteSignal', 'netWorth', 'agencyRepresentation', 'startingPrice',
+    'availability', 'availabilityWindowDays', 'securityTiers', 'category', 'region',
+    'demandIndex', 'dynamicPriceRange', 'ndaDefault', 'bookingTiers',
+  ];
+  for (const key of keys) {
+    const localVal = localRow[key];
+    const apiVal = apiRow[key];
+    if (localVal == null) continue;
+    if (preferLocal || apiVal == null || (Array.isArray(apiVal) && !apiVal.length)) {
+      merged[key] = localVal;
+    }
+  }
+  if (!merged.securityTiers?.length) merged.securityTiers = localRow.securityTiers || DEFAULT_SECURITY_TIERS;
+  return merged;
+}
+
+/** API first; static roster + id aliases when API returns 404. */
+async function fetchCelebrity(id, roster = liveRoster) {
+  const local = localCelebrity(id, roster);
+  const tryIds = [id, STATIC_API_ID_ALIASES[id]].filter(Boolean);
+  const seen = new Set();
+  for (const tid of tryIds) {
+    if (seen.has(tid)) continue;
+    seen.add(tid);
+    try {
+      const row = await request('/celebrities/' + tid);
+      return mergeCelebrity(row, local);
+    } catch {
+      /* try next */
+    }
+  }
+  if (local) return local;
+  throw new Error('Celebrity not found');
+}
+
+function buildLocalDossier(c) {
+  const meeting = getMeetingPlaybook(c) || {};
+  const idx = Math.max(0, parseInt(String(c.id).replace(/\D/g, ''), 10) - 1);
+  const venueOptions = ['Private Estate Gala', 'Flagship Brand Summit', 'Sovereign Corporate Forum', 'Exclusive Cultural Ceremony', 'Invitation-Only Media Event'];
+  const leverageMap = {
+    low: 'High — Minimal friction, broad campaign compatibility',
+    medium: 'Moderate — Strategic alignment required before proposal',
+    high: 'Controlled — Executive-only pathway, strict vetting mandatory',
+  };
+  return {
+    celebrity: {
+      id: c.id, name: c.name, category: c.category, region: c.region, portrait: c.portrait,
+      startingPrice: c.startingPrice, agencyRepresentation: c.agencyRepresentation,
+    },
+    dossier: {
+      meetingHeadline: meeting.headline,
+      meetingSteps: meeting.steps,
+      classificationLevel: 'PRIVATE — CLIENT EYES ONLY',
+      mediaAuthorityScore: Math.min(99, Math.round((c.socialReachMillions / 280) * 100) + 15),
+      negotiationLeverage: leverageMap[c.riskIndex] || leverageMap.medium,
+      recommendedVenue: venueOptions[idx % venueOptions.length],
+      talkingPoints: [
+        `Represented exclusively by ${c.agencyRepresentation}. All commercial contact must route through authorized channels.`,
+        `Commercial entry threshold: ${formatPrice(c.startingPrice)}. Security default: ${(c.securityTiers || ['Executive']).slice(-1)[0]}.`,
+        `Demand index: ${c.demandIndex}% — ${c.demandIndex > 75 ? 'Extreme booking pressure, immediate action advised' : c.demandIndex > 55 ? 'High demand — windows closing rapidly' : 'Moderate demand — opportunity window currently open'}.`,
+        `Availability: ${c.availability === 'Open' ? 'Currently accepting qualified outreach' : c.availability === 'Limited' ? 'Limited windows — act within 48 hours of inquiry' : 'Waitlist active — join queue for next opening'}.`,
+      ],
+      riskBrief: c.riskIndex === 'high'
+        ? 'ELEVATED — Executive security protocols required. Full media blackout and thorough vetting enforced.'
+        : c.riskIndex === 'medium'
+        ? 'MANAGED — NDA activation required. Coordinate all media placement through representation desk.'
+        : 'CLEAR — No reputational exposure. Suitable for flagship public campaigns and media-facing events.',
+      ndaStatus: c.ndaDefault !== false
+        ? 'MANDATORY — NDA is required for all engagements without exception.'
+        : 'ADVISORY — NDA strongly recommended depending on event exposure level.',
+      optimalLeadTime: c.availability === 'Open' ? '14–21 days via standard pathway' : '30–60 days — limited access windows',
+    },
+  };
+}
+
+async function fetchCelebrityDossier(id, roster = liveRoster) {
+  const tryIds = [id, STATIC_API_ID_ALIASES[id]].filter(Boolean);
+  const seen = new Set();
+  for (const tid of tryIds) {
+    if (seen.has(tid)) continue;
+    seen.add(tid);
+    try {
+      return await request('/celebrities/' + tid + '/dossier');
+    } catch {
+      /* try next */
+    }
+  }
+  const local = localCelebrity(id, roster);
+  if (local) return buildLocalDossier(local);
+  throw new Error('Celebrity not found');
+}
+
 export function nav(active){
-  return `<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div><header class="nav"><div class="nav-inner"><a class="nav-brand" href="index.html" title="All Talents Agency — ATA"><div class="brand-mark brand-mark-ata" aria-hidden="true"><svg class="ata-mark-svg" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="navRecord" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D4E4F4"/><stop offset="50%" stop-color="#A8BDD9"/><stop offset="100%" stop-color="#6E8EAE"/></linearGradient></defs><rect width="44" height="44" rx="6" fill="#060809"/><rect x="1" y="1" width="42" height="42" rx="5" fill="none" stroke="url(#navRecord)" stroke-width="1"/><text x="22" y="28" font-family="IBM Plex Mono,ui-monospace,monospace" font-size="13" font-weight="700" fill="url(#navRecord)" text-anchor="middle" letter-spacing="-0.5">ATA</text><line x1="10" y1="33" x2="34" y2="33" stroke="url(#navRecord)" stroke-width="0.6" opacity="0.45"/></svg></div><div><div class="brand">All Talents Agency <span class="brand-ata-tag">ATA</span></div><div class="brand-sub">Sovereign Celebrity Representation</div></div></a><div style="display:flex;align-items:center;gap:10px"><span class="desk-status-chip" id="deskStatusChip"><span class="ds-dot"></span><span id="deskStatusText">Live desks</span></span><button class="nav-search-btn" id="navSearchBtn" title="Command palette (Ctrl+K)" aria-label="Command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button><button class="nav-access-btn" id="navAccessBtn" aria-label="Open navigation" aria-expanded="false"><span class="nab-burger"><span></span><span></span></span><span class="nab-text">ACCESS</span></button></div></div></header>
-  <div class="command-palette" id="commandPalette" role="dialog" aria-modal="true" aria-label="Command palette" aria-hidden="true">
-    <div class="cp-panel">
-      <div class="cp-header">
-        <span class="cp-kbd">⌘K</span>
-        <input class="cp-input" id="cpInput" placeholder="Search talent, routes, or type book Beyonce…" autocomplete="off" spellcheck="false">
-        <button class="cp-kbd" id="cpClose" type="button" style="cursor:pointer;background:transparent">ESC</button>
+  return `<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div><header class="nav"><div class="nav-inner"><a class="nav-brand" href="index.html" title="All Talents Agency — ATA"><div class="brand-mark brand-mark-ata" aria-hidden="true"><svg class="ata-mark-svg" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="navRecord" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D4E4F4"/><stop offset="50%" stop-color="#A8BDD9"/><stop offset="100%" stop-color="#6E8EAE"/></linearGradient></defs><rect width="44" height="44" rx="6" fill="#060809"/><rect x="1" y="1" width="42" height="42" rx="5" fill="none" stroke="url(#navRecord)" stroke-width="1"/><text x="22" y="28" font-family="IBM Plex Mono,ui-monospace,monospace" font-size="13" font-weight="700" fill="url(#navRecord)" text-anchor="middle" letter-spacing="-0.5">ATA</text><line x1="10" y1="33" x2="34" y2="33" stroke="url(#navRecord)" stroke-width="0.6" opacity="0.45"/></svg></div><div><div class="brand">All Talents Agency <span class="brand-ata-tag">ATA</span></div><div class="brand-sub">Sovereign Celebrity Representation</div></div></a><div style="display:flex;align-items:center;gap:10px"><span class="desk-status-chip" id="deskStatusChip"><span class="ds-dot"></span><span id="deskStatusText">Live desks</span></span><button class="nav-search-btn" id="navSearchBtn" title="Search talent" aria-label="Search talent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button><button class="nav-access-btn" id="navAccessBtn" aria-label="Open navigation" aria-expanded="false"><span class="nab-burger"><span></span><span></span></span><span class="nab-text">ACCESS</span></button></div></div></header>
+  <div class="command-palette discover-panel" id="commandPalette" role="dialog" aria-modal="true" aria-label="Discover talent" aria-hidden="true">
+    <div class="cp-panel discover-sheet">
+      <div class="discover-top">
+        <label class="discover-label" for="cpInput">Discover</label>
+        <input class="cp-input discover-input" id="cpInput" type="search" placeholder="Name, category, or city" autocomplete="off" spellcheck="false" aria-label="Search the verified roster by name, category, or city">
+        <button class="discover-esc" id="cpClose" type="button">Close</button>
       </div>
-      <div class="cp-section" id="cpRoutes">
-        <div class="cp-section-label">Quick routes</div>
-        <a class="cp-item" data-cp-href="explorer.html"><span class="cp-item-icon">02</span><span>Explore Talents</span></a>
-        <a class="cp-item" data-cp-href="booking.html"><span class="cp-item-icon">04</span><span>Initiate Engagement</span></a>
-        <a class="cp-item" data-cp-href="crowdbooking.html"><span class="cp-item-icon">03</span><span>Crowd Access</span></a>
-        <a class="cp-item" data-cp-href="portal.html"><span class="cp-item-icon">05</span><span>Client Portal</span></a>
+      <div class="discover-filters" id="discoverFilters">
+        <label>Category<select id="discCategory"><option>All</option></select></label>
+        <label>Region<select id="discRegion"><option>All</option></select></label>
+        <label>Availability<select id="discAvailability"><option>All</option><option>Open</option><option>Limited</option><option>Waitlist</option></select></label>
+        <label>Budget<select id="discBudget"><option value="">Any</option><option value="under250">Under $250K</option><option value="mid">$250K–$750K</option><option value="high">$750K–$1.5M</option><option value="ultra">$1.5M+</option></select></label>
       </div>
-      <div class="cp-section" id="cpRecentSection" style="display:none">
-        <div class="cp-section-label">Recent</div>
-        <div id="cpRecentList"></div>
-      </div>
-      <div class="cp-section">
-        <div class="cp-section-label">Roster matches</div>
-        <div class="cp-results" id="cpResults"><div class="cp-empty">Type to search ${active === 'home' ? '166+' : ''} verified talents</div></div>
-      </div>
+      <div class="cp-results discover-results" id="cpResults"></div>
     </div>
   </div>
   <div class="nav-overlay" id="navOverlay" role="dialog" aria-modal="true" aria-label="Site navigation">
@@ -199,52 +341,8 @@ export function nav(active){
       <a class="nov-link${active==='portal'?' nov-active':''}" href="portal.html"><span class="nov-num">05</span>Client Portal</a>
       <a class="nov-link${active==='login'?' nov-active':''}" href="login.html"><span class="nov-num">06</span>Secure Access</a>
     </nav>
-    <div class="nov-footer"><span>All Talents Agency</span><span class="nov-footer-sep">·</span><span>Sovereign · NDA-protected · Escrow-secured</span></div>
-  </div>
-  <div class="ticker-outer"><div class="ticker-track" id="tickerTrack"></div></div>`;
-}
-
-const TICKER_EVENTS = [
-  { name: 'Beyoncé', event: 'Booking Confirmed', change: '+$4.2M', positive: true },
-  { name: 'Taylor Swift', event: 'Window Extended', change: 'Open', positive: true },
-  { name: 'Cristiano Ronaldo', event: 'New Access Inquiry', change: '+$2.1M', positive: true },
-  { name: 'Rihanna', event: 'Limited Slots', change: '3 remaining', positive: false },
-  { name: 'Drake', event: 'Availability Confirmed', change: 'Q3 2026', positive: true },
-  { name: 'LeBron James', event: 'Waitlist Active', change: 'High Demand', positive: false },
-  { name: 'The Weeknd', event: 'Rate Updated', change: '+$800K', positive: true },
-  { name: 'Lionel Messi', event: 'Booking Confirmed', change: '+$3.8M', positive: true },
-  { name: 'Kim Kardashian', event: 'Window Opening', change: 'Nov 2026', positive: true },
-  { name: 'Dwayne Johnson', event: 'New Inquiry', change: '+$5.0M', positive: true },
-];
-
-function renderTickerItems(events) {
-  const el = document.getElementById('tickerTrack');
-  if (!el) return;
-  const items = events.map(e =>
-    `<span class="tick-item ${e.positive ? 'tick-up' : 'tick-down'}">${e.name} <b>· ${e.event}</b> ${e.change}</span><span class="tick-sep">◆</span>`
-  ).join('');
-  el.innerHTML = items + items;
-}
-
-export async function loadTicker() {
-  const prestige = getPrestigeTickerEvents();
-  try {
-    const data = await fetch(`${_API}/intelligence/ticker`).then(r => r.json());
-    if (data?.events?.length) {
-      const blended = [
-        ...prestige,
-        ...data.events.slice(0, 18).map(e => ({
-          name: e.name,
-          event: e.event || e.label,
-          change: e.change || '',
-          positive: e.positive !== false,
-        })),
-      ];
-      renderTickerItems(blended);
-      return;
-    }
-  } catch { /* fallback */ }
-  renderTickerItems([...prestige, ...TICKER_EVENTS]);
+    <div class="nov-footer"><span>All Talents Agency</span><span class="nov-footer-sep">·</span><span>Every request becomes a case</span></div>
+  </div>`;
 }
 
 export function conciergeRail(){
@@ -382,6 +480,8 @@ export function initCryptoWidget(uid = 'cp', onMethodChange) {
 
 // ── FULLSCREEN NAV OVERLAY ─────────────────────────────────────────────
 export function initNav() {
+  mountSmartsupp();
+  hydrateShortlist();
   const overlay = document.getElementById('navOverlay');
   const openBtn = document.getElementById('navAccessBtn');
   const closeBtn = document.getElementById('navOverlayClose');
@@ -425,177 +525,188 @@ export function initCommandPalette(roster = []) {
   const palette = document.getElementById('commandPalette');
   const input = document.getElementById('cpInput');
   const results = document.getElementById('cpResults');
-  const recentSection = document.getElementById('cpRecentSection');
-  const recentList = document.getElementById('cpRecentList');
   const searchBtn = document.getElementById('navSearchBtn');
   const closeBtn = document.getElementById('cpClose');
   if (!palette || !input || !results) return;
 
-  let activeIdx = -1;
-  let currentItems = [];
+  const source = () => (roster && roster.length ? roster : liveRoster);
+  const catSel = document.getElementById('discCategory');
+  const regionSel = document.getElementById('discRegion');
+  const availSel = document.getElementById('discAvailability');
+  const budgetSel = document.getElementById('discBudget');
 
-  function renderRecent() {
-    const recent = getRecentViews();
-    if (!recent.length || !recentSection || !recentList) return;
-    recentSection.style.display = '';
-    recentList.innerHTML = recent.map(r => {
-      const c = roster.find(x => x.id === r.id);
-      const name = c?.name || r.name || r.id;
-      return `<a class="cp-item" data-cp-href="talent.html?id=${r.id}"><span class="cp-item-icon">↺</span><span>${name}</span><span class="cp-item-meta">${r.id}</span></a>`;
-    }).join('');
-    recentList.querySelectorAll('[data-cp-href]').forEach(el => {
-      el.addEventListener('click', (e) => { e.preventDefault(); go(el.dataset.cpHref); });
+  function fillSelect(sel, values) {
+    if (!sel || sel.dataset.ready) return;
+    const current = sel.value;
+    values.forEach((v) => {
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = v;
+      sel.appendChild(opt);
     });
+    sel.value = current;
+    sel.dataset.ready = '1';
   }
 
-  function renderResults(q) {
-    const intent = parsePaletteIntent(q, roster);
-    const matches = paletteSearchRoster(q, roster, 8);
-    currentItems = [];
-    let html = '';
-    if (intent && intent.type === 'route') {
-      html += `<a class="cp-item cp-active" data-cp-href="${intent.href}"><span class="cp-item-icon">→</span><span>Go to ${intent.label}</span></a>`;
-      currentItems.push(intent.href);
-    } else if (intent && (intent.type === 'dossier' || intent.type === 'book' || intent.type === 'path' || intent.type === 'hold')) {
-      const icons = { book: 'B', dossier: 'D', path: 'P', hold: 'H' };
-      const labels = { book: 'Book', dossier: 'Open dossier', path: 'Access path', hold: 'Hold window' };
-      const holdAttrs = intent.type === 'hold' && intent.celeb
-        ? ` data-cp-action="hold" data-cp-id="${intent.celeb.id}" data-cp-name="${(intent.celeb.name || '').replace(/"/g, '&quot;')}"`
-        : '';
-      const pathAttrs = intent.type === 'path' ? ' data-cp-action="path"' : '';
-      html += `<a class="cp-item cp-active"${holdAttrs}${pathAttrs} data-cp-href="${intent.href}"><span class="cp-item-icon">${icons[intent.type] || '→'}</span><span>${labels[intent.type] || intent.type}${intent.celeb ? ': ' + intent.celeb.name : ''}</span><span class="cp-item-meta">${intent.celeb ? formatPrice(intent.celeb.startingPrice) : ''}</span></a>`;
-      currentItems.push(intent.type === 'hold' ? 'hold' : intent.href);
-    } else if (intent && intent.type === 'qualify') {
-      html += `<a class="cp-item cp-active" data-cp-action="qualify"><span class="cp-item-icon">Q</span><span>Start client qualification</span></a>`;
-      currentItems.push('qualify');
-    } else if (intent && intent.type === 'search') {
-      html += `<a class="cp-item cp-active" data-cp-href="${intent.href}"><span class="cp-item-icon">⌕</span><span>Search roster for "${q.trim()}"</span></a>`;
-      currentItems.push(intent.href);
-    }
-    matches.forEach((c, i) => {
-      const href = `talent.html?id=${c.id}`;
-      html += `<a class="cp-item${!html && i === 0 ? ' cp-active' : ''}" data-cp-href="${href}" data-cp-book="booking.html?id=${c.id}"><span class="cp-item-icon">${(c.name[0] || 'T').toUpperCase()}</span><span>${c.name}</span><span class="cp-item-meta">${c.category} · ${formatPrice(c.startingPrice)}</span></a>`;
-      if (!currentItems.length) currentItems.push(href);
-      currentItems.push(href);
-    });
-    if (!html) {
-      results.innerHTML = `<div class="cp-empty">${q.trim() ? 'No matches — try a route name or celebrity' : 'Type to search verified talents'}</div>`;
+  function filters() {
+    return {
+      category: catSel?.value || 'All',
+      region: regionSel?.value || 'All',
+      availability: availSel?.value || 'All',
+      budget: budgetSel?.value || '',
+    };
+  }
+
+  function budgetOk(price, band) {
+    const n = Number(price) || 0;
+    if (band === 'under250') return n < 250000;
+    if (band === 'mid') return n >= 250000 && n < 750000;
+    if (band === 'high') return n >= 750000 && n < 1500000;
+    if (band === 'ultra') return n >= 1500000;
+    return true;
+  }
+
+  function people() {
+    const f = filters();
+    const q = input.value.trim().toLowerCase();
+    return source().filter((c) => {
+      if (c.visibility === 'hidden') return false;
+      if (f.category !== 'All' && c.category !== f.category) return false;
+      if (f.region !== 'All' && c.region !== f.region) return false;
+      if (f.availability !== 'All' && c.availability !== f.availability) return false;
+      if (!budgetOk(c.startingPrice, f.budget)) return false;
+      if (!q) return true;
+      const hay = `${c.name} ${c.category} ${c.region} ${c.agencyRepresentation || ''}`.toLowerCase();
+      return hay.includes(q) || c.name.toLowerCase().split(' ').some((part) => part.startsWith(q));
+    }).slice(0, 12);
+  }
+
+  function row(c) {
+    const img = c.portrait ? `<img src="${c.portrait}" alt="">` : `<span class="disc-fallback">${(c.name || 'T').slice(0, 1)}</span>`;
+    return `<a class="ssp-item disc-row" href="talent.html?id=${encodeURIComponent(c.id)}">${img}<span class="ssp-text"><strong>${c.name}</strong><span class="ssp-meta">${c.category} · ${c.region || '—'} · ${c.availability || ''}</span></span></a>`;
+  }
+
+  function render() {
+    const list = source();
+    fillSelect(catSel, [...new Set(list.map((c) => c.category).filter(Boolean))].sort());
+    fillSelect(regionSel, [...new Set(list.map((c) => c.region).filter(Boolean))].sort());
+    const matches = people();
+    const q = input.value.trim();
+    if (!q && filters().category === 'All' && filters().region === 'All' && filters().availability === 'All' && !filters().budget) {
+      const cats = [...new Set(list.map((c) => c.category).filter(Boolean))].sort();
+      results.innerHTML = `
+        <p class="disc-kicker">Browse by category</p>
+        <div class="disc-chips">${cats.map((c) => `<button type="button" class="disc-chip" data-cat="${c}">${c}</button>`).join('')}</div>
+        <p class="disc-kicker">Browse by occasion</p>
+        <div class="disc-chips">
+          <a class="disc-chip" href="crowdbooking.html">Crowd Access</a>
+          <a class="disc-chip" href="booking.html?pathway=reservation">Reservation</a>
+          <a class="disc-chip" href="booking.html?pathway=private">Private engagement</a>
+          <a class="disc-chip" href="booking.html?pathway=vacation">Vacation</a>
+          <a class="disc-chip" href="booking.html?pathway=full_coverage">Full coverage</a>
+          <a class="disc-chip" href="explorer.html#match">Match me</a>
+        </div>
+        <p class="disc-kicker">Recent dossiers</p>
+        ${[...list].sort((a, b) => Number(!!b.featured) - Number(!!a.featured)).slice(0, 4).map(row).join('') || '<p class="disc-empty">No dossiers yet.</p>'}
+        <p class="disc-kicker">Upcoming crowd dates</p>
+        <div id="discCrowd"><p class="disc-empty">Loading dates…</p></div>`;
+      results.querySelectorAll('[data-cat]').forEach((btn) => {
+        btn.onclick = () => { catSel.value = btn.dataset.cat; render(); };
+      });
+      request('/crowd-events').then((res) => {
+        const box = document.getElementById('discCrowd');
+        if (!box) return;
+        const events = (res.data || []).slice(0, 4);
+        box.innerHTML = events.length
+          ? events.map((ev) => `<a class="disc-row ssp-item" href="crowdbooking.html#calendar"><span class="ssp-text"><strong>${ev.eventTitle}</strong><span class="ssp-meta">${ev.name} · ${ev.city} · ${ev.date} · ${ev.available} left</span></span></a>`).join('')
+          : '<p class="disc-empty">No open crowd dates.</p>';
+      }).catch(() => {
+        const box = document.getElementById('discCrowd');
+        if (box) box.innerHTML = '<p class="disc-empty">Crowd dates are unavailable.</p>';
+      });
       return;
     }
-    results.innerHTML = html;
-    activeIdx = 0;
-    results.querySelectorAll('.cp-item').forEach((el, idx) => {
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (el.dataset.cpAction === 'qualify') {
-          closePalette();
-          openQualifyModal('');
-          return;
-        }
-        if (el.dataset.cpAction === 'hold') {
-          closePalette();
-          triggerWindowHold(el.dataset.cpId, el.dataset.cpName);
-          return;
-        }
-        if (el.dataset.cpAction === 'path') {
-          closePalette();
-          const href = el.dataset.cpHref || '';
-          if (href.includes('#')) {
-            const hash = href.split('#')[1];
-            document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            return;
-          }
-          go(href);
-          return;
-        }
-        if (e.shiftKey && el.dataset.cpBook) go(el.dataset.cpBook);
-        else go(el.dataset.cpHref);
-      });
-      if (idx === 0) el.classList.add('cp-active');
-    });
+    if (!matches.length) {
+      const params = new URLSearchParams();
+      if (q) params.set('search', q);
+      if (filters().category !== 'All') params.set('category', filters().category);
+      if (filters().region !== 'All') params.set('region', filters().region);
+      results.innerHTML = `<p class="disc-empty">No roster match${q ? ` for <strong>${q.replace(/</g, '')}</strong>` : ''}.</p><a class="ssp-all" href="explorer.html?${params.toString()}#request">Request this name</a>`;
+      return;
+    }
+    const params = new URLSearchParams();
+    if (q) params.set('search', q);
+    if (filters().category !== 'All') params.set('category', filters().category);
+    if (filters().region !== 'All') params.set('region', filters().region);
+    if (filters().availability !== 'All') params.set('availability', filters().availability);
+    if (filters().budget) params.set('budget', filters().budget);
+    results.innerHTML = matches.map(row).join('') + `<a class="ssp-all" href="explorer.html?${params.toString()}">Open this board in the roster</a>`;
   }
 
-  function go(href) {
-    if (!href) return;
-    closePalette();
-    window.location.href = href;
-  }
-
-  function openPalette() {
+  function openPalette(prefill) {
     palette.classList.add('cp-open');
     palette.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    renderRecent();
-    input.value = '';
-    renderResults('');
-    setTimeout(() => input.focus(), 40);
+    if (typeof prefill === 'string') input.value = prefill;
+    render();
+    setTimeout(() => input.focus(), 30);
   }
 
   function closePalette() {
     palette.classList.remove('cp-open');
     palette.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
-    activeIdx = -1;
   }
 
-  searchBtn?.addEventListener('click', openPalette);
+  window.__ataOpenDiscover = openPalette;
+  searchBtn?.addEventListener('click', () => openPalette(''));
   closeBtn?.addEventListener('click', closePalette);
   palette.addEventListener('click', (e) => { if (e.target === palette) closePalette(); });
-
-  input.addEventListener('input', () => renderResults(input.value));
+  input.addEventListener('input', render);
+  [catSel, regionSel, availSel, budgetSel].forEach((el) => el?.addEventListener('change', render));
   input.addEventListener('keydown', (e) => {
-    const items = [...results.querySelectorAll('.cp-item')];
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      activeIdx = Math.min(activeIdx + 1, items.length - 1);
-      items.forEach((el, i) => el.classList.toggle('cp-active', i === activeIdx));
-      items[activeIdx]?.scrollIntoView({ block: 'nearest' });
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      activeIdx = Math.max(activeIdx - 1, 0);
-      items.forEach((el, i) => el.classList.toggle('cp-active', i === activeIdx));
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      const active = items[activeIdx] || items[0];
-      if (active?.dataset.cpAction === 'qualify') {
-        closePalette();
-        openQualifyModal('');
-        return;
-      }
-      if (active?.dataset.cpAction === 'hold') {
-        closePalette();
-        triggerWindowHold(active.dataset.cpId, active.dataset.cpName);
-        return;
-      }
-      if (active?.dataset.cpAction === 'path') {
-        closePalette();
-        const href = active.dataset.cpHref || '';
-        if (href.includes('#')) {
-          document.getElementById(href.split('#')[1])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else go(href);
-        return;
-      }
-      if (active) go(active.dataset.cpHref);
-      else {
-        const intent = parsePaletteIntent(input.value, roster);
-        if (intent) go(intent.href);
-      }
-    } else if (e.key === 'Escape') {
-      closePalette();
+    if (e.key === 'Escape') closePalette();
+    if (e.key === 'Enter') {
+      const first = results.querySelector('a.disc-row, a.ssp-item');
+      if (first) { e.preventDefault(); window.location.href = first.getAttribute('href'); }
     }
   });
-
-  document.querySelectorAll('#cpRoutes [data-cp-href]').forEach(el => {
-    el.addEventListener('click', (e) => { e.preventDefault(); go(el.dataset.cpHref); });
-  });
-
   document.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
       if (palette.classList.contains('cp-open')) closePalette();
-      else openPalette();
+      else openPalette('');
     }
   });
+}
+
+export function renderPathwayChooser(c) {
+  const id = c?.id ? encodeURIComponent(c.id) : '';
+  const waitlist = c?.visibility === 'waitlist' || c?.availability === 'Waitlist';
+  const cards = [
+    ['Crowd Access', 'Share a verified appearance.', id ? `crowdbooking.html?celeb=${id}` : 'crowdbooking.html', true],
+    ['Reservation', 'Request a date. Not a confirmed booking.', `booking.html?pathway=reservation${id ? `&id=${id}` : ''}`, true],
+    ['Private Engagement', 'Gala, brand, dinner, or performance.', `booking.html?pathway=private${id ? `&id=${id}` : ''}`, !waitlist],
+    ['Vacation', 'A destination weekend published by the desk.', `booking.html?pathway=vacation${id ? `&id=${id}` : ''}`, !waitlist],
+    ['Full Coverage', 'Exclusive buyout: talent, travel, security, production.', `booking.html?pathway=full_coverage${id ? `&id=${id}` : ''}`, !waitlist],
+  ];
+  return `<div class="path-chooser">${cards.map(([title, copy, href, open]) => `
+    <a class="path-card${open ? '' : ' path-card-locked'}" href="${open ? href : `booking.html?pathway=reservation${id ? `&id=${id}` : ''}`}">
+      <strong>${title}</strong>
+      <span>${open ? copy : 'Waitlist — reservation only.'}</span>
+    </a>`).join('')}</div>`;
+}
+
+export function mountSmartsupp() {
+  const key = window.ATA_SMARTSUPP_KEY || '97229f7ac536a4dc96013560ce8188410b721c28';
+  if (!key || document.getElementById('smartsupp-loader')) return;
+  window._smartsupp = window._smartsupp || {};
+  window._smartsupp.key = key;
+  const s = document.createElement('script');
+  s.id = 'smartsupp-loader';
+  s.src = 'https://www.smartsuppchat.com/loader.js?' + key;
+  s.async = true;
+  document.head.appendChild(s);
 }
 
 export function setCategoryTint(category) {

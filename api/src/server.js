@@ -4,14 +4,22 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { v4 as uuid } from "uuid";
-import { db, CROWD_EVENTS, inquiries } from "./data.js";
-import { loadStore, mergePersisted, snapshotDb } from "./persist.js";
-
-const userShortlists = mergePersisted(db, loadStore());
+import { db, initDb, discover, createCase, listCases, getShortlist, setShortlist, addMessage, listCrowd, getCrowd, counts, featuredTalents, getContent, writeSitemap, listTalentsAdmin, HttpError, onAdminEvent } from "./store.js";
+import { filterCelebritiesBySearch } from "./celebrity-search.js";
+import { getMeetingPlaybookForCelebrity } from "./meeting-playbooks.js";
+import adminRouter, { emitAdminEvent } from "./admin-routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 4100;
-const JWT_SECRET = process.env.JWT_SECRET || "xK9#mP2$vL7nQ4@rT8wY1&zA3eFhJcBu";
+const DEV_JWT = "dev-only-ata-jwt-secret-not-for-production";
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === "production" ? "" : DEV_JWT);
+if (!JWT_SECRET || JWT_SECRET.length < 24) {
+  console.error("[ATA] JWT_SECRET is required in production (24+ characters).");
+  process.exit(1);
+}
+if (JWT_SECRET === DEV_JWT) {
+  console.warn("[ATA] using development JWT secret. Set JWT_SECRET before deploy.");
+}
 
 app.disable("x-powered-by");
 app.use((_req, res, next) => { res.setHeader("Server", "ATA/2.1"); next(); });
@@ -64,6 +72,17 @@ const rejectUnsafeFields = (res, fields) => {
 
 const isValidCelebrityId = (id) => /^c\d+$/i.test(String(id || ""));
 
+const hits = new Map();
+const rateLimit = (req, res, next) => {
+  const ip = req.ip || req.socket?.remoteAddress || "local";
+  const now = Date.now();
+  const recent = (hits.get(ip) || []).filter((t) => now - t < 60_000);
+  if (recent.length >= 30) return res.status(429).json({ error: "Too many requests. Wait a minute and try again." });
+  recent.push(now);
+  hits.set(ip, recent);
+  next();
+};
+
 const auth = (req, res, next) => {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;
@@ -71,12 +90,28 @@ const auth = (req, res, next) => {
   try {
     const payload = jwt.verify(token, JWT_SECRET);
     const user = db.users.find((u) => u.id === payload.sub);
-    if (!user) return res.status(401).json({ error: "Invalid token" });
+    if (!user || user.suspended) return res.status(401).json({ error: "Invalid token" });
     req.user = user;
     return next();
   } catch {
     return res.status(401).json({ error: "Invalid token" });
   }
+};
+
+const optionalAuth = (req, _res, next) => {
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+  if (!token) return next();
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = db.users.find((u) => u.id === payload.sub) || null;
+  } catch { req.user = null; }
+  next();
+};
+
+const adminOnly = (req, res, next) => {
+  if (req.user?.role !== "admin") return res.status(403).json({ error: "Admin only" });
+  next();
 };
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, service: "All Talents Agency API" }));
@@ -99,85 +134,88 @@ app.post("/api/auth/login", (req, res) => {
   return res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 });
 
+app.get("/api/auth/me", auth, (req, res) => {
+  const { passwordHash, ...safe } = req.user;
+  return res.json({ user: safe });
+});
+
 app.get("/api/celebrities", (req, res) => {
   let data = [...db.celebrities];
   const q = req.query || {};
-  if (q.search) data = data.filter((c) => c.name.toLowerCase().includes(String(q.search).toLowerCase()));
+  if (q.search) data = filterCelebritiesBySearch(data, q.search);
   if (q.category && q.category !== "All") data = data.filter((c) => c.category === q.category);
   if (q.region && q.region !== "All") data = data.filter((c) => c.region === q.region);
   if (q.availability && q.availability !== "All") data = data.filter((c) => c.availability === q.availability);
+  if (q.budget) {
+    const bands = {
+      under250: (n) => n < 250000,
+      mid: (n) => n >= 250000 && n < 750000,
+      high: (n) => n >= 750000 && n < 1500000,
+      ultra: (n) => n >= 1500000,
+    };
+    const band = bands[q.budget];
+    if (band) data = data.filter((c) => band(c.startingPrice || 0));
+  }
   if (q.minPrice) data = data.filter((c) => c.startingPrice >= Number(q.minPrice));
   if (q.maxPrice) data = data.filter((c) => c.startingPrice <= Number(q.maxPrice));
   return res.json({ total: data.length, data });
 });
 
-app.get("/api/celebrities/featured", (_req, res) => {
-  res.json({
-    data: db.celebrities.slice(0, 6),
-    metrics: {
-      totalGlobalBookings: 18427,
-      managedPortfolioValue: 218500000000,
-      activeNegotiations: 347,
-      verifiedCelebrities: db.celebrities.length,
-    },
-  });
+app.get("/api/discover", async (req, res, next) => {
+  try { return res.json(await discover(req.query || {})); }
+  catch (err) { next(err); }
 });
 
-app.get("/api/portfolio/summary", auth, (_req, res) => {
-  // Calibrated to real-world agency revenue distribution for a $57.2B YTD portfolio
-  const CATEGORY_WEIGHTS = {
-    Film:       { share: 0.31, avgDeal: 8_200_000 },
-    Music:      { share: 0.29, avgDeal: 9_500_000 },
-    Sports:     { share: 0.20, avgDeal: 7_100_000 },
-    Business:   { share: 0.09, avgDeal: 14_200_000 },
-    Fashion:    { share: 0.06, avgDeal: 3_800_000 },
-    Influencer: { share: 0.05, avgDeal: 2_400_000 },
-  };
-  const YTD = 57_200_000_000;
-  const cats = Object.keys(CATEGORY_WEIGHTS);
-  const categoryBreakdown = cats.map((cat) => {
-    const group = db.celebrities.filter((c) => c.category === cat);
-    const w = CATEGORY_WEIGHTS[cat];
-    const annualVolume = Math.round(YTD * w.share);
-    return {
-      category: cat,
-      celebs: group.length,
-      avgDealSize: w.avgDeal,
-      annualVolume,
-      shareOfPortfolio: Math.round(w.share * 100),
-    };
-  });
+app.get("/api/celebrities/featured", async (_req, res, next) => {
+  try {
+    const metrics = await counts();
+    const home = await getContent("home");
+    return res.json({
+      data: await featuredTalents(),
+      home,
+      metrics: {
+        verifiedCelebrities: metrics.publicTalents,
+        openTalents: metrics.openTalents,
+        openCases: metrics.openCases,
+        openCrowdEvents: metrics.openCrowdEvents,
+        averageOpening: metrics.averageOpening,
+      },
+    });
+  } catch (err) { next(err); }
+});
 
-  return res.json({
-    agencyName: "All Talents Agency",
-    totalManagedPortfolio: 218_500_000_000,
-    ytdRevenue: YTD,
-    prevYearRevenue: 47_350_000_000,
-    yoyGrowth: 20.8,
-    activeContracts: db.bookings.length + 347,
-    escrowHeld: Math.round(db.bookings.reduce((s, b) => s + b.pricing.escrow, 0) + 7_840_000_000),
-    totalRoster: db.celebrities.length,
-    avgDealSize: 3_100_000,
-    portfolioYield: 12.4,
-    categoryBreakdown,
-    revenueTimeline: [
-      { year: 2018, revenue: 8_200_000_000 },
-      { year: 2019, revenue: 12_700_000_000 },
-      { year: 2020, revenue: 9_400_000_000 },
-      { year: 2021, revenue: 18_900_000_000 },
-      { year: 2022, revenue: 26_450_000_000 },
-      { year: 2023, revenue: 38_200_000_000 },
-      { year: 2024, revenue: 47_350_000_000 },
-      { year: 2025, revenue: 57_200_000_000 },
-    ],
-    topEarners: db.celebrities.slice(0, 6).map((c) => ({
-      id: c.id,
-      name: c.name,
-      category: c.category,
-      region: c.region,
-      annualRevenue: c.startingPrice * 12,
-    })),
-  });
+app.get("/api/portfolio/summary", auth, adminOnly, async (_req, res, next) => {
+  try {
+    const metrics = await counts();
+    const talents = await listTalentsAdmin();
+    const cats = [...new Set(talents.map((c) => c.category))];
+    const categoryBreakdown = cats.map((cat) => {
+      const group = talents.filter((c) => c.category === cat && c.visibility !== "hidden");
+      const quotes = db.bookings.filter((b) => group.some((g) => g.id === b.celebrityId));
+      const sum = quotes.reduce((s, b) => s + (b.pricing?.finalQuote || 0), 0);
+      return {
+        category: cat,
+        celebs: group.length,
+        avgDealSize: quotes.length ? Math.round(sum / quotes.length) : 0,
+        annualVolume: sum,
+        shareOfPortfolio: talents.length ? Math.round((group.length / talents.length) * 100) : 0,
+      };
+    });
+    return res.json({
+      agencyName: "All Talents Agency",
+      totalManagedPortfolio: metrics.quotedPipeline,
+      ytdRevenue: metrics.quotedPipeline,
+      activeContracts: metrics.openCases,
+      escrowHeld: 0,
+      totalRoster: metrics.publicTalents,
+      avgDealSize: metrics.averageOpening,
+      categoryBreakdown,
+      revenueTimeline: [],
+      topEarners: (await featuredTalents()).map((c) => ({
+        id: c.id, name: c.name, category: c.category, region: c.region, annualRevenue: c.startingPrice,
+      })),
+    });
+  } catch (err) { next(err); }
 });
 
 function scoreRelated(target, c) {
@@ -220,33 +258,37 @@ app.get("/api/celebrities/:id/availability", (req, res) => {
   if (Number.isNaN(target.getTime())) return res.status(400).json({ error: "Invalid date" });
   const now = new Date();
   const days = Math.ceil((target.getTime() - now.getTime()) / 86400000);
-  const available = days >= 0 && days <= c.availabilityWindowDays && c.availability !== "Waitlist";
-  return res.json({ celebrityId: c.id, celebrityName: c.name, date, available, reason: available ? "Available" : "Unavailable for selected date" });
+  const available = days >= 0 && c.availability !== "Waitlist";
+  return res.json({
+    celebrityId: c.id,
+    celebrityName: c.name,
+    date,
+    available,
+    reason: available
+      ? "Open on the published roster. A reservation is still a request, not a confirmed date."
+      : "This talent is not open for a new date.",
+  });
 });
 
-app.get("/api/intelligence/market-pulse", (_req, res) => {
-  const sorted = [...db.celebrities].sort((a, b) => b.demandIndex - a.demandIndex);
-  const top = sorted.slice(0, 5).map((c) => ({
-    id: c.id,
-    name: c.name,
-    demandIndex: c.demandIndex,
-    category: c.category,
-    region: c.region,
-  }));
-
-  const avgDemand = Math.round(db.celebrities.reduce((sum, c) => sum + c.demandIndex, 0) / db.celebrities.length);
-  const avgPrice = Math.round(db.celebrities.reduce((sum, c) => sum + c.startingPrice, 0) / db.celebrities.length);
-
-  return res.json({
-    timestamp: new Date().toISOString(),
-    metrics: {
-      demandHeat: avgDemand,
-      averageEntryQuote: avgPrice,
-      activeRoster: db.celebrities.length,
-      topWaitlistPressure: sorted.filter((c) => c.availability === "Waitlist").length,
-    },
-    top,
-  });
+app.get("/api/intelligence/market-pulse", async (_req, res, next) => {
+  try {
+    const metrics = await counts();
+    const top = [...db.celebrities].slice(0, 5).map((c) => ({
+      id: c.id, name: c.name, category: c.category, region: c.region, availability: c.availability,
+    }));
+    return res.json({
+      timestamp: new Date().toISOString(),
+      metrics: {
+        publicTalents: metrics.publicTalents,
+        openTalents: metrics.openTalents,
+        averageOpening: metrics.averageOpening,
+        waitlistTalents: metrics.waitlistTalents,
+        openCases: metrics.openCases,
+        openCrowdEvents: metrics.openCrowdEvents,
+      },
+      top,
+    });
+  } catch (err) { next(err); }
 });
 
 app.post("/api/intelligence/blueprint", auth, (req, res) => {
@@ -306,26 +348,14 @@ app.get("/api/intelligence/pressure/:id", (req, res) => {
   if (!isValidCelebrityId(req.params.id)) return res.status(400).json({ error: "Invalid celebrity id format" });
   const c = db.celebrities.find((x) => x.id === req.params.id);
   if (!c) return res.status(404).json({ error: "Celebrity not found" });
-
-  const idx = parseInt(req.params.id.replace(/\D/g, "")) - 1;
-  const viewers = 2 + ((idx * 7 + Date.now() % 11) % 9);
-  const minutesAgo = 3 + ((idx * 3 + Date.now() % 7) % 54);
-  const slotsLeft = c.availability === "Open" ? (4 + (idx % 5)) : c.availability === "Limited" ? (1 + (idx % 2)) : 0;
-  const heatLevel = slotsLeft === 0 ? "critical" : slotsLeft <= 2 ? "high" : viewers >= 8 ? "elevated" : "normal";
-
   return res.json({
     id: c.id,
-    viewers,
-    lastInquiryMinutesAgo: minutesAgo,
-    slotsLeft,
-    heatLevel,
-    urgencyMessage: heatLevel === "critical"
-      ? "Waitlist only — all availability consumed."
-      : heatLevel === "high"
-      ? `Only ${slotsLeft} window${slotsLeft === 1 ? "" : "s"} remaining. Act before closing.`
-      : heatLevel === "elevated"
-      ? `${viewers} clients screening this profile right now.`
-      : "Opportunity window is accessible.",
+    availability: c.availability,
+    visibility: c.visibility,
+    heatLevel: "none",
+    urgencyMessage: c.visibility === "waitlist"
+      ? "Waitlist. A reservation request is the open path."
+      : `${c.availability} on the published roster.`,
   });
 });
 
@@ -355,43 +385,37 @@ app.get("/api/portal/standing", auth, (req, res) => {
   });
 });
 
-app.post("/api/waitlist/reserve", auth, (req, res) => {
-  const { celebrityId } = req.body || {};
-  if (!isValidCelebrityId(celebrityId)) return res.status(400).json({ error: "Invalid celebrity id format" });
-  const c = db.celebrities.find((x) => x.id === celebrityId);
-  if (!c) return res.status(404).json({ error: "Celebrity not found" });
-  const reservationCode = `WL-${String(req.user.id).toUpperCase()}-${Math.floor(Math.random() * 900000 + 100000)}`;
-  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-  return res.status(201).json({
-    reservationCode,
-    celebrity: { id: c.id, name: c.name },
-    clientName: req.user.name,
-    expiresAt,
-    message: `Your waitlist position for ${c.name} is reserved. A representative will contact you within 48 hours of slot availability. Your code: ${reservationCode}.`,
-    terms: "Reservation is non-transferable and expires in 48 hours if not converted to a booking inquiry.",
-  });
+app.post("/api/waitlist/reserve", auth, async (req, res, next) => {
+  try {
+    const booking = await createCase({
+      pathway: "reservation",
+      talentId: req.body?.celebrityId,
+      clientName: req.user.name,
+      clientEmail: req.user.email,
+      eventType: "Reservation",
+      date: req.body?.date,
+      location: req.body?.location,
+      budgetBand: req.body?.budgetBand,
+    }, req.user);
+    return res.status(201).json({
+      reservationCode: booking.contractId,
+      caseId: booking.id,
+      celebrity: { id: booking.celebrityId, name: booking.celebrityName },
+      status: booking.status,
+      message: `Reservation request for ${booking.celebrityName} is with the desk.`,
+    });
+  } catch (err) { next(err); }
 });
 
 app.get("/api/intelligence/ticker", (_req, res) => {
-  const types = ["Demand Surge", "Waitlist Entered", "New Inquiry", "Availability Opening", "Price Adjustment", "Rep Confirmation"];
-  const positiveMap = [true, true, true, false, true, true];
-  const prestige = [
-    { id: "prestige-1", name: "Private mandate", event: "Music · closed in 11 days", change: "Sealed", positive: true },
-    { id: "prestige-2", name: "Window hold", event: "Film · Geneva", change: "Confirmed", positive: true },
-    { id: "prestige-3", name: "Crowd access", event: "Sports · Dubai", change: "12 seats left", positive: false },
-  ];
-  const events = db.celebrities.slice(0, 22).map((c, i) => {
-    const delta = 2 + ((i * 3 + 7) % 19);
-    const positive = positiveMap[i % positiveMap.length];
-    return {
-      id: c.id,
-      name: c.name,
-      event: types[i % types.length],
-      change: `${positive ? "+" : "-"}${delta}%`,
-      positive,
-    };
-  });
-  return res.json({ events: [...prestige, ...events], timestamp: new Date().toISOString() });
+  const events = db.bookings.slice(0, 8).map((b) => ({
+    id: b.id,
+    name: b.celebrityName || "Unassigned",
+    event: b.pathway,
+    change: b.status,
+    positive: b.status !== "Declined" && b.status !== "Cancelled",
+  }));
+  return res.json({ events, timestamp: new Date().toISOString() });
 });
 
 app.get("/api/celebrities/:id/dossier", (req, res) => {
@@ -408,9 +432,12 @@ app.get("/api/celebrities/:id/dossier", (req, res) => {
   const venueOptions = ["Private Estate Gala", "Flagship Brand Summit", "Sovereign Corporate Forum", "Exclusive Cultural Ceremony", "Invitation-Only Media Event"];
   const idx = parseInt(c.id.replace(/\D/g, "")) - 1;
 
+  const meeting = getMeetingPlaybookForCelebrity(c);
   return res.json({
     celebrity: { id: c.id, name: c.name, category: c.category, region: c.region, portrait: c.portrait },
     dossier: {
+      meetingHeadline: meeting.meetingHeadline,
+      meetingSteps: meeting.meetingSteps,
       classificationLevel: "PRIVATE — CLIENT EYES ONLY",
       mediaAuthorityScore: mediaScore,
       negotiationLeverage: leverageMap[c.riskIndex] || leverageMap.medium,
@@ -447,104 +474,110 @@ app.post("/api/intelligence/compare", (req, res) => {
   const compared = uniqueIds
     .map((id) => db.celebrities.find((c) => c.id === id))
     .filter(Boolean)
-    .map((c) => {
-      const valueScore = Math.round((c.popularityScore * 0.4) + ((100 - Math.min(100, c.startingPrice / 20000)) * 0.2) + ((c.riskIndex === "low" ? 90 : c.riskIndex === "medium" ? 65 : 40) * 0.4));
-      return {
-        id: c.id,
-        name: c.name,
-        startingPrice: c.startingPrice,
-        demandIndex: c.demandIndex,
-        availability: c.availability,
-        riskIndex: c.riskIndex,
-        valueScore,
-      };
-    })
-    .sort((a, b) => b.valueScore - a.valueScore);
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      category: c.category,
+      region: c.region,
+      startingPrice: c.startingPrice,
+      availability: c.availability,
+    }));
 
   if (!compared.length) return res.status(404).json({ error: "No valid celebrities found" });
-
-  return res.json({
-    compared,
-    recommendation: {
-      winner: compared[0],
-      rationale: `${compared[0].name} currently provides the best value-to-risk profile with strong demand support.`,
-    },
-  });
+  return res.json({ compared });
 });
 
-app.post("/api/messages/send", auth, (req, res) => {
+app.post("/api/messages/send", auth, async (req, res, next) => {
   const { celebrityId, body, priority = "Priority" } = req.body || {};
   if (rejectUnsafeFields(res, [celebrityId, body, priority])) return;
   if (!isValidCelebrityId(celebrityId)) return res.status(400).json({ error: "Invalid celebrity id format" });
   const c = db.celebrities.find((x) => x.id === celebrityId);
   if (!c) return res.status(404).json({ error: "Celebrity not found" });
-  const ack = {
-    id: uuid(),
-    from: "Representation Desk",
-    toUserId: req.user.id,
-    body: `Message received for ${c.name}. Priority: ${priority}.`,
-    timestamp: new Date().toISOString(),
-  };
-  db.messages.push(
-    {
+  try {
+    await createCase({
+      pathway: "private",
+      talentId: c.id,
+      clientName: req.user.name,
+      clientEmail: req.user.email,
+      eventType: "Desk note",
+      message: body,
+    }, req.user);
+    const ack = {
       id: uuid(),
-      from: sanitizeText(req.user.name),
-      toUserId: "u2",
-      body: sanitizeText(body),
+      from: "Representation Desk",
+      toUserId: req.user.id,
+      body: `Request received for ${c.name}. The desk will reply in your case, not in this chat.`,
       timestamp: new Date().toISOString(),
-    },
-    {
-      ...ack,
-      body: sanitizeText(ack.body),
-    }
-  );
-  snapshotDb(db, userShortlists);
-  return res.status(201).json({ ok: true, acknowledgement: ack });
+    };
+    await addMessage({ id: uuid(), from: sanitizeText(req.user.name), toUserId: "u3", body: sanitizeText(body) });
+    await addMessage({ ...ack, body: sanitizeText(ack.body) });
+    return res.status(201).json({ ok: true, acknowledgement: ack });
+  } catch (err) { next(err); }
 });
 
-const VALID_PAYMENT_METHODS = ["wire", "btc", "eth", "usdt", "bnb", "sol", "xrp"];
+app.post("/api/cases", rateLimit, optionalAuth, async (req, res, next) => {
+  const body = req.body || {};
+  const fields = [body.clientName, body.clientEmail, body.talentId, body.eventType, body.date, body.location, body.message, body.settlementNote, body.talentName];
+  if (rejectUnsafeFields(res, fields)) return;
+  try {
+    const booking = await createCase({
+      ...body,
+      clientName: sanitizeText(body.clientName),
+      clientEmail: String(body.clientEmail || "").trim(),
+      eventType: sanitizeText(body.eventType),
+      location: sanitizeText(body.location),
+      message: sanitizeText(body.message || body.rider),
+      settlementNote: sanitizeText(body.settlementNote),
+      talentName: sanitizeText(body.talentName),
+    }, req.user || null);
+    return res.status(201).json({ booking, case: booking });
+  } catch (err) { next(err); }
+});
 
-app.post("/api/bookings/initiate", auth, (req, res) => {
-  const { celebrityId, eventType, date, location, ndaRequired, securityLevel, riderRequirements, pricingAdjustmentPercent = 0, paymentMethod = "wire", cryptoCurrency } = req.body || {};
+app.get("/api/cases/mine", auth, async (req, res, next) => {
+  try { return res.json({ data: await listCases({ userId: req.user.id, email: req.user.email }) }); }
+  catch (err) { next(err); }
+});
+
+app.get("/api/experiences", async (req, res, next) => {
+  try {
+    const { listExperiences } = await import("./store.js");
+    const data = await listExperiences({ talentId: req.query.talentId, pathway: req.query.pathway });
+    return res.json({ data });
+  } catch (err) { next(err); }
+});
+
+app.post("/api/bookings/initiate", auth, async (req, res, next) => {
+  const { celebrityId, eventType, date, location, securityLevel, riderRequirements, pathway = "private" } = req.body || {};
   if (rejectUnsafeFields(res, [celebrityId, eventType, date, location, securityLevel, riderRequirements])) return;
-  if (!isValidCelebrityId(celebrityId)) return res.status(400).json({ error: "Invalid celebrity id format" });
-  const c = db.celebrities.find((x) => x.id === celebrityId);
-  if (!c) return res.status(404).json({ error: "Celebrity not found" });
-  const finalQuote = Math.round(c.startingPrice * (1 + Number(pricingAdjustmentPercent) / 100));
-  const safePayMethod = VALID_PAYMENT_METHODS.includes(String(paymentMethod).toLowerCase()) ? String(paymentMethod).toLowerCase() : "wire";
-  const booking = {
-    id: uuid(),
-    userId: req.user.id,
-    celebrityId,
-    celebrityName: c.name,
-    eventType: sanitizeText(eventType),
-    date: sanitizeText(date),
-    location: sanitizeText(location),
-    ndaRequired: !!ndaRequired,
-    securityLevel: sanitizeText(securityLevel),
-    riderRequirements: sanitizeText(riderRequirements),
-    contractId: `CTR-${Math.floor(Math.random() * 900000 + 100000)}`,
-    status: "Inquiry Received",
-    paymentMethod: safePayMethod,
-    cryptoCurrency: safePayMethod !== "wire" ? safePayMethod.toUpperCase() : null,
-    pricing: { finalQuote, escrow: Math.round(finalQuote * 0.3), escrowPercent: 30 },
-  };
-  db.bookings.push(booking);
-  snapshotDb(db, userShortlists);
-  return res.status(201).json({ booking });
+  try {
+    const booking = await createCase({
+      pathway: ["private", "vacation", "full_coverage", "reservation"].includes(pathway) ? pathway : "private",
+      talentId: celebrityId,
+      clientName: req.user.name,
+      clientEmail: req.user.email,
+      eventType, date, location, securityLevel,
+      rider: riderRequirements,
+      experienceId: req.body?.experienceId,
+      budgetBand: req.body?.budgetBand,
+      settlementNote: req.body?.settlementNote,
+    }, req.user);
+    return res.status(201).json({ booking });
+  } catch (err) { next(err); }
 });
 
-app.get("/api/shortlist", auth, (req, res) => {
-  const ids = userShortlists[req.user.id] || [];
-  return res.json({ ids });
+app.get("/api/shortlist", auth, async (req, res, next) => {
+  try { return res.json({ ids: await getShortlist(req.user.id) }); }
+  catch (err) { next(err); }
 });
 
-app.post("/api/shortlist", auth, (req, res) => {
+app.post("/api/shortlist", auth, async (req, res, next) => {
   const { ids } = req.body || {};
   if (!Array.isArray(ids)) return res.status(400).json({ error: "ids array required" });
-  userShortlists[req.user.id] = ids.filter((id) => isValidCelebrityId(id)).slice(0, 5);
-  snapshotDb(db, userShortlists);
-  return res.json({ ids: userShortlists[req.user.id] });
+  try {
+    const clean = ids.filter((id) => isValidCelebrityId(id)).slice(0, 5);
+    return res.json({ ids: await setShortlist(req.user.id, clean) });
+  } catch (err) { next(err); }
 });
 
 app.post("/api/events", (req, res) => {
@@ -553,115 +586,98 @@ app.post("/api/events", (req, res) => {
   return res.json({ ok: true });
 });
 
-app.get("/api/portal/overview", auth, (req, res) => {
-  const bookings = db.bookings.filter((b) => b.userId === req.user.id);
-  const messages = db.messages.filter((m) => m.toUserId === req.user.id);
-  const crowdSlots = db.crowdBookings.filter((b) => b.userId === req.user.id);
-  return res.json({
-    membershipTier: req.user.role === "admin" ? "Founders Office" : "Black Card",
-    bookings,
-    crowdSlots,
-    contracts: bookings.map((b) => ({ id: b.contractId, title: `${b.celebrityName} Sovereign Contract`, signed: false })),
-    payments: [
-      ...bookings.map((b) => ({ bookingId: b.id, amount: b.pricing.escrow, status: "Pending Escrow", type: "private" })),
-      ...crowdSlots.map((b) => ({ bookingId: b.id, amount: b.nextPayment, status: b.paymentStatus, type: "crowd" })),
-    ],
-    messages,
-  });
+app.get("/api/portal/overview", auth, async (req, res, next) => {
+  try {
+    const bookings = await listCases({ userId: req.user.id, email: req.user.email });
+    const messages = db.messages.filter((m) => m.toUserId === req.user.id);
+    const crowdSlots = bookings.filter((b) => b.pathway === "crowd");
+    return res.json({
+      membershipTier: req.user.role === "admin" ? "Desk" : "Client",
+      bookings: bookings.filter((b) => b.pathway !== "crowd"),
+      crowdSlots,
+      contracts: bookings.map((b) => ({ id: b.contractId, title: `${b.celebrityName || "Request"} · ${b.pathway}`, signed: b.status === "Confirmed", status: b.status })),
+      payments: [],
+      messages,
+    });
+  } catch (err) { next(err); }
 });
 
-// ── CROWD BOOKING ENDPOINTS ───────────────────────────────────────────────────
-app.get("/api/crowd-events", (_req, res) => {
-  const live = CROWD_EVENTS.map(ev => {
-    const celeb = db.celebrities.find(c => c.id === ev.celebId);
-    const saved = db.crowdBookings.filter(b => b.eventId === ev.id);
-    const claimed = ev.claimed + saved.length;
-    return { ...ev, claimed, available: ev.slots - claimed, soldPct: Math.round((claimed / ev.slots) * 100), category: celeb?.category || "Other" };
-  });
-  return res.json({ total: live.length, data: live });
+app.get("/api/crowd-events", async (_req, res, next) => {
+  try {
+    const data = await listCrowd();
+    return res.json({ total: data.length, data });
+  } catch (err) { next(err); }
 });
 
-app.get("/api/crowd-events/:id", (req, res) => {
-  const ev = CROWD_EVENTS.find(e => e.id === req.params.id);
-  if (!ev) return res.status(404).json({ error: "Event not found" });
-  const saved = db.crowdBookings.filter(b => b.eventId === ev.id);
-  const claimed = ev.claimed + saved.length;
-  return res.json({ ...ev, claimed, available: ev.slots - claimed, soldPct: Math.round((claimed / ev.slots) * 100) });
+app.get("/api/crowd-events/:id", async (req, res, next) => {
+  try {
+    const ev = await getCrowd(req.params.id);
+    if (!ev || ev.published === false) return res.status(404).json({ error: "Event not found" });
+    return res.json(ev);
+  } catch (err) { next(err); }
 });
 
-app.post("/api/crowd-events/:id/join", auth, (req, res) => {
-  const ev = CROWD_EVENTS.find(e => e.id === req.params.id);
-  if (!ev) return res.status(404).json({ error: "Event not found" });
-  const alreadyClaimed = ev.claimed + db.crowdBookings.filter(b => b.eventId === ev.id).length;
-  if (alreadyClaimed >= ev.slots) return res.status(409).json({ error: "Event fully claimed" });
-  const { plan = "full", paymentMethod = "wire" } = req.body || {};
-  const safePayMethod = VALID_PAYMENT_METHODS.includes(String(paymentMethod).toLowerCase()) ? String(paymentMethod).toLowerCase() : "wire";
-  const chosen = plan !== "full" ? ev.installments.find(i => i.label.toLowerCase().includes(plan.replace("-", " "))) : null;
-  const nextPayment = chosen ? chosen.monthly : ev.pricePerSlot;
-  const totalMonths  = chosen ? chosen.months : 1;
-  const booking = {
-    id:           uuid(),
-    userId:       req.user.id,
-    userName:     req.user.name,
-    eventId:      ev.id,
-    eventTitle:   ev.eventTitle,
-    celebName:    ev.name,
-    celebId:      ev.celebId,
-    eventType:    ev.eventType,
-    city:         ev.city,
-    date:         ev.date,
-    totalPrice:   ev.pricePerSlot,
-    plan:         plan,
-    totalMonths,
-    nextPayment,
-    paidMonths:   0,
-    paymentStatus:"Awaiting First Payment",
-    slotCode:     `CROWD-${ev.id.toUpperCase()}-${Math.floor(10000 + Math.random() * 90000)}`,
-    paymentMethod: safePayMethod,
-    cryptoCurrency: safePayMethod !== "wire" ? safePayMethod.toUpperCase() : null,
-    bookedAt:     new Date().toISOString(),
-  };
-  db.crowdBookings.push(booking);
-  snapshotDb(db, userShortlists);
-  return res.status(201).json({ booking, message: `Slot secured for ${ev.eventTitle}. ${totalMonths === 1 ? "Full payment of $" + ev.pricePerSlot.toLocaleString() : "First installment of $" + nextPayment.toLocaleString() + "/mo due now."} NDA and escrow terms apply.` });
+app.post("/api/crowd-events/:id/join", rateLimit, optionalAuth, async (req, res, next) => {
+  const { clientName, clientEmail, plan } = req.body || {};
+  if (rejectUnsafeFields(res, [clientName, clientEmail, plan])) return;
+  try {
+    const booking = await createCase({
+      pathway: "crowd",
+      eventId: req.params.id,
+      clientName: clientName || req.user?.name,
+      clientEmail: clientEmail || req.user?.email,
+      budgetBand: plan || "full",
+      settlementNote: "Settlement is arranged with the desk. This request does not charge a card.",
+    }, req.user || null);
+    return res.status(201).json({
+      booking,
+      message: `Request received for ${booking.eventType}. Your reference is ${booking.details?.slotCode || booking.contractId}.`,
+    });
+  } catch (err) { next(err); }
 });
 
-// ── Celebrity Inquiry (no auth required — public form) ──────────────────────
-app.post("/api/inquiry", (req, res) => {
+app.post("/api/inquiry", rateLimit, optionalAuth, async (req, res, next) => {
   const { name, email, celebrity, eventType, date, message } = req.body || {};
-  if (!name || !email || !celebrity) {
-    return res.status(400).json({ error: "Name, email and celebrity name are required." });
-  }
-  const entry = {
-    id: `inq_${Date.now()}`,
-    name: String(name).slice(0, 120),
-    email: String(email).slice(0, 120),
-    celebrity: String(celebrity).slice(0, 120),
-    eventType: String(eventType || '').slice(0, 80),
-    date: String(date || '').slice(0, 20),
-    message: String(message || '').slice(0, 2000),
-    submittedAt: new Date().toISOString(),
-    status: "pending",
-  };
-  inquiries.push(entry);
-  console.log(`[ATA] Celebrity inquiry received — ${entry.celebrity} (from: ${entry.email})`);
-  res.json({
-    success: true,
-    id: entry.id,
-    message: `Your inquiry for ${entry.celebrity} has been received. Our concierge team will respond within 48 hours under full NDA.`,
-  });
+  if (rejectUnsafeFields(res, [name, email, celebrity, eventType, date, message])) return;
+  try {
+    const booking = await createCase({
+      pathway: "unlisted",
+      talentName: celebrity,
+      clientName: name,
+      clientEmail: email,
+      eventType,
+      date,
+      message,
+    }, req.user || null);
+    return res.json({
+      success: true,
+      id: booking.id,
+      message: `Your request for ${celebrity} is case ${booking.contractId}. The desk will follow up by email.`,
+    });
+  } catch (err) { next(err); }
 });
 
-// Global error handler — never expose stack traces to clients
+app.use("/api/admin", auth, adminOnly, adminRouter);
+
 app.use((err, _req, res, _next) => {
-  console.error('[ATA API Error]', err.message);
+  if (err instanceof HttpError) return res.status(err.status).json({ error: err.message });
+  if (err.status && err.message) return res.status(err.status).json({ error: err.message });
+  console.error("[ATA API Error]", err.message);
   res.status(500).json({ error: "An unexpected error occurred. Please try again." });
 });
 
-// In development run standalone; in Vercel export the handler
+onAdminEvent((type, payload) => emitAdminEvent(type, payload));
+
 if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`[ATA] Services API online — port ${PORT}`);
+  initDb().then(async () => {
+    const talents = await listTalentsAdmin();
+    writeSitemap(talents);
+    app.listen(PORT, () => {
+      console.log(`[ATA] Services API online — port ${PORT}`);
+    });
+  }).catch((err) => {
+    console.error("[ATA] database failed", err);
+    process.exit(1);
   });
 }
 

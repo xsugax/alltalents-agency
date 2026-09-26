@@ -1,18 +1,20 @@
 /** Access Protocol — Phase C shared conversion layer */
 import { formatPrice, trackEvent, getRecentViews, getShortlist } from './platform.js';
+import { getMeetingPlaybook } from './meeting-playbooks.js';
 
 const QUALIFIED_KEY = 'ata_qualified';
 const HOLD_KEY = 'ata_session_hold';
 const HOLD_TTL_MS = 15 * 60 * 1000;
-const ANCHOR_COPY = 'The authorized way to meet them — not the internet\'s guesswork.';
+const ENABLE_PROGRESS_RAIL = false;
+const ANCHOR_COPY = 'Real introductions through verified representation — not guesswork.';
 
 export const PROTOCOL_STEPS = [
-  { id: 'discover', label: 'Discover', hint: 'Browse verified roster & dossiers' },
-  { id: 'qualify', label: 'Qualify', hint: 'Confidential budget band & intent' },
-  { id: 'hold', label: 'Hold Window', hint: '72h priority slot — not a booking yet' },
-  { id: 'escrow', label: 'Escrow', hint: '30% locks representation review' },
-  { id: 'desk', label: 'Desk', hint: 'Live representation coordination' },
-  { id: 'meeting', label: 'Meeting', hint: 'Authorized proximity event' },
+  { id: 'discover', label: 'Discover', hint: 'Browse verified talent profiles' },
+  { id: 'qualify', label: 'Qualify', hint: 'Share budget band & intent' },
+  { id: 'hold', label: 'Hold Window', hint: '72h priority — not a booking yet' },
+  { id: 'escrow', label: 'Escrow', hint: 'Deposit locks your rep review' },
+  { id: 'desk', label: 'Your Rep', hint: 'Dedicated coordination' },
+  { id: 'meeting', label: 'Meeting', hint: 'Private introduction' },
 ];
 
 const VENUES = [
@@ -60,11 +62,8 @@ export function formatAccessBand(startingPrice) {
   return `${formatPrice(low)}–${formatPrice(high)}`;
 }
 
-export function displayPrice(startingPrice, opts = {}) {
-  if (isQualified() || opts.forceFull) {
-    return `From ${formatPrice(startingPrice)}`;
-  }
-  return `${formatAccessBand(startingPrice)} · qualify for terms`;
+export function displayPrice(startingPrice) {
+  return `From ${formatPrice(startingPrice)}`;
 }
 
 export function isQualified() {
@@ -118,6 +117,16 @@ export function getAccessProgress() {
   const recent = getRecentViews();
   const lastName = recent[0]?.name || '';
   return { step, lastName, recent };
+}
+
+/** Private booking desk phases (booking.html wizard). */
+export const BOOKING_DESK_LABELS = ['01 Confirm', '02 Brief', '03 Your details'];
+
+export function renderBookingDeskSteps(step = 0) {
+  return `<div class="bk-steps">${BOOKING_DESK_LABELS.map((label, i) => {
+    const cls = step === i ? 'bk-active' : step > i ? 'bk-done' : '';
+    return `<span class="bk-step ${cls}">${label}</span>`;
+  }).join('')}</div>`;
 }
 
 export function renderProtocolSpine(activeStep) {
@@ -185,11 +194,11 @@ export function runAccessPathSimulator(celeb, occasion, budgetBand, roster = [])
     .sort((a, b) => (b.demandIndex || 0) - (a.demandIndex || 0))
     .slice(0, 3);
   const ledger = [
-    { label: 'Representation review', value: 'Included in escrow' },
-    { label: 'Window reservation', value: '72h priority hold' },
-    { label: 'Talent guarantee', value: 'Authorized channel only' },
-    { label: 'NDA / compliance', value: 'Standard sovereign pack' },
-    { label: 'Logistics coordination', value: 'Desk-managed' },
+    { label: 'Deposit', value: 'Included in escrow' },
+    { label: 'Priority window', value: '72h hold' },
+    { label: 'Verified channel', value: 'Agency-routed only' },
+    { label: 'NDA & compliance', value: 'Standard pack' },
+    { label: 'Logistics', value: 'Rep-managed' },
   ];
   return { tier, tierHref, occasion, matches, ledger, budget };
 }
@@ -253,12 +262,12 @@ export function renderEscrowLedger({ quote = 0, escrowPct = 30 }) {
   const escrow = Math.round(quote * (escrowPct / 100));
   return `
     <div class="escrow-ledger">
-      <div class="el-row"><span>Representation review</span><span class="num-mono">${formatPrice(escrow)}</span></div>
-      <div class="el-row"><span>Window reservation</span><span class="muted">Included</span></div>
-      <div class="el-row"><span>NDA / compliance</span><span class="muted">Included</span></div>
-      <div class="el-row"><span>Logistics coordination</span><span class="muted">Included</span></div>
+      <div class="el-row"><span>Deposit</span><span class="num-mono">${formatPrice(escrow)}</span></div>
+      <div class="el-row"><span>Priority window</span><span class="muted">Included</span></div>
+      <div class="el-row"><span>NDA & compliance</span><span class="muted">Included</span></div>
+      <div class="el-row"><span>Travel & logistics</span><span class="muted">Included</span></div>
       <div class="escrow-bar" style="margin-top:12px"><div class="escrow-fill" style="width:${escrowPct}%"></div></div>
-      <p class="small muted" style="margin-top:8px">${escrowPct}% escrow reserve · representation review within 24h</p>
+      <p class="small muted" style="margin-top:8px">${escrowPct}% deposit · your rep reviews within 24h</p>
     </div>`;
 }
 
@@ -291,6 +300,7 @@ export function renderRedactedBrief(dossier, celeb, opts = {}) {
 }
 
 export function renderProgressRail() {
+  if (!ENABLE_PROGRESS_RAIL) return '';
   const { step, lastName } = getAccessProgress();
   const hold = getSessionHold();
   const parts = [];
@@ -364,10 +374,13 @@ export function openAccessPortal(c) {
     portal.addEventListener('click', (e) => { if (e.target === portal) closeAccessPortal(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAccessPortal(); });
   }
+  const pb = getMeetingPlaybook(c);
+  const portalVenues = pb.venues?.length ? pb.venues : VENUES;
   const dates = genDates();
-  const venueHtml = VENUES.map((v, i) =>
-    `<div class="ap-venue" data-vi="${i}"><div class="ap-venue-icon">${v.icon}</div><div class="ap-venue-name">${v.name}</div><div class="ap-venue-loc">${v.loc}</div></div>`
+  const venueHtml = portalVenues.map((v, i) =>
+    `<div class="ap-venue" data-vi="${i}"><div class="ap-venue-icon">${v.icon || ''}</div><div class="ap-venue-name">${v.name}</div><div class="ap-venue-loc">${v.loc}</div></div>`
   ).join('');
+  const stepsHtml = pb.steps.map(s => `<li>${s}</li>`).join('');
   const dateHtml = dates.map((d, i) =>
     `<div class="ap-day" data-di="${i}"><div class="ap-day-num">${d.day}</div><div class="ap-day-month">${d.month}</div><div class="ap-day-status ds-${d.status}">${d.label}</div></div>`
   ).join('');
@@ -382,20 +395,23 @@ export function openAccessPortal(c) {
   ).join('');
   document.getElementById('apPortraitImg').src = c.portrait;
   document.getElementById('apPortraitImg').alt = c.name;
+  const holdActive = !!getSessionHold();
   document.getElementById('apContentCol').innerHTML = `
-    <div class="ap-stamp"><div class="ap-stamp-dot"></div>All Talents Agency · Sovereign Private Access</div>
+    <div class="ap-stamp"><div class="ap-stamp-dot"></div>All Talents Agency · Private introductions</div>
     <h1 class="ap-celeb-name">${c.name}</h1>
     <p class="ap-celeb-meta">${c.category} · ${c.region} · ${c.agencyRepresentation}</p>
-    <p style="font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.72);font-style:italic;margin:0 0 18px;padding:12px 14px;border-left:2px solid var(--accent);background:rgba(148,176,214,.08);border-radius:0 8px 8px 0">"${c.eliteSignal || ''}"</p>
-    <div class="ap-live-status"><div class="ap-live-dot"></div>Direct meeting access LIVE — closes in 72h</div>
+    <p style="font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.72);font-style:italic;margin:0 0 14px;padding:12px 14px;border-left:2px solid var(--accent);background:rgba(148,176,214,.08);border-radius:0 8px 8px 0">"${c.eliteSignal || ''}"</p>
+    <p class="eyebrow" style="margin:0 0 6px">${pb.headline}</p>
+    <ol class="playbook-steps ap-playbook-steps">${stepsHtml}</ol>
+    <div class="ap-live-status"><div class="ap-live-dot"></div>${holdActive ? 'Your hold is active — complete your request below' : pb.portalStatus}</div>
     <div class="ap-brief-row">${briefHtml}</div>
     <div class="ap-divider"></div>
-    <p class="ap-section-label">Select Your Private Venue</p>
+    <p class="ap-section-label">Choose a venue</p>
     <div class="ap-venues">${venueHtml}</div>
-    <p class="ap-section-label">Choose Exclusive Window</p>
+    <p class="ap-section-label">Pick a window</p>
     <div class="ap-dates">${dateHtml}</div>
-    <button class="ap-confirm-btn" id="apConfirmBtn">Initiate Private Access Protocol</button>
-    <p class="ap-price-note">${displayPrice(c.startingPrice)} · NDA standard · Escrow protected</p>`;
+    <button class="ap-confirm-btn" id="apConfirmBtn">${pb.portalCta || 'Request introduction'}</button>
+    <p class="ap-price-note">${displayPrice(c.startingPrice)} · NDA included · deposit protected</p>`;
   portal.querySelectorAll('.ap-venue').forEach(el => {
     el.onclick = () => {
       portal.querySelectorAll('.ap-venue').forEach(v => v.classList.remove('av-sel'));
@@ -413,7 +429,7 @@ export function openAccessPortal(c) {
     const dEl = portal.querySelector('.ap-day.ad-sel');
     const vi = vEl ? Number(vEl.dataset.vi) : 0;
     const di = dEl ? Number(dEl.dataset.di) : 0;
-    const venue = encodeURIComponent(VENUES[vi]?.name || 'TBD');
+    const venue = encodeURIComponent(portalVenues[vi]?.name || 'TBD');
     const d = new Date();
     d.setDate(d.getDate() + 4 + di);
     window.location.href = `booking.html?id=${c.id}&venue=${venue}&date=${d.toISOString().slice(0, 10)}&intent=meet`;
@@ -535,8 +551,7 @@ export function refreshHoldUI() {
     chipHost.insertAdjacentHTML('afterbegin', html);
     startHoldCountdown();
   }
-  const rail = document.getElementById('accessProgressRail');
-  if (rail) rail.outerHTML = renderProgressRail();
+  document.getElementById('accessProgressRail')?.remove();
 }
 
 let holdTimer = null;
@@ -561,11 +576,7 @@ function startHoldCountdown() {
 
 export function initAccessProtocol(opts = {}) {
   ensureAccessPortalShell();
-  if (!document.getElementById('accessProgressRail')) {
-    const tray = document.getElementById('engagementTray');
-    if (tray) tray.insertAdjacentHTML('beforebegin', renderProgressRail());
-    else document.body.insertAdjacentHTML('beforeend', renderProgressRail());
-  }
+  document.getElementById('accessProgressRail')?.remove();
   refreshHoldUI();
   bindPathBaitHandlers();
   window.addEventListener('ata-hold-change', refreshHoldUI);

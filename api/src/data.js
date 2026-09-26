@@ -189,6 +189,51 @@ export const CROWD_EVENTS = [
     includes: ["Private screening of upcoming production", "Post-film Q&A with Margot", "Signed production items", "Drinks reception", "Escrow-secured"],
     installments: [{ label: "3-Pay Plan", months: 3, monthly: 867 }, { label: "6-Pay Plan", months: 6, monthly: 434 }],
   },
+  {
+    id: "ce13", celebId: "c167", name: "Charlize Theron",
+    eventTitle:  "UN Humanitarian Dinner Circle",
+    eventType:   "Private Dinner & Briefing",  city: "Geneva, Switzerland",
+    date: "2026-05-18",  slots: 18,  claimed: 4,
+    pricePerSlot: 2400,
+    includes: ["Curated dinner seating", "Humanitarian briefing Q&A", "NDA-protected guest list", "Signed keepsake", "Escrow-secured"],
+    installments: [{ label: "3-Pay Plan", months: 3, monthly: 800 }, { label: "6-Pay Plan", months: 6, monthly: 400 }],
+  },
+  {
+    id: "ce14", celebId: "c168", name: "Colin Farrell",
+    eventTitle:  "European Prestige Screening Circle",
+    eventType:   "Private Screening & Q&A",  city: "Dublin, Ireland",
+    date: "2026-06-12",  slots: 20,  claimed: 3,
+    pricePerSlot: 2200,
+    includes: ["Private screening access", "Controlled-media Q&A", "Signed production item", "Reception access", "Escrow-secured"],
+    installments: [{ label: "3-Pay Plan", months: 3, monthly: 734 }, { label: "6-Pay Plan", months: 6, monthly: 367 }],
+  },
+  {
+    id: "ce15", celebId: "c169", name: "Ryan Gosling",
+    eventTitle:  "Brand Summit Executive Circle",
+    eventType:   "Corporate Brand Summit",  city: "Los Angeles, CA",
+    date: "2026-08-02",  slots: 24,  claimed: 5,
+    pricePerSlot: 2100,
+    includes: ["Summit floor access", "Executive meet moment", "Brand brief session", "Group photo", "Escrow-secured"],
+    installments: [{ label: "3-Pay Plan", months: 3, monthly: 700 }, { label: "6-Pay Plan", months: 6, monthly: 350 }],
+  },
+  {
+    id: "ce16", celebId: "c170", name: "Anne Hathaway",
+    eventTitle:  "Versace Gala Access Circle",
+    eventType:   "Luxury Gala",  city: "Milan, Italy",
+    date: "2026-09-14",  slots: 16,  claimed: 2,
+    pricePerSlot: 2500,
+    includes: ["Gala seating tier", "Red-carpet adjacent access", "Charity toast moment", "Signed item", "Escrow-secured"],
+    installments: [{ label: "3-Pay Plan", months: 3, monthly: 834 }, { label: "6-Pay Plan", months: 6, monthly: 417 }],
+  },
+  {
+    id: "ce17", celebId: "c171", name: "Keanu Reeves",
+    eventTitle:  "Tech Summit Private Circle",
+    eventType:   "Tech Keynote Side-Room",  city: "San Francisco, CA",
+    date: "2026-10-05",  slots: 22,  claimed: 6,
+    pricePerSlot: 1950,
+    includes: ["Side-room keynote access", "Discreet meet window", "NDA stack", "Charity tie-in briefing", "Escrow-secured"],
+    installments: [{ label: "3-Pay Plan", months: 3, monthly: 650 }, { label: "6-Pay Plan", months: 6, monthly: 325 }],
+  },
 ];
 
 const namedCelebrities = NAMED.map(([id, name, category, agency, region, portrait, price, demand, pop, avail, reach, awards, risk], i) => ({
@@ -656,6 +701,56 @@ const NEW_CELEBRITIES = [
     ndaDefault:true, securityTiers:["Standard","Enhanced","Executive","Sovereign"],
     netWorth:"$18M", brandValue:"$60M",
     eliteSignal:"'Descendants of the Sun' broke viewership records across 32 countries. Baeksang Best Actor laureate. Leading man in Netflix's Space Sweepers — a genuine Pan-Asian film market crossover phenomenon."
+  },
+  {
+    id:"c167", name:"Charlize Theron", verified:true, category:"Film", region:"Africa",
+    portrait:"/assets/portraits/c7.jpg",
+    startingPrice:310000, demandIndex:78, popularityScore:84, availability:"Open",
+    availabilityWindowDays:21, socialReachMillions:42.0, agencyRepresentation:"CAA",
+    awards:"Academy Award", riskIndex:"low",
+    ndaDefault:true, securityTiers:["Standard","Enhanced","Executive","Sovereign"],
+    netWorth:"$175M", brandValue:"$130M",
+    eliteSignal:"Oscar-winning actress and active UN global humanitarian. The definitive choice for executive-tier brand alignment with substance."
+  },
+  {
+    id:"c168", name:"Colin Farrell", verified:true, category:"Film", region:"Europe",
+    portrait:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/2025_Colin_Farrell_-_2_%28cropped%29.jpg/330px-2025_Colin_Farrell_-_2_%28cropped%29.jpg",
+    startingPrice:380000, demandIndex:80, popularityScore:85, availability:"Open",
+    availabilityWindowDays:21, socialReachMillions:36.0, agencyRepresentation:"CAA",
+    awards:"Golden Globe Award", riskIndex:"low",
+    ndaDefault:true, securityTiers:["Standard","Enhanced","Executive","Sovereign"],
+    netWorth:"$80M", brandValue:"$55M",
+    eliteSignal:"Golden Globe winner and The Banshees of Inisherin Oscar nominee — European prestige talent with controlled, premium media exposure."
+  },
+  {
+    id:"c169", name:"Ryan Gosling", verified:true, category:"Film", region:"North America",
+    portrait:"/assets/portraits/c242.jpg",
+    startingPrice:450000, demandIndex:86, popularityScore:88, availability:"Open",
+    availabilityWindowDays:21, socialReachMillions:40.0, agencyRepresentation:"CAA",
+    awards:"Golden Globe Nominee", riskIndex:"low",
+    ndaDefault:true, securityTiers:["Standard","Enhanced","Executive","Sovereign"],
+    netWorth:"$70M", brandValue:"$95M",
+    eliteSignal:"Barbie and La La Land cultural icon — ideal for flagship brand summits and executive private screenings with verified global recognition."
+  },
+  {
+    id:"c170", name:"Anne Hathaway", verified:true, category:"Film", region:"North America",
+    portrait:"/assets/portraits/c243.jpg",
+    startingPrice:420000, demandIndex:84, popularityScore:87, availability:"Open",
+    availabilityWindowDays:21, socialReachMillions:38.0, agencyRepresentation:"CAA",
+    awards:"Academy Award", riskIndex:"low",
+    ndaDefault:true, securityTiers:["Standard","Enhanced","Executive","Sovereign"],
+    netWorth:"$85M", brandValue:"$72M",
+    eliteSignal:"Oscar-winning actress and Versace global ambassador — flawless for luxury galas and female-executive audience alignment."
+  },
+  {
+    id:"c171", name:"Keanu Reeves", verified:true, category:"Film", region:"North America",
+    portrait:"/assets/portraits/c8.jpg",
+    startingPrice:290000, demandIndex:82, popularityScore:86, availability:"Open",
+    availabilityWindowDays:21, socialReachMillions:38.0, agencyRepresentation:"CAA",
+    awards:"MTV Movie Award", riskIndex:"low",
+    ndaDefault:true, securityTiers:["Standard","Enhanced","Executive","Sovereign"],
+    netWorth:"$380M", brandValue:"$270M",
+    eliteSignal:"A cultural icon with zero recorded controversy in 35 years — trusted unconditionally across 180 countries and all demographics."
   },
 ];
 

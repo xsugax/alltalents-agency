@@ -3,7 +3,7 @@
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.smartsuppchat.com https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.smartsuppcdn.com; img-src 'self' data: https://i.pravatar.cc https://upload.wikimedia.org https://static.smartsupp.com https://image.smartsupp.com; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com https://www.smartsupp.com https://app.smartsupp.com https://www.smartsuppchat.com https://bootstrap.smartsuppchat.com wss://app.smartsupp.com wss://websocket-visitors.smartsupp.com https://*.smartsuppcdn.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.smartsupp.com https://app.smartsupp.com https://*.smartsuppcdn.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>All Talents Agency (ATA) | Sovereign Celebrity Booking</title>
 	<meta name="application-name" content="All Talents Agency">
@@ -14,7 +14,7 @@
 	<link rel="shortcut icon" href="/assets/favicon.svg">
 	<link rel="apple-touch-icon" href="/assets/ata-mark.svg">
 	<!-- SEO: Primary Meta -->
-	<meta name="description" content="All Talents Agency (ATA) — the authorized corridor to book A-list celebrities. 119+ verified talents, confidential qualification, escrow-protected booking. Search ATA for sovereign celebrity representation.">
+	<meta name="description" content="All Talents Agency — verified talent, five ways to request access, and a desk that tracks every case.">
 	<meta name="keywords" content="All Talents Agency, ATA, celebrity booking agency, hire celebrity, book A-list talent, sovereign representation, celebrity appearance, talent agency">
 	<meta name="robots" content="index, follow">
 	<meta name="author" content="All Talents Agency">
@@ -28,7 +28,7 @@
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="All Talents Agency (ATA) | Sovereign Celebrity Booking">
-	<meta name="twitter:description" content="ATA — authorized celebrity representation. Verified roster, confidential access, escrow-protected booking.">
+	<meta name="twitter:description" content="All Talents Agency — verified roster and five ways to request access.">
 	<meta name="twitter:image" content="https://alltalentsagency.com/assets/og-preview.svg">
 	<!-- Canonical -->
 	<link rel="canonical" href="https://alltalentsagency.com/">
@@ -41,14 +41,7 @@
 		"alternateName": ["ATA", "All Talents Agency ATA"],
 		"url": "https://alltalentsagency.com",
 		"logo": "https://alltalentsagency.com/assets/ata-mark.svg",
-		"description": "Sovereign celebrity representation platform — the authorized corridor to book verified A-list talent worldwide.",
-		"aggregateRating": {
-			"@type": "AggregateRating",
-			"ratingValue": "4.9",
-			"reviewCount": "847",
-			"bestRating": "5"
-		},
-		"contactPoint": { "@type": "ContactPoint", "contactType": "Talent Booking", "availableLanguage": "English" },
+		"description": "All Talents Agency represents verified talent. Clients request Crowd Access, a reservation, a private engagement, a vacation, or full coverage.",
 		"potentialAction": {
 			"@type": "SearchAction",
 			"target": { "@type": "EntryPoint", "urlTemplate": "https://alltalentsagency.com/explorer.html?search={search_term_string}" },
@@ -66,49 +59,13 @@
 		"description": "Search All Talents Agency or ATA for sovereign celebrity booking and verified talent access."
 	}
 	</script>
-	<link rel='stylesheet' href='assets/styles.css?v=20260613'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260926a'>
 </head>
 <body>
 	<div class='container' id='app'></div>
-	<button id='floatMsgBtn' class='floating-msg-btn' title='Open Concierge Desk' style='position:relative'>
-		<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' width='22' height='22'>
-			<path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/>
-		</svg>
-		<span class='fmb-badge'></span>
-	</button>
-	<div id='floatMsgPanel' class='floating-msg-panel'>
-		<div class='fmp-header'>
-			<div class='fmp-avatar'>AT</div>
-			<div class='fmp-agent-info'>
-				<div class='fmp-agent-name'>Concierge Desk</div>
-				<div class='fmp-agent-status'><span class='fmp-online-dot'></span>Live Representation Desk</div>
-			</div>
-			<button class='fmp-close' id='fmpClose' aria-label='Close'>&#x2715;</button>
-		</div>
-		<div class='fmp-body'>
-			<div id='chatThread' class='chat-thread' style='margin-bottom:14px'></div>
-			<div class='floating-msg-grid'>
-				<div><span class='fmp-label'>Featured Profile</span><input id='homeTarget' readonly placeholder='Loads automatically\u2026'></div>
-				<div class='floating-msg-row'>
-					<div><span class='fmp-label'>Full Name</span><input id='homeName' placeholder='Your name'></div>
-					<div><span class='fmp-label'>Organization</span><input id='homeOrg' placeholder='Company'></div>
-				</div>
-				<div><span class='fmp-label'>Request Type</span>
-					<select id='homeType'>
-						<option value='meet'>How to Meet</option>
-						<option value='msg'>Representative Message</option>
-					</select>
-				</div>
-				<div><span class='fmp-label'>Message</span><textarea id='homeBody' rows='3' placeholder='Describe your request\u2026'></textarea></div>
-				<button id='homeSend' class='primary'>Send via Secure Channel &#x2192;</button>
-				<p id='homeStatus' class='small muted' style='text-align:center'></p>
-			</div>
-		</div>
-		<div class='fmp-footer'>Encrypted &middot; NDA-default &middot; All Talents Agency</div>
-	</div>
 	<script type='module'>
-		import { request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, getLocalDemandPulse, demandPulseHTML, renderDemandPulse, renderProtocolSpine, renderThreePathBait, renderAccessPathSimulator, bindAccessPathSimulator, displayPrice, initAccessProtocol, initConciergeTriggers, openAccessPortal, bindPathBaitHandlers, getAccessProgress, openQualifyModal } from './assets/app.js?v=20260613';
-		import { CELEBRITIES } from './assets/celebrities-data.js';
+		import { request, nav, initNav, initTheme, initScrollReveal, initDynamicTheme, bindShortlistTray, trackEvent, formatPrice, initCommandPalette, setCategoryTint, displayPrice, initAccessProtocol, renderPathwayChooser, loadRoster } from './assets/app.js?v=20260925';
+		const CELEBRITIES = await loadRoster();
 
 		let featuredCelebrity = { id: '', name: '' };
 
@@ -149,9 +106,9 @@
 			<section class="elite-intro-strip persist-visible scroll-stay">
 				<div class="eis-mark">ATA</div>
 				<div class="eis-body">
-					<p class="eis-rating"><span class="eis-badge">Record grade</span><span class="eis-stars">★★★★★</span> 4.9 institutional rating · 847 verified client pathways</p>
-					<h2 class="eis-headline">The authorized way to meet them — not the internet's guesswork.</h2>
-					<p class="eis-sub">All Talents Agency (ATA) operates at mandate velocity: verified roster, autonomous qualification, escrow-protected booking — built for clients who break records, not browse catalogs.</p>
+					<p class="eis-rating"><span class="eis-badge">House record</span> Verified representation</p>
+					<h2 class="eis-headline">The authorized way to meet them.</h2>
+					<p class="eis-sub">All Talents Agency keeps one roster, five ways to request access, and a desk that tracks every request. Live conversation stays with Smartsupp.</p>
 				</div>
 			</section>
 			<section class='hero-cinematic section persist-visible reveal-on-scroll' id='hero'>
@@ -166,12 +123,12 @@
 			<section class='access-strip section persist-visible'>
 				<div class='live-badge'><span class='live-dot'></span>Live Access Status</div>
 				<h2 class='access-strip-title'>${CELEBRITIES.length} Verified Celebrities.<br>Direct Access. Right Now.</h2>
-				<p class='access-strip-sub'>Every talent on this platform is reachable through All Talents Agency's sovereign authorized channels. Your qualification as a registered client unlocks exclusive meeting windows, direct representative outreach, and priority booking rights — unavailable anywhere else.</p>
+				<p class='access-strip-sub'>Search the roster, open a profile, and request an introduction — each talent has their own path through verified representation.</p>
 				<div class='access-chips'>
 					<span class='access-chips-label'>Trending:</span>
-					${['Beyonce','Taylor Swift','Cristiano Ronaldo','Rihanna','Drake','Zendaya','Messi','BTS','BLACKPINK','Sabrina Carpenter'].map(n => `<button type='button' class='quick-chip' data-q="${n}">${n}</button>`).join('')}
+					${['Beyonce','Taylor Swift','Charlize Theron','Cristiano Ronaldo','Rihanna','Drake','Zendaya','Messi','BTS','BLACKPINK'].map(n => `<button type='button' class='quick-chip' data-q="${n}">${n}</button>`).join('')}
 				</div>
-				<div class='access-live-count'>Live windows open for qualified clients today</div>
+				<div class='access-live-count'><span id='deskClock'>Desk</span> · <span class='desk-line' id='deskLine'>Opening the calendar</span></div>
 				<div class='window-grid' id='windowGrid' style='margin-top:18px'>
 					${[1,2,3,4].map(()=>`<div class='window-card' style='height:88px'></div>`).join('')}
 				</div>
@@ -182,20 +139,20 @@
 			<section class='crowd-hero section'>
 				<div class='crowd-hero-label'>New Feature - Crowd Access</div>
 				<h2 style='margin-bottom:10px'>Can't Afford Solo Private Access?<br><span>Join a Group. Share the Moment.</span></h2>
-				<p class='access-strip-sub'>Crowd Booking lets you join a verified group at the celebrity's <em>next real event</em> - concerts, premieres, paddocks, brand days. Same icon, same room. Drastically lower entry point with installment payment plans. Slots are limited and fill fast.</p>
+				<p class='access-strip-sub'>Crowd Access is a shared verified appearance. Each date has a published slot figure and a real remaining count. The desk confirms the place.</p>
 				<div style='margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px' id='crowdTeaserGrid'>
 					${[1,2,3].map(()=>`<div class='crowd-event-card' style='height:80px'></div>`).join('')}
 				</div>
 				<div style='margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;align-items:center'>
 					<a href='crowdbooking.html'><button class='primary' style='width:auto;padding:14px 36px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer'>View All Crowd Events &#x2192;</button></a>
-					<span class='small muted'>From $1,800 /person - Pay in 3 or 6 installments</span>
+					<span class='small muted'>Open dates from the desk calendar</span>
 				</div>
 			</section>
 			<section class='situation-room section persist-visible' id='situationRoom'>
 				<div class='situation-room-head'>
 					<div>
 						<p class='eyebrow'>Situation Room</p>
-						<h3 style='margin:6px 0 0'>Live Intelligence · Demand Heat</h3>
+						<h3 style='margin:6px 0 0'>Roster</h3>
 					</div>
 					<a href='explorer.html' class='small' style='color:var(--vital-nerve);text-decoration:none;font-weight:700'>Open full roster →</a>
 				</div>
@@ -205,58 +162,39 @@
 						<div id='pulseBody' class='small muted'>Loading market pulse…</div>
 					</div>
 					<div class='situation-panel'>
-						<h4>Top Demand Profiles</h4>
+						<h4>Featured dossiers</h4>
 						<div class='demand-mini-grid' id='demandMiniGrid'>Loading…</div>
 					</div>
 					<div class='situation-panel situation-urgency' id='situationUrgency'>
-						<h4>If you move today</h4>
+						<h4>Waitlist</h4>
 						<div id='urgencyBody' class='small muted'>Analyzing waitlist pressure…</div>
 					</div>
 				</div>
 				<div class='situation-footer'>
-					<span class='small muted'>Real-time demand signals across the verified roster. API-enriched when live.</span>
+					<span class='small muted'>Counts come from the desk. Availability is the published roster, not a live auction.</span>
 					<a href='portal.html'><button class='secondary' style='width:auto;padding:10px 20px;font-size:11px'>Client intelligence →</button></a>
 				</div>
 			</section>
 			<div id='accessSimMount'></div>
 		`;
 
-		const panel = document.getElementById('floatMsgPanel');
-		const btn = document.getElementById('floatMsgBtn');
-		btn.onclick = () => panel.classList.toggle('open');
-		document.getElementById('fmpClose').onclick = () => panel.classList.remove('open');
-
-		function setHomeTemplate(mode, celebrityName) {
-			const textarea = document.getElementById('homeBody');
-			if (mode === 'meet') {
-				textarea.value = `How-to-meet request for ${celebrityName}: Please share representation protocol, qualification criteria, expected timeline, and first-step coordination requirements.`;
-			} else {
-				textarea.value = `Representative message for ${celebrityName}: Requesting callback to discuss strategic fit, event scope, and process.`;
-			}
-		}
-
-		await loadTicker();
 		initTheme();
 		initNav();
 		initScrollReveal();
 		initDynamicTheme();
 		initCommandPalette(CELEBRITIES);
-		initAccessProtocol({ onQualified: () => location.reload() });
 		bindShortlistTray(CELEBRITIES);
 		document.querySelectorAll('.quick-chip').forEach((btn) => {
 			btn.addEventListener('click', () => {
 				const q = btn.dataset.q;
-				if (q) window.location.href = `explorer.html?search=${encodeURIComponent(q)}`;
+				if (q) window.__ataOpenDiscover?.(q);
 			});
 		});
 
-		// Use local static data — no cold-start delay
 		const hero = document.getElementById('hero');
-		const featured = CELEBRITIES.slice(0, 6);
-		featuredCelebrity = { id: featured[0].id, name: featured[0].name };
-		document.getElementById('homeTarget').value = `${featured[0].name} (${featured[0].id})`;
-		document.getElementById('homeType').value = 'meet';
-		setHomeTemplate('meet', featured[0].name);
+		const featured = CELEBRITIES.filter((c) => c.featured).slice(0, 6);
+		if (!featured.length) featured.push(...CELEBRITIES.slice(0, 6));
+		featuredCelebrity = { id: featured[0]?.id || '', name: featured[0]?.name || '' };
 
 		// -- Cinematic Rotating Hero --------------------------
 		let heroIdx = 0;
@@ -274,12 +212,12 @@
 					<div style='display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px;align-items:center'>
 						<span class='small'><span class='muted'>Access</span> <strong class='num-mono' style='color:var(--vital-heart)'>${displayPrice(c.startingPrice)}</strong></span>
 						<span class='small'><span class='muted'>Reach</span> <strong>${c.socialReachMillions}M</strong></span>
-						<span class='small' style='display:inline-flex;align-items:center;gap:6px'><span class='muted'>Status</span> ${demandPulseHTML(getLocalDemandPulse(c), true)} <strong>${c.availability}</strong></span>
+						<span class='small'><strong>${c.availability}</strong></span>
 					</div>
 					<div style='margin-top:14px;display:flex;gap:8px;flex-wrap:wrap'>
-						<a href='crowdbooking.html?celeb=${c.id}'><button class='secondary' style='width:auto;padding:10px 18px;font-size:11px'>Crowd · from $1.8K</button></a>
-						<button type='button' class='secondary hero-hold-btn' data-hold-id='${c.id}' data-hold-name='${c.name.replace(/'/g, "\\'")}' style='width:auto;padding:10px 18px;font-size:11px'>Hold window</button>
-						<a href='booking.html?id=${c.id}'><button class='primary' style='width:auto;padding:10px 18px;font-size:11px'>Mandate →</button></a>
+						<a href='crowdbooking.html?celeb=${c.id}'><button class='secondary' style='width:auto;padding:10px 18px;font-size:11px'>Crowd access</button></a>
+						<a href='booking.html?pathway=reservation&id=${c.id}'><button class='secondary' style='width:auto;padding:10px 18px;font-size:11px'>Reservation</button></a>
+						<a href='booking.html?pathway=private&id=${c.id}'><button class='primary' style='width:auto;padding:10px 18px;font-size:11px'>Private engagement</button></a>
 						<a href='talent.html?id=${c.id}'><button class='secondary' style='width:auto;padding:10px 18px;font-size:11px'>Dossier</button></a>
 					</div>
 				</div>
@@ -303,10 +241,13 @@
 				</div>`;
 			const dots = featured.map((_, i) => `<div class='hero-dot${i === 0 ? ' hd-active' : ''}' data-dot='${i}'></div>`).join('');
 			return `
-				<div class='hero-cinematic-bg' id='heroBg' data-parallax='0.02' style="background-image:url('${featured[0].portrait}')"></div>
+				<div class='hero-cinematic-bg is-front' id='heroBgA' style="background-image:url('${featured[0].portrait}')"></div>
+				<div class='hero-cinematic-bg' id='heroBgB'></div>
 				<div class='hero-cinematic-content'>
 					<form class='hero-search-mega' id='heroSearchForm' onsubmit='event.preventDefault();const q=document.getElementById("heroSearchInput").value.trim();if(q)location.href="explorer.html?search="+encodeURIComponent(q);'>
-						<input id='heroSearchInput' type='search' placeholder='Search any celebrity — Beyoncé, Messi, Taylor Swift…' autocomplete='off'>
+						<div class='search-wrap hero-search-wrap' style='flex:1;position:relative;min-width:0'>
+							<input id='heroSearchInput' type='search' placeholder='Search any celebrity — Beyoncé, BTS, Messi, Taylor Swift…' autocomplete='off'>
+						</div>
 						<button type='submit' class='primary'>Search →</button>
 					</form>
 					<div class='hero-stage' id='heroStage'><div class='hero-slides-track'>${slides}${sizer}</div></div>
@@ -315,23 +256,10 @@
 		}
 
 		hero.innerHTML = buildHeroHTML();
-		document.getElementById('protocolSpineMount').innerHTML = renderProtocolSpine(getAccessProgress().step);
-		document.getElementById('pathBaitMount').innerHTML = renderThreePathBait(featured[0]);
-		document.getElementById('accessSimMount').innerHTML = renderAccessPathSimulator(featured[0], CELEBRITIES);
-		bindAccessPathSimulator(featured[0], CELEBRITIES);
-		bindPathBaitHandlers(document.getElementById('pathBaitMount'));
-		bindPathBaitHandlers(hero);
+		document.getElementById('heroSearchInput')?.addEventListener('focus', () => window.__ataOpenDiscover?.(document.getElementById('heroSearchInput').value));
+		document.getElementById('pathBaitMount').innerHTML = `<section class="section"><p class="eyebrow">Choose a path</p>${renderPathwayChooser(featured[0])}</section>`;
 		setCategoryTint(featured[0].category);
 		trackEvent('home_view', { id: featured[0].id, name: featured[0].name });
-		initConciergeTriggers({ dwellMs: 20000, celebName: featured[0].name, addBubble });
-
-		const simId = new URLSearchParams(location.search).get('sim');
-		if (simId) {
-			const simCeleb = CELEBRITIES.find(x => x.id === simId) || featured[0];
-			document.getElementById('accessSimMount').innerHTML = renderAccessPathSimulator(simCeleb, CELEBRITIES);
-			bindAccessPathSimulator(simCeleb, CELEBRITIES);
-			setTimeout(() => document.getElementById('accessPathSim')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 400);
-		}
 
 		function goToSlide(newIdx) {
 			const slides = hero.querySelectorAll('.hero-slide:not(.hero-slide-sizer)');
@@ -344,14 +272,16 @@
 			slides[heroIdx].classList.add('hs-active');
 			dots.forEach((d, i) => d.classList.toggle('hd-active', i === heroIdx));
 			featuredCelebrity = { id: featured[heroIdx].id, name: featured[heroIdx].name };
-			document.getElementById('homeTarget').value = `${featured[heroIdx].name} (${featured[heroIdx].id})`;
-			setHomeTemplate(document.getElementById('homeType').value, featured[heroIdx].name);
-			const bg = document.getElementById('heroBg');
-			if (bg) bg.style.backgroundImage = `url('${featured[heroIdx].portrait}')`;
+			const layers = [...hero.querySelectorAll('.hero-cinematic-bg')];
+			const front = layers.find((el) => el.classList.contains('is-front')) || layers[0];
+			const back = layers.find((el) => el !== front);
+			if (back && front) {
+				back.style.backgroundImage = `url('${featured[heroIdx].portrait}')`;
+				back.classList.add('is-front');
+				front.classList.remove('is-front');
+			}
 			setCategoryTint(featured[heroIdx].category);
-			document.getElementById('pathBaitMount').innerHTML = renderThreePathBait(featured[heroIdx]);
-			bindPathBaitHandlers(document.getElementById('pathBaitMount'));
-			bindPathBaitHandlers(hero);
+			document.getElementById('pathBaitMount').innerHTML = `<section class="section"><p class="eyebrow">Choose a path</p>${renderPathwayChooser(featured[heroIdx])}</section>`;
 
 			// progress bar reset
 			if (heroProg) { heroProg.style.transition = 'none'; heroProg.style.width = '0%'; }
@@ -380,62 +310,78 @@
 		stage.addEventListener('mouseenter', () => { clearInterval(heroTimer); if (heroProg) heroProg.style.animationPlayState = 'paused'; });
 		stage.addEventListener('mouseleave', () => { startHeroTimer(); if (heroProg) { heroProg.style.transition = `width ${HERO_INTERVAL}ms linear`; heroProg.style.width = '100%'; } });
 
-		// KPIs derived from local data + async API enrichment
-		const kpiData = {
-			totalGlobalBookings: 4820,
-			managedPortfolioValue: 8400000000,
-			activeNegotiations: 73,
-			verifiedCelebrities: CELEBRITIES.length,
+		const paintDeskClock = () => {
+			const clock = document.getElementById('deskClock');
+			if (!clock) return;
+			const label = new Intl.DateTimeFormat('en-US', {
+				hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles', hour12: true,
+			}).format(new Date());
+			clock.textContent = `Desk ${label} PT`;
 		};
+		paintDeskClock();
+		setInterval(paintDeskClock, 30000);
+
+		const countTo = (node, value) => {
+			const target = Number(String(value).replace(/,/g, ''));
+			if (!node || !Number.isFinite(target)) {
+				if (node) node.textContent = value;
+				return;
+			}
+			const start = performance.now();
+			const step = (now) => {
+				const p = Math.min(1, (now - start) / 720);
+				node.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString();
+				if (p < 1) requestAnimationFrame(step);
+			};
+			requestAnimationFrame(step);
+		};
+
+		// KPIs derived from local data + async API enrichment
 		const renderKPIs = (m) => {
 			const items = [
-				['Total Global Bookings', m.totalGlobalBookings.toLocaleString()],
-				['Managed Portfolio Value', (() => { const v = m.managedPortfolioValue; return v >= 1e12 ? `$${(v/1e12).toFixed(2)}T` : v >= 1e9 ? `$${(v/1e9).toFixed(1)}B` : `$${(v/1e6).toFixed(0)}M`; })()],
-				['Active Negotiations', m.activeNegotiations.toLocaleString()],
-				['Verified Talents', m.verifiedCelebrities],
+				['Verified talents', String(m.verifiedCelebrities ?? CELEBRITIES.length)],
+				['Open availability', String(m.openTalents ?? '—')],
+				['Open requests', String(m.openCases ?? 0)],
+				['Crowd dates open', String(m.openCrowdEvents ?? '—')],
 			];
 			document.getElementById('kpis').innerHTML = items.map(([name, value], i) => `
 				<div class='card stack'>
-					${i === 0 ? `<p class='eyebrow'>Live Vitals</p>` : ''}
+					${i === 0 ? `<p class='eyebrow'>Desk record</p>` : ''}
 					<div class='small muted'>${name}</div>
-					<div class='kpi num-mono' data-kpi-target='${value.replace(/[^0-9.]/g,'')}' style='color:${i === 3 ? 'var(--vital-nerve)' : 'var(--vital-heart)'}'>${value}</div>
+					<div class='kpi num-mono' data-count='${value}'>0</div>
 				</div>
 			`).join('');
+			document.querySelectorAll('#kpis [data-count]').forEach((node) => countTo(node, node.dataset.count));
 		};
-		renderKPIs(kpiData);
-		// Try to enrich KPIs from API async (non-blocking)
-		request('/celebrities/featured').then(p => { if (p?.metrics) renderKPIs(p.metrics); }).catch(() => {});
+		renderKPIs({ verifiedCelebrities: CELEBRITIES.length });
+		request('/celebrities/featured').then(p => {
+			if (p?.metrics) renderKPIs(p.metrics);
+			if (p?.home?.headline) {
+				const h = document.querySelector('.eis-headline');
+				if (h) h.textContent = p.home.headline;
+			}
+		}).catch(() => {});
 
 		// -- Populate "Direct Access Windows" strip ----------
 		const fmtPH = p => p >= 1e6 ? `$${(p/1e6).toFixed(1)}M` : `$${Math.round(p/1000)}K`;
 		const windowGrid = document.getElementById('windowGrid');
 		if (windowGrid) {
-			windowGrid.innerHTML = featured.slice(0, 4).map(c => {
-				const pulse = getLocalDemandPulse(c);
-				return `
+			windowGrid.innerHTML = featured.slice(0, 4).map(c => `
 				<div class='window-card' onclick="window.location.href='talent.html?id=${c.id}'" style='display:flex;flex-direction:column;gap:6px'>
-					<div style='display:flex;justify-content:space-between;align-items:center;gap:8px'>
-						<div class='wc-avail ${c.availability === "Open" ? "wa-open" : "wa-limited"}'>${c.availability === "Open" ? "OPEN" : c.availability === "Waitlist" ? "WAITLIST" : "LIMITED"}</div>
-						${demandPulseHTML(pulse, true)}
-					</div>
+					<div class='wc-avail ${c.availability === "Open" ? "wa-open" : "wa-limited"}'>${c.availability || "OPEN"}</div>
 					<div class='wc-name'>${c.name}</div>
 					<div class='wc-meta'>${c.category} · ${c.region}</div>
 					<div class='wc-price num-mono'>${displayPrice(c.startingPrice)}</div>
-				</div>`;
-			}).join('');
+				</div>`).join('');
 		}
 
-		const topDemand = [...CELEBRITIES].sort((a, b) => (b.demandIndex || 0) - (a.demandIndex || 0)).slice(0, 5);
+		const topDemand = CELEBRITIES.slice(0, 5);
 		const demandMiniGrid = document.getElementById('demandMiniGrid');
 		if (demandMiniGrid) {
-			demandMiniGrid.innerHTML = topDemand.map(c => {
-				const pulse = getLocalDemandPulse(c);
-				return `<a class='demand-mini-row' href='talent.html?id=${c.id}'>
+			demandMiniGrid.innerHTML = topDemand.map(c => `<a class='demand-mini-row' href='talent.html?id=${c.id}'>
 					<img src='${c.portrait}' alt='' loading='lazy'>
 					<div><h5>${c.name}</h5><p>${c.category} · ${c.availability}</p></div>
-					${demandPulseHTML(pulse, true)}
-				</a>`;
-			}).join('');
+				</a>`).join('');
 		}
 
 		// -- Populate Crowd Teaser Grid --------------------------
@@ -443,96 +389,71 @@
 			const crowdEvts = await request('/crowd-events');
 			const teaserGrid = document.getElementById('crowdTeaserGrid');
 			if (teaserGrid && crowdEvts?.data?.length) {
-				// Pick top 3 by fewest slots remaining (most urgency)
-				const top3 = [...crowdEvts.data]
-					.filter(e => e.available > 0)
-					.sort((a, b) => a.available - b.available)
-					.slice(0, 3);
+				const today = new Date().toISOString().slice(0, 10);
+				const open = crowdEvts.data.filter((e) => e.available > 0);
+				const upcoming = open.filter((e) => e.date >= today).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+				const top3 = (upcoming.length ? upcoming : open).slice(0, 3);
+				const lines = (upcoming.length ? upcoming : open).slice(0, 16).map((ev) => {
+					const when = ev.date ? new Date(`${ev.date}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Date set by the desk';
+					const price = ev.pricePerSlot >= 1000 ? `$${(ev.pricePerSlot / 1000).toFixed(1)}K` : `$${ev.pricePerSlot}`;
+					return `${ev.name} · ${ev.city} · ${when} · ${ev.available} places · ${price}`;
+				});
+				const lineEl = document.getElementById('deskLine');
+				let lineIdx = 0;
+				const showLine = () => {
+					if (!lineEl || !lines.length) return;
+					lineEl.classList.remove('is-on');
+					setTimeout(() => {
+						lineEl.textContent = lines[lineIdx % lines.length];
+						lineEl.classList.add('is-on');
+						lineIdx += 1;
+					}, 220);
+				};
+				showLine();
+				setInterval(showLine, 4600);
 				teaserGrid.innerHTML = top3.map(ev => {
 					const soldPct = Math.min(100, Math.round((ev.claimed / ev.slots) * 100));
 					const urgency = ev.available <= 5 ? '#C03030' : ev.available <= 12 ? '#B87020' : '#1E7040';
 					const fmtP = p => p >= 1000 ? `$${(p/1000).toFixed(1)}K` : `$${p}`;
+					const when = ev.date ? new Date(`${ev.date}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+					const href = `crowdbooking.html?celeb=${encodeURIComponent(ev.celebId || '')}`;
 					return `
-					<div class='crowd-event-card' onclick="window.location.href='crowdbooking.html'" style='cursor:pointer;padding:16px'>
+					<div class='crowd-event-card' onclick="window.location.href='${href}'" style='cursor:pointer;padding:16px'>
 						<div class='ce-event-type'>${ev.eventType ?? 'Event'}</div>
 						<div class='ce-title' style='font-size:13px;margin:6px 0 4px'>${ev.eventTitle}</div>
-						<div class='ce-meta' style='font-size:11px;margin-bottom:8px'>${ev.name} - ${ev.city}</div>
+						<div class='ce-meta' style='font-size:11px;margin-bottom:8px'>${ev.name} · ${ev.city}${when ? ` · ${when}` : ''}</div>
 						<div class='ce-slot-bar' style='height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin-bottom:6px'>
 							<div class='ce-slot-fill' style='height:100%;border-radius:3px;width:${soldPct}%;background:${urgency};transition:width .8s ease'></div>
 						</div>
 						<div style='display:flex;justify-content:space-between;align-items:center'>
-							<span style='font-size:10px;color:${urgency};font-weight:600'>${ev.available} slot${ev.available === 1 ? '' : 's'} left</span>
-							<span style='font-size:11px;color:var(--gold);font-weight:600'>${fmtP(ev.pricePerSlot)}/person</span>
+							<span style='font-size:10px;color:${urgency};font-weight:600'>${ev.available} place${ev.available === 1 ? '' : 's'} left</span>
+							<span style='font-size:11px;color:var(--gold);font-weight:600'>${fmtP(ev.pricePerSlot)} slot</span>
 						</div>
 					</div>`;
 				}).join('');
 			}
 		} catch { /* teaser stays as skeleton placeholders */ }
 
-		const topWaitlist = CELEBRITIES.filter(c => c.availability === 'Waitlist').sort((a, b) => (b.demandIndex || 0) - (a.demandIndex || 0))[0];
 		const urgencyEl = document.getElementById('urgencyBody');
 		if (urgencyEl) {
-			const name = topWaitlist?.name || topDemand[0]?.name || 'top profiles';
-			urgencyEl.innerHTML = `
-				<p>Waitlist pressure elevated on <strong>${name}</strong>. Windows typically close within 72h for qualified clients.</p>
-				<button type='button' class='primary' style='width:auto;margin-top:12px;padding:10px 20px;font-size:11px' id='startQualifyBtn'>Start qualification →</button>`;
-			document.getElementById('startQualifyBtn')?.addEventListener('click', () => openQualifyModal(name));
+			urgencyEl.innerHTML = `<p>${CELEBRITIES.filter(c => c.availability === 'Waitlist').length} talents are on the waitlist. A reservation is the request the desk can open.</p>`;
 		}
 
 		try {
 			const pulse = await request('/intelligence/market-pulse');
+			const m = pulse.metrics || {};
 			document.getElementById('pulseBody').innerHTML = `
 				<div class='flow-grid'>
-					<div class='flow-step'><p class='num'>Demand Heat</p><h4 class='num-mono' style='color:var(--vital-blood)'>${pulse.metrics.demandHeat}%</h4><p>Average roster demand velocity.</p></div>
-					<div class='flow-step'><p class='num'>Entry Quote</p><h4 class='num-mono' style='color:var(--vital-heart)'>$${pulse.metrics.averageEntryQuote.toLocaleString()}</h4><p>Average opening commercial posture.</p></div>
-					<div class='flow-step'><p class='num'>Waitlist Pressure</p><h4 class='num-mono' style='color:var(--vital-nerve)'>${pulse.metrics.topWaitlistPressure}</h4><p>Profiles in waitlist state.</p></div>
+					<div class='flow-step'><p class='num'>Public roster</p><h4 class='num-mono'>${m.publicTalents || 0}</h4><p>Talents visible on the site.</p></div>
+					<div class='flow-step'><p class='num'>Opening figure</p><h4 class='num-mono'>$${(m.averageOpening || 0).toLocaleString()}</h4><p>Average published starting figure.</p></div>
+					<div class='flow-step'><p class='num'>Waitlist</p><h4 class='num-mono'>${m.waitlistTalents || 0}</h4><p>Reservation only.</p></div>
 				</div>
-				<div class='hr'></div>
-				<p class='small muted'><b>Top Demand:</b> ${pulse.top.map((t) => `${t.name} (${t.demandIndex}%)`).join(' · ')}</p>
+				<p class='small muted'><b>Featured:</b> ${(pulse.top || []).map((t) => t.name).join(' · ')}</p>
 			`;
 		} catch {
-			document.getElementById('pulseBody').innerHTML = `<p class='small muted'>Market pulse offline — showing local demand signals above.</p>`;
+			const pulseBody = document.getElementById('pulseBody');
+			if (pulseBody) pulseBody.innerHTML = `<p class='small muted'>Desk counts are unavailable.</p>`;
 		}
-
-		document.getElementById('homeType').addEventListener('change', (e) => {
-			if (!featuredCelebrity.name) return;
-			setHomeTemplate(e.target.value, featuredCelebrity.name);
-		});
-
-		document.getElementById('homeSend').onclick = async () => {
-			const thread = document.getElementById('chatThread');
-			const status = document.getElementById('homeStatus');
-			const fullName = document.getElementById('homeName').value.trim();
-			const org = document.getElementById('homeOrg').value.trim();
-			const body = document.getElementById('homeBody').value.trim();
-			const mode = document.getElementById('homeType').value;
-
-			if (!featuredCelebrity.id) { status.textContent = 'Profile not ready. Refresh.'; return; }
-			if (!fullName || !org || !body) { status.textContent = 'Fill name, organization, and message.'; return; }
-
-			addBubble(thread, 'user', body);
-			document.getElementById('homeBody').value = '';
-			status.textContent = '';
-			const typingBubble = addBubble(thread, 'desk', '', true);
-
-			try {
-				const result = await request('/messages/send', {
-					method: 'POST',
-					body: JSON.stringify({
-						celebrityId: featuredCelebrity.id,
-						priority: mode === 'meet' ? 'Urgent' : 'Priority',
-						body: `[${mode === 'meet' ? 'How to Meet Request' : 'Representative Message'}]\nClient: ${fullName}\nOrganization: ${org}\nCelebrity: ${featuredCelebrity.name}\n\n${body}`,
-					}),
-				});
-				await new Promise(r => setTimeout(r, 1100));
-				typingBubble.remove();
-				const replyBubble = addBubble(thread, 'desk', '');
-				await typeText(replyBubble.querySelector('.cb-msg'), result.acknowledgement.body, 20);
-			} catch (error) {
-				typingBubble.remove();
-				addBubble(thread, 'desk', error.message + ' - login first to send.');
-			}
-		};
 	</script>
 </body>
 </html>

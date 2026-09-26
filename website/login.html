@@ -3,7 +3,7 @@
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.smartsuppchat.com https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.smartsuppcdn.com; img-src 'self' data: https://i.pravatar.cc https://upload.wikimedia.org https://static.smartsupp.com https://image.smartsupp.com; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com https://www.smartsupp.com https://app.smartsupp.com https://www.smartsuppchat.com https://bootstrap.smartsuppchat.com wss://app.smartsupp.com wss://websocket-visitors.smartsupp.com https://*.smartsuppcdn.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.smartsupp.com https://app.smartsupp.com https://*.smartsuppcdn.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>Secure Access | All Talents Agency (ATA)</title>
 	<meta name="application-name" content="All Talents Agency">
@@ -14,10 +14,11 @@
 	<meta name="robots" content="noindex, nofollow">
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
 	<link rel='shortcut icon' href='/assets/favicon.svg'>
-	<link rel='stylesheet' href='assets/styles.css?v=20260613'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260926'>
 	<style>
 		/* Login page - full-viewport cinematic gate */
-		html,body{height:100%;margin:0}
+		html,body{height:100%;margin:0;overflow-x:clip;max-width:100%}
+		.login-page{min-height:100vh;display:flex;align-items:stretch;background:var(--bg);max-width:100%;overflow-x:clip}
 		.login-page{min-height:100vh;display:flex;align-items:stretch;background:var(--bg)}
 		.login-left{flex:1;display:none;position:relative;overflow:hidden;background:#0A0A0A}
 		@media(min-width:960px){.login-left{display:flex;flex-direction:column;justify-content:flex-end}}
@@ -101,7 +102,7 @@
 				<div class='login-trust-row'>
 					<div class='login-trust-item'><div class='login-trust-icon'></div><span>Role-gated sessions with JWT authorization</span></div>
 					<div class='login-trust-item'><div class='login-trust-icon'></div><span>119+ verified celebrities across 8 categories</span></div>
-					<div class='login-trust-item'><div class='login-trust-icon'></div><span>NDA-default engagements - Escrow-protected</span></div>
+					<div class='login-trust-item'><div class='login-trust-icon'></div><span>Every request becomes a case the desk can track</span></div>
 					<div class='login-trust-item'><div class='login-trust-icon'>-</div><span>48h representative response - Zero-gap booking</span></div>
 				</div>
 			</div>
@@ -135,21 +136,13 @@
 						<span class='login-demo-email'>client@alltalents.agency</span>
 						<span class='login-demo-role role-client'>Client</span>
 					</div>
-					<div class='login-demo-row' data-email='manager@alltalents.agency' data-pass='Manager@123'>
-						<span class='login-demo-email'>manager@alltalents.agency</span>
-						<span class='login-demo-role role-manager'>Manager</span>
-					</div>
-					<div class='login-demo-row' data-email='admin@alltalents.agency' data-pass='Admin@123'>
-						<span class='login-demo-email'>admin@alltalents.agency</span>
-						<span class='login-demo-role role-admin'>Admin</span>
-					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
 	<script type='module'>
-		import { request, setAuth, consumeReturnUrl } from './assets/app.js?v=20260613';
+		import { request, setAuth, consumeReturnUrl } from './assets/app.js?v=20260619';
 
 		// Click-to-fill demo credentials
 		document.querySelectorAll('.login-demo-row').forEach(row => {
@@ -179,14 +172,20 @@
 					method: 'POST',
 					body: JSON.stringify({ email, password }),
 				});
+				if (r.user.role !== 'client') {
+					msg.textContent = 'This page is for clients. Staff sign in on the desk.';
+					msg.className = 'login-msg lm-error';
+					btn.disabled = false;
+					btn.textContent = 'Authenticate Session -';
+					return;
+				}
 				setAuth(r.token, r.user);
-				msg.textContent = `Session active - authenticated as ${r.user.role}. Redirecting-`;
+				msg.textContent = 'Session active. Opening your portal.';
 				msg.className = 'login-msg lm-success';
 				setTimeout(() => {
 					if (consumeReturnUrl()) return;
-					const dest = r.user.role === 'admin' ? 'admin.html' : r.user.role === 'manager' ? 'portal.html' : 'portal.html';
-					window.location.href = dest;
-				}, 1100);
+					window.location.href = 'portal.html';
+				}, 700);
 			} catch (e) {
 				msg.textContent = e.message || 'Authentication failed. Please check your credentials.';
 				msg.className = 'login-msg lm-error';

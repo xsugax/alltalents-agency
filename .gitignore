@@ -12,6 +12,9 @@ Thumbs.db
 .vscode/settings.json
 *.log
 
+# Local Postgres (PGlite) data
+api/data/pg/
+
 # Build output
 dist/
 build/

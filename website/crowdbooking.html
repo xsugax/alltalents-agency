@@ -3,7 +3,7 @@
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.smartsuppchat.com https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.smartsuppcdn.com; img-src 'self' data: https://i.pravatar.cc https://upload.wikimedia.org https://static.smartsupp.com https://image.smartsupp.com; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com https://www.smartsupp.com https://app.smartsupp.com https://www.smartsuppchat.com https://bootstrap.smartsuppchat.com wss://app.smartsupp.com wss://websocket-visitors.smartsupp.com https://*.smartsuppcdn.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.smartsupp.com https://app.smartsupp.com https://*.smartsuppcdn.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name='referrer' content='no-referrer'>
   <title>Crowd Access | All Talents Agency (ATA)</title>
   <meta name="application-name" content="All Talents Agency">
@@ -26,7 +26,7 @@
   <link rel="canonical" href="https://alltalentsagency.com/crowdbooking.html">
   <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
   <link rel='shortcut icon' href='/assets/favicon.svg'>
-  <link rel='stylesheet' href='assets/styles.css?v=20260613'>
+  <link rel='stylesheet' href='assets/styles.css?v=20260926'>
 </head>
 <body>
   <div class='container' id='app'></div>
@@ -37,8 +37,8 @@
   </div>
 
   <script type='module'>
-    import { request, nav, loadTicker, buildCryptoPaymentHTML, initCryptoWidget, initNav, initTheme, requireAuth, trackEvent, initCommandPalette, initDynamicTheme } from './assets/app.js?v=20260613';
-    import { CELEBRITIES } from './assets/celebrities-data.js';
+    import { request, nav, currentUser, initNav, initTheme, trackEvent, initCommandPalette, initDynamicTheme, loadRoster } from './assets/app.js?v=20260925';
+    const CELEBRITIES = await loadRoster();
 
     (async () => {
 
@@ -68,7 +68,7 @@
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 02</p>
             <h4>Select Your Plan</h4>
-            <p>Pay in full for a 5% discount, or spread across 3 or 6 monthly installments. All escrow-secured.</p>
+            <p>Each event has a published slot figure and a real remaining count. The desk confirms the place. Nothing is charged here.</p>
           </div>
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 03</p>
@@ -87,7 +87,7 @@
         <div style='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px'>
           <div>
             <p class='eyebrow'>Upcoming Verified Events</p>
-            <p class='small muted' style='margin-top:2px'>All events NDA-protected - Escrow-secured - Slot codes issued 14 days before</p>
+            <p class='small muted' style='margin-top:2px'>Published slot figures. The desk confirms each place. Nothing is charged on this page.</p>
           </div>
           <div style='display:flex;gap:8px;flex-wrap:wrap'>
             <select id='filterCat' style='width:auto;padding:8px 12px;font-size:11px'>
@@ -109,7 +109,7 @@
         </div>
       </section>
 
-      <section class='grid g3 section' id='eventsGrid'>
+      <section class='grid g3 section' id='calendar'>
         ${[1,2,3,4,5,6].map(() => `<div class='card' style='height:340px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.05)'></div>`).join('')}
       </section>
 
@@ -121,7 +121,6 @@
       </section>
     `;
 
-    loadTicker();
     initTheme();
     initNav();
     initDynamicTheme();
@@ -132,8 +131,13 @@
       const res = await request('/crowd-events');
       allEvents = res.data;
     } catch(e) {
-      document.getElementById('eventsGrid').innerHTML = `<div class='card' style='grid-column:1/-1;padding:40px;text-align:center'><p class='muted'>Unable to load events - API unavailable.</p></div>`;
+      document.getElementById('calendar').innerHTML = `<div class='card' style='grid-column:1/-1;padding:40px;text-align:center'><p class='muted'>Unable to load events - API unavailable.</p></div>`;
       return;
+    }
+
+    if (urlParam) {
+      const mine = allEvents.filter((ev) => ev.celebId === urlParam);
+      if (mine.length) allEvents = mine;
     }
 
     // State per card: selected plan
@@ -148,16 +152,13 @@
 
     function renderEvents(events) {
       if (!events.length) {
-        document.getElementById('eventsGrid').innerHTML = `<div class='card' style='grid-column:1/-1;padding:40px;text-align:center'><p class='muted'>No events match your filters.</p></div>`;
+        document.getElementById('calendar').innerHTML = `<div class='card' style='grid-column:1/-1;padding:40px;text-align:center'><p class='muted'>No events match your filters.</p></div>`;
         return;
       }
-      document.getElementById('eventsGrid').innerHTML = events.map(ev => {
+      document.getElementById('calendar').innerHTML = events.map(ev => {
         const avail = ev.slots - ev.claimed;
         const pct = ev.soldPct;
         const isFull = avail <= 0;
-        const fullPrice = Math.round(ev.pricePerSlot * 0.95); // 5% full-pay discount
-        const plan3 = ev.installments.find(i => i.months === 3);
-        const plan6 = ev.installments.find(i => i.months === 6);
         return `
           <div class='crowd-event-card' id='card-${ev.id}'>
             <div class='ce-header'>
@@ -176,15 +177,10 @@
 
               <div style='margin-bottom:10px'>
                 <div class='ce-price-row'>
-                  <span class='ce-price-main' id='disp-price-${ev.id}'>${fmtPrice(fullPrice)}</span>
-                  <span class='ce-price-sub' id='disp-sub-${ev.id}'>full pay (5% off)</span>
+                  <span class='ce-price-main'>${fmtPrice(ev.pricePerSlot)}</span>
+                  <span class='ce-price-sub'>published slot</span>
                 </div>
-                <p class='small muted' style='margin:3px 0 8px;font-size:10px'>Regular price ${fmtPrice(ev.pricePerSlot)} per slot</p>
-                <div class='ce-plans'>
-                  <span class='ce-plan-pill cp-full cp-sel' data-ev='${ev.id}' data-plan='full'> Pay in Full - ${fmtPrice(fullPrice)}</span>
-                  ${plan3 ? `<span class='ce-plan-pill' data-ev='${ev.id}' data-plan='3-pay'>3  ${fmtPrice(plan3.monthly)}/mo</span>` : ''}
-                  ${plan6 ? `<span class='ce-plan-pill' data-ev='${ev.id}' data-plan='6-pay'>6  ${fmtPrice(plan6.monthly)}/mo</span>` : ''}
-                </div>
+                <p class='small muted' style='margin:3px 0 8px;font-size:11px'>${avail} places left. The desk confirms settlement. Nothing is charged here.</p>
               </div>
 
               <div class='ce-includes'>
@@ -197,28 +193,6 @@
         `;
       }).join('');
 
-      // Wire plan pills
-      document.querySelectorAll('.ce-plan-pill').forEach(pill => {
-        pill.onclick = () => {
-          const evId = pill.dataset.ev;
-          const plan = pill.dataset.plan;
-          planState[evId] = plan;
-          document.querySelectorAll(`.ce-plan-pill[data-ev="${evId}"]`).forEach(p => p.classList.remove('cp-sel'));
-          pill.classList.add('cp-sel');
-          // Update displayed price
-          const ev = allEvents.find(e => e.id === evId);
-          if (!ev) return;
-          const pp = document.getElementById('disp-price-' + evId);
-          const ps = document.getElementById('disp-sub-' + evId);
-          if (plan === 'full') { pp.textContent = fmtPrice(Math.round(ev.pricePerSlot * 0.95)); ps.textContent = 'full pay (5% off)'; }
-          else {
-            const m = ev.installments.find(i => i.months === (plan === '3-pay' ? 3 : 6));
-            if (m) { pp.textContent = fmtPrice(m.monthly) + '/mo'; ps.textContent = `over ${m.months} months`; }
-          }
-        };
-      });
-
-      // Wire join buttons
       document.querySelectorAll('.ce-join-btn').forEach(btn => {
         btn.onclick = () => {
           const evId = btn.dataset.ev;
@@ -242,80 +216,59 @@
     }
 
     async function openConfirmModal(ev, plan, triggerBtn) {
-      const isFullPay = plan === 'full';
-      const displayAmt = isFullPay
-        ? Math.round(ev.pricePerSlot * 0.95)
-        : ev.installments.find(i => i.months === (plan === '3-pay' ? 3 : 6))?.monthly ?? ev.pricePerSlot;
-      const planLabel = isFullPay ? 'Full Payment (5% discount applied)' : plan === '3-pay' ? '3-Month Installment Plan' : '6-Month Installment Plan';
-
       modalContent.innerHTML = `
         <button onclick="document.getElementById('crowdModalBack').classList.remove('cm-open')" style='position:absolute;top:14px;right:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(229,228,226,.5);font-size:11px;padding:6px 14px;border-radius:8px;cursor:pointer;width:auto;letter-spacing:.06em;text-transform:uppercase'>Close -</button>
         <p class='eyebrow' style='color:#9fe6b0'>Claim Your Slot</p>
         <h3 style='margin:8px 0 4px;font-size:19px'>${ev.eventTitle}</h3>
         <p class='small muted'> ${ev.city} &nbsp;-&nbsp;  ${new Date(ev.date + 'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})} &nbsp;-&nbsp; ${ev.name}</p>
         <div style='margin:16px 0;padding:14px;background:rgba(159,230,176,.05);border:1px solid rgba(159,230,176,.2);border-radius:12px'>
-          <div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px'>
-            <span class='small muted'>Payment Plan</span>
-            <strong style='color:#9fe6b0;font-size:13px'>${planLabel}</strong>
+          <div style='display:flex;justify-content:space-between;align-items:baseline'>
+            <span class='small muted'>Published slot</span>
+            <strong style='color:#9fe6b0;font-size:20px;font-weight:900'>$${Number(ev.pricePerSlot || 0).toLocaleString()}</strong>
           </div>
-          <div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px'>
-            <span class='small muted'>${isFullPay ? 'Total Due Today' : 'First Installment Due'}</span>
-            <strong style='color:#9fe6b0;font-size:20px;font-weight:900'>$${displayAmt.toLocaleString()}</strong>
-          </div>
-          ${!isFullPay ? `<p class='small muted' style='font-size:10px;margin-top:4px'>Remaining ${plan === '3-pay' ? 2 : 5} payments of $${displayAmt.toLocaleString()} due monthly. 100% refundable if event is cancelled.</p>` : '<p class=\'small muted\' style=\'font-size:10px;margin-top:4px\'>5% discount applied vs installment price. Full escrow protection.</p>'}
+          <p class='small muted' style='font-size:11px;margin-top:8px'>${ev.available} places left. The desk confirms settlement. Nothing is charged here.</p>
         </div>
         <div style='margin-bottom:16px'>
           <p class='small muted' style='margin-bottom:8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase'>What\'s Included</p>
           <div class='ce-includes'>${ev.includes.map(i => `<span>${i}</span>`).join('')}</div>
         </div>
-        <div style='margin-bottom:16px'>
-          <p class='eyebrow' style='margin-bottom:10px;font-size:10px'>Select Payment Method</p>
-          <div id='cm-pay-wrap'></div>
+        <div class='case-form' style='margin-bottom:16px'>
+          <input id='cmName' placeholder='Your name' value='${currentUser()?.name || ''}'>
+          <input id='cmEmail' type='email' placeholder='Email' value='${currentUser()?.email || ''}'>
+          <p class='small muted'>This requests a shared slot. The desk confirms settlement. Nothing is charged here.</p>
         </div>
-        <p class='small muted' style='font-size:10.5px;line-height:1.5;margin-bottom:14px;padding:10px;background:rgba(255,255,255,.03);border-radius:8px'>By claiming this slot you agree to a standard NDA, confirm your identity as a registered client, and acknowledge the escrow payment terms. Credentials are issued 14 days before the event.</p>
+        <p class='small muted' style='font-size:10.5px;line-height:1.5;margin-bottom:14px;padding:10px;background:rgba(255,255,255,.03);border-radius:8px'>This opens a Crowd Access case. The desk confirms the place and the terms. Nothing is charged on this page.</p>
         <button id='cmConfirmBtn' style='width:100%;padding:16px;background:linear-gradient(135deg,rgba(159,230,176,.25),rgba(159,230,176,.1));border:1px solid rgba(159,230,176,.5);color:#9fe6b0;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;border-radius:12px;cursor:pointer'>- &nbsp;Confirm & Secure My Slot</button>
         <p id='cmStatus' class='small muted' style='text-align:center;margin-top:8px'></p>
       `;
       modalBack.classList.add('cm-open');
 
-      // Inject crypto widget after modal is in DOM
-      document.getElementById('cm-pay-wrap').innerHTML = buildCryptoPaymentHTML('cm');
-      const cmCryptoWidget = initCryptoWidget('cm');
-
       document.getElementById('cmConfirmBtn').onclick = async () => {
         const btn = document.getElementById('cmConfirmBtn');
         const status = document.getElementById('cmStatus');
-        btn.disabled = true; btn.textContent = 'Securing slot...';
-        const payMethod = cmCryptoWidget.getMethod();
-        if (!requireAuth(`crowdbooking.html?celeb=${ev.celebId}`)) { btn.disabled = false; btn.textContent = '- Confirm & Secure My Slot'; return; }
+        btn.disabled = true; btn.textContent = 'Sending request...';
         try {
-          const res = await request(`/crowd-events/${ev.id}/join`, { method: 'POST', body: JSON.stringify({ plan, paymentMethod: payMethod }) });
+          const res = await request(`/crowd-events/${ev.id}/join`, { method: 'POST', body: JSON.stringify({
+            plan,
+            clientName: document.getElementById('cmName').value,
+            clientEmail: document.getElementById('cmEmail').value,
+          }) });
           trackEvent('crowd_join', { eventId: ev.id, celebId: ev.celebId });
-          const payLabel = payMethod === 'wire' ? 'Wire Transfer' : payMethod.toUpperCase();
           modalContent.innerHTML = `
             <div style='text-align:center;padding:10px 0'>
-              <div style='font-size:48px;margin-bottom:12px'></div>
-              <p class='eyebrow' style='color:#9fe6b0'>Slot Secured</p>
+              <p class='eyebrow' style='color:#9fe6b0'>Request received</p>
               <h3 style='margin:8px 0 4px'>${ev.eventTitle}</h3>
-              <p class='small muted' style='margin-bottom:14px'>${ev.city} &nbsp;-&nbsp; ${ev.name}</p>
-              <div class='crowd-slot-code'>${res.booking.slotCode}</div>
-              <p class='small muted' style='font-size:11px;margin-bottom:6px'>${res.message}</p>
-              <div style='display:inline-block;margin:8px 0 10px;padding:7px 18px;background:rgba(247,147,26,.08);border:1px solid rgba(247,147,26,.25);border-radius:8px;font-size:11px;color:#f7931a;font-weight:700'>
-                Payment via ${payLabel}
-              </div>
-              <p class='small muted' style='font-size:10px;opacity:.65'>Event credentials will be delivered 14 days before the event date. Keep your slot code safe.</p>
-              <a href='booking.html?id=${ev.celebId}' style='display:inline-block;margin-top:14px'><button class='primary' style='width:auto;padding:12px 28px;font-size:11px'>Upgrade to private access with ${ev.name} →</button></a>
-              <br><button onclick="document.getElementById('crowdModalBack').classList.remove('cm-open')" style='margin-top:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(229,228,226,.7);font-size:11px;padding:10px 24px;border-radius:8px;cursor:pointer;width:auto;letter-spacing:.06em;text-transform:uppercase'>Done</button>
-            </div>
-          `;
-          // Update allEvents count live
+              <div class='crowd-slot-code'>${res.booking.details?.slotCode || res.booking.contractId}</div>
+              <p class='small muted'>${res.message}</p>
+              <p class='small muted'>Status: ${res.booking.status}</p>
+              <button onclick="document.getElementById('crowdModalBack').classList.remove('cm-open')" style='margin-top:12px'>Done</button>
+            </div>`;
           const idx = allEvents.findIndex(e => e.id === ev.id);
-          if (idx >= 0) allEvents[idx].claimed++;
+          if (idx >= 0) { allEvents[idx].claimed++; allEvents[idx].available = Math.max(0, allEvents[idx].slots - allEvents[idx].claimed); }
           renderEvents(getFiltered());
         } catch(err) {
-          btn.disabled = false; btn.textContent = '- Confirm & Secure My Slot';
-          status.textContent = err.message + ' - please login first.';
-          status.style.color = '#f08080';
+          btn.disabled = false; btn.textContent = 'Send request';
+          status.textContent = err.message;
         }
       };
     }

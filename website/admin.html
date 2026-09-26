@@ -3,13 +3,13 @@
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
-	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.smartsuppchat.com https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.smartsuppcdn.com; img-src 'self' data: https://i.pravatar.cc https://upload.wikimedia.org https://static.smartsupp.com https://image.smartsupp.com; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com https://www.smartsupp.com https://app.smartsupp.com https://www.smartsuppchat.com https://bootstrap.smartsuppchat.com wss://app.smartsupp.com wss://websocket-visitors.smartsupp.com https://*.smartsuppcdn.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.smartsupp.com https://app.smartsupp.com https://*.smartsuppcdn.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<meta name='referrer' content='no-referrer'>
 	<title>Admin | All Talents Agency</title>
 	<meta name="robots" content="noindex, nofollow">
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
 	<link rel='shortcut icon' href='/assets/favicon.svg'>
-	<link rel='stylesheet' href='assets/styles.css?v=20260613'>
+	<link rel='stylesheet' href='assets/styles.css?v=20260619'>
 	<style>
 		body{margin:0;font-family:inherit}
 		.adm-shell{min-height:100vh;background:#05080F;color:#E6ECF4}
@@ -160,6 +160,49 @@
 			</div>
 		</div>
 
+		<div style='margin-bottom:32px'>
+			<div class='adm-section-head'>
+				<span class='adm-section-title'>Roster</span>
+				<input id='talentSearch' placeholder='Filter talents' style='max-width:240px'>
+			</div>
+			<div class='adm-table-wrap' style='max-height:420px;overflow:auto'>
+				<table class='adm-table'>
+					<thead><tr><th>Talent</th><th>Category</th><th>Visibility</th><th>Availability</th><th>Figure</th><th>Featured</th><th></th></tr></thead>
+					<tbody id='talentBody'><tr><td colspan='6' class='adm-empty'>Loading…</td></tr></tbody>
+				</table>
+			</div>
+		</div>
+
+		<div id='deskControls' style='margin-bottom:32px;display:grid;gap:24px'>
+			<div>
+				<div class='adm-section-head'><span class='adm-section-title'>Categories</span></div>
+				<div id='categoryDesk' class='adm-log-list'></div>
+			</div>
+			<div>
+				<div class='adm-section-head'><span class='adm-section-title'>Home copy</span></div>
+				<div class='card stack' style='padding:14px;display:grid;gap:8px'>
+					<input id='homeHeadline' placeholder='Headline'>
+					<textarea id='homeSub' rows='2' placeholder='Supporting line'></textarea>
+					<button class='adm-refresh' id='saveHome' type='button'>Save home copy</button>
+				</div>
+			</div>
+			<div>
+				<div class='adm-section-head'><span class='adm-section-title'>Experiences</span></div>
+				<input id='expSearch' placeholder='Filter by talent' style='max-width:240px;margin-bottom:8px'>
+				<div class='adm-table-wrap' style='max-height:280px;overflow:auto'>
+					<table class='adm-table'><thead><tr><th>Talent</th><th>Path</th><th>Title</th><th>From</th><th>Live</th><th></th></tr></thead>
+					<tbody id='expBody'></tbody></table>
+				</div>
+			</div>
+			<div>
+				<div class='adm-section-head'><span class='adm-section-title'>Crowd inventory</span></div>
+				<div class='adm-table-wrap' style='max-height:280px;overflow:auto'>
+					<table class='adm-table'><thead><tr><th>Event</th><th>Date</th><th>Slots</th><th>Price</th><th>Live</th><th></th></tr></thead>
+					<tbody id='crowdBody'></tbody></table>
+				</div>
+			</div>
+		</div>
+
 		<!-- Audit Log -->
 		<div>
 			<div class='adm-section-head'>
@@ -180,7 +223,7 @@
 		? 'http://localhost:4100/api'
 		: 'https://ata-h0yo.onrender.com/api';
 
-	const STAGES = ['Inquiry Received','Under Representation Review','Terms Negotiation','Contract Finalized','Escrow Secured','Confirmed'];
+	const STAGES = ['Received','In review','Terms offered','Confirmed','Declined','Cancelled'];
 	const SB_CLASS = {'Inquiry Received':'sb-received','Under Representation Review':'sb-review','Terms Negotiation':'sb-negotiation','Contract Finalized':'sb-contract','Escrow Secured':'sb-escrow','Confirmed':'sb-confirmed'};
 
 	let _token = localStorage.getItem('adm_token') || '';
@@ -246,7 +289,7 @@
 	function renderBookings(list) {
 		_bookings = list;
 		const total = list.length;
-		const pending = list.filter(b => !['Confirmed','Contract Finalized','Escrow Secured'].includes(b.status)).length;
+		const pending = list.filter(b => ['Received','In review','Terms offered'].includes(b.status)).length;
 		const confirmed = list.filter(b => b.status === 'Confirmed').length;
 		const value = list.reduce((s, b) => s + (b.pricing?.finalQuote || 0), 0);
 
@@ -377,17 +420,132 @@
 	}
 
 	// ── SHOW DASHBOARD ────────────────────────────────────────────────────────
+	let _talents = [];
+	async function loadTalents() {
+		const res = await api('/admin/talents');
+		_talents = res.data || [];
+		drawTalents();
+	}
+	function drawTalents() {
+		const q = ($('talentSearch')?.value || '').toLowerCase();
+		const rows = _talents.filter(t => !q || t.name.toLowerCase().includes(q)).slice(0, 80);
+		$('talentBody').innerHTML = rows.map(t => `<tr>
+			<td>${t.name}</td><td>${t.category}</td>
+			<td><select data-vis='${t.id}'>${['public','hidden','waitlist'].map(v => `<option ${t.visibility===v?'selected':''}>${v}</option>`).join('')}</select></td>
+			<td><select data-avail='${t.id}'>${['Open','Limited','Waitlist'].map(v => `<option ${t.availability===v?'selected':''}>${v}</option>`).join('')}</select></td>
+			<td><input data-price='${t.id}' value='${t.startingPrice || 0}' style='width:110px'></td>
+			<td><label><input type='checkbox' data-feat='${t.id}' ${t.featured?'checked':''}> <input data-order='${t.id}' value='${t.featuredOrder ?? ''}' style='width:48px' placeholder='#'></label></td>
+			<td><button class='adm-refresh' data-save='${t.id}' type='button'>Save</button></td>
+		</tr>`).join('') || `<tr><td colspan='7' class='adm-empty'>No talents</td></tr>`;
+		$('talentBody').querySelectorAll('[data-save]').forEach(btn => {
+			btn.onclick = async () => {
+				const id = btn.dataset.save;
+				const root = $('talentBody');
+				await api('/admin/talents/' + id, { method: 'PATCH', body: JSON.stringify({
+					visibility: root.querySelector(`[data-vis="${id}"]`).value,
+					availability: root.querySelector(`[data-avail="${id}"]`).value,
+					startingPrice: Number(root.querySelector(`[data-price="${id}"]`).value),
+					featured: root.querySelector(`[data-feat="${id}"]`).checked,
+					featuredOrder: root.querySelector(`[data-order="${id}"]`).value,
+				}) });
+				showToast('Talent saved');
+				await loadTalents();
+			};
+		});
+	}
+
+	let _experiences = [];
+	let _crowd = [];
+	async function loadDesk() {
+		const [cats, home, exps, crowd] = await Promise.all([
+			api('/admin/categories'),
+			api('/admin/content'),
+			api('/admin/experiences'),
+			api('/admin/crowd-events'),
+		]);
+		$('categoryDesk').innerHTML = (cats.data || []).map(c => `<label class='adm-log-item'><input type='checkbox' data-cat='${c.name}' ${c.published ? 'checked' : ''}> ${c.name}</label>`).join('');
+		$('categoryDesk').querySelectorAll('[data-cat]').forEach(box => {
+			box.onchange = async () => {
+				await api('/admin/categories/' + encodeURIComponent(box.dataset.cat), { method: 'PATCH', body: JSON.stringify({ published: box.checked }) });
+				showToast(box.dataset.cat + (box.checked ? ' published' : ' hidden'));
+			};
+		});
+		$('homeHeadline').value = home.home?.headline || '';
+		$('homeSub').value = home.home?.sub || '';
+		_experiences = exps.data || [];
+		_crowd = crowd.data || [];
+		drawExperiences();
+		drawCrowd();
+	}
+	function drawExperiences() {
+		const q = ($('expSearch')?.value || '').toLowerCase();
+		const talentName = id => (_talents.find(t => t.id === id) || {}).name || id;
+		const rows = _experiences.filter(e => !q || talentName(e.talent_id).toLowerCase().includes(q) || String(e.title || '').toLowerCase().includes(q)).slice(0, 40);
+		$('expBody').innerHTML = rows.map(e => `<tr>
+			<td>${talentName(e.talent_id)}</td><td>${e.pathway}</td><td>${e.title}</td>
+			<td><input data-exp-price='${e.id}' value='${e.price_from}' style='width:100px'></td>
+			<td><input type='checkbox' data-exp-live='${e.id}' ${e.published ? 'checked' : ''}></td>
+			<td><button class='adm-refresh' data-exp-save='${e.id}' type='button'>Save</button></td>
+		</tr>`).join('') || `<tr><td colspan='6'>No experiences</td></tr>`;
+		$('expBody').querySelectorAll('[data-exp-save]').forEach(btn => {
+			btn.onclick = async () => {
+				const id = btn.dataset.expSave;
+				const row = _experiences.find(e => e.id === id);
+				await api('/admin/experiences', { method: 'POST', body: JSON.stringify({
+					id, talentId: row.talent_id, pathway: row.pathway, title: row.title, summary: row.summary, location: row.location,
+					priceFrom: Number($('expBody').querySelector(`[data-exp-price="${id}"]`).value),
+					published: $('expBody').querySelector(`[data-exp-live="${id}"]`).checked,
+				}) });
+				showToast('Experience saved');
+			};
+		});
+	}
+	function drawCrowd() {
+		$('crowdBody').innerHTML = _crowd.map(e => `<tr>
+			<td>${e.eventTitle}<div class='small muted'>${e.name}</div></td>
+			<td><input data-crowd-date='${e.id}' value='${e.date || ''}' style='width:120px'></td>
+			<td><input data-crowd-slots='${e.id}' value='${e.slots}' style='width:64px'></td>
+			<td><input data-crowd-price='${e.id}' value='${e.pricePerSlot}' style='width:90px'></td>
+			<td><input type='checkbox' data-crowd-live='${e.id}' ${e.published ? 'checked' : ''}></td>
+			<td><button class='adm-refresh' data-crowd-save='${e.id}' type='button'>Save</button></td>
+		</tr>`).join('') || `<tr><td colspan='6'>No crowd events</td></tr>`;
+		$('crowdBody').querySelectorAll('[data-crowd-save]').forEach(btn => {
+			btn.onclick = async () => {
+				const id = btn.dataset.crowdSave;
+				const row = _crowd.find(e => e.id === id);
+				await api('/admin/crowd-events', { method: 'POST', body: JSON.stringify({
+					id, title: row.eventTitle, eventType: row.eventType, city: row.city, talentName: row.name,
+					date: $('crowdBody').querySelector(`[data-crowd-date="${id}"]`).value,
+					slots: Number($('crowdBody').querySelector(`[data-crowd-slots="${id}"]`).value),
+					pricePerSlot: Number($('crowdBody').querySelector(`[data-crowd-price="${id}"]`).value),
+					published: $('crowdBody').querySelector(`[data-crowd-live="${id}"]`).checked,
+				}) });
+				showToast('Crowd event saved');
+			};
+		});
+	}
+
 	async function showDashboard() {
 		$('loginScreen').style.display = 'none';
 		$('dashboard').style.display = 'block';
 		$('logoutBtn').style.display = '';
 		await loadBookings();
 		await loadDashboard();
+		await loadTalents();
+		await loadDesk();
+		$('talentSearch').oninput = drawTalents;
+		$('expSearch').oninput = drawExperiences;
+		$('saveHome').onclick = async () => {
+			await api('/admin/content/home', { method: 'PUT', body: JSON.stringify({ headline: $('homeHeadline').value, sub: $('homeSub').value }) });
+			showToast('Home copy saved');
+		};
 		connectSSE();
 		$('refreshBtn').onclick = async () => {
 			$('refreshBtn').textContent = '↻ Loading…';
 			await loadBookings();
 			await loadDashboard();
+			await loadTalents();
+			await loadDesk();
 			$('newBadge').style.display = 'none';
 			$('refreshBtn').textContent = '↻ Refresh';
 		};
@@ -406,167 +564,5 @@
 		$('loginScreen').style.display = 'flex';
 	})();
 </script>
-</body>
-</html>
-
-		const app = document.getElementById('app');
-		app.innerHTML = `
-			${nav('admin')}
-			<section class='card section stack'>
-				<p class='eyebrow'>Administrative Governance</p>
-				<h2>Executive Control Layer</h2>
-				<p class='lead'>This desk governs representation quality, booking governance, and service continuity. Use this layer to supervise strategic demand, enforce protocol standards, and maintain institutional consistency across all client-facing interactions.</p>
-			</section>
-
-			<section class='grid g4 section' id='portfolioKpis'>
-				<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
-				<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
-				<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
-				<div class='card' style='height:72px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
-			</section>
-
-			<section class='grid g2 section' id='portfolioDetail'>
-				<div class='card stack' style='min-height:180px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
-				<div class='card stack' style='min-height:180px;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)'></div>
-			</section>
-
-			<section class='card section stack' id='revenueTimeline'></section>
-
-			<section class='card section stack'>
-				<p class='eyebrow'>Control Logic</p>
-				<div class='flow-grid'>
-					<article class='flow-step'>
-						<p class='num'>Domain 01</p>
-						<h4>Commercial Integrity</h4>
-						<p>Maintain pricing posture and qualification standards across high-value opportunities.</p>
-					</article>
-					<article class='flow-step'>
-						<p class='num'>Domain 02</p>
-						<h4>Service Discipline</h4>
-						<p>Review escalations and enforce response standards for premium client accounts.</p>
-					</article>
-					<article class='flow-step'>
-						<p class='num'>Domain 03</p>
-						<h4>Compliance Continuity</h4>
-						<p>Protect NDA-sensitive workflows and preserve auditable operational history.</p>
-					</article>
-				</div>
-			</section>
-
-			<section class='grid g3 section'>
-				<article class='card stack'>
-					<h3>Commercial Oversight</h3>
-					<p class='small muted'>Adjust pricing posture, demand visibility, and booking qualification thresholds to maintain portfolio integrity and value perception.</p>
-				</article>
-				<article class='card stack'>
-					<h3>Service Governance</h3>
-					<p class='small muted'>Review customer service panel submissions, triage escalation requests, and enforce response SLAs for premium clients and private offices.</p>
-				</article>
-				<article class='card stack'>
-					<h3>Risk & Compliance</h3>
-					<p class='small muted'>Monitor NDA-sensitive requests, security level declarations, and workflow audit continuity between inquiry and confirmed engagement.</p>
-				</article>
-			</section>
-		`;
-
-		await loadTicker();
-
-		// -- Live Portfolio Financial Dashboard ----------------------------
-		try {
-			const p = await request('/portfolio/summary');
-
-			const fmt = (n) => {
-				if (n >= 1e12) return `$${(n / 1e12).toFixed(2)}T`;
-				if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
-				if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
-				return `$${n.toLocaleString()}`;
-			};
-
-			document.getElementById('portfolioKpis').innerHTML = [
-				['Total Managed Portfolio', fmt(p.totalManagedPortfolio), 'Lifetime agency value'],
-				['YTD Revenue', fmt(p.ytdRevenue), `+${p.yoyGrowth}% YoY growth`],
-				['Escrow Held', fmt(p.escrowHeld), 'Active contract reserves'],
-				['Portfolio Yield', `${p.portfolioYield}%`, 'Net annual return rate'],
-			].map(([label, value, sub]) => `
-				<div class='card stack'>
-					<p class='small muted' style='font-size:10px;letter-spacing:.1em;text-transform:uppercase'>${label}</p>
-					<div class='kpi'>${value}</div>
-					<p class='small muted' style='font-size:10px;opacity:.65'>${sub}</p>
-				</div>
-			`).join('');
-
-			// Category breakdown + top earners
-			const maxVol = Math.max(...p.categoryBreakdown.map(c => c.annualVolume));
-			document.getElementById('portfolioDetail').innerHTML = `
-				<div class='card stack'>
-					<p class='eyebrow'>Revenue by Category</p>
-					<h3>Portfolio Allocation</h3>
-					<p class='small muted'>Annual booking volume breakdown across all six talent verticals.</p>
-					<div style='margin-top:14px;display:grid;gap:10px'>
-						${p.categoryBreakdown.map(cat => `
-							<div>
-								<div style='display:flex;justify-content:space-between;margin-bottom:4px'>
-									<span class='small' style='font-weight:600'>${cat.category}</span>
-									<span class='small muted'>${fmt(cat.annualVolume)} - ${cat.shareOfPortfolio}% - avg deal ${fmt(cat.avgDealSize)}</span>
-								</div>
-								<div style='height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden'>
-									<div style='height:100%;border-radius:3px;background:linear-gradient(90deg,#94B4D8,#C8DCEE);width:${Math.round((cat.annualVolume/maxVol)*100)}%;transition:width 1.2s cubic-bezier(.4,0,.2,1)'></div>
-								</div>
-							</div>
-						`).join('')}
-					</div>
-				</div>
-				<div class='card stack'>
-					<p class='eyebrow'>Top Revenue Earners</p>
-					<h3>Anchor Portfolio Assets</h3>
-					<p class='small muted'>Highest annual booking revenue contributors across the active roster.</p>
-					<div style='margin-top:14px;display:grid;gap:10px'>
-						${p.topEarners.map((e, i) => `
-							<div style='display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid rgba(148,180,216,.15);border-radius:10px;background:rgba(148,180,216,.03)'>
-								<div style='width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#BAD0EC,#94B4D8);color:#111;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0'>${i + 1}</div>
-								<div style='flex:1;min-width:0'>
-									<p style='margin:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>${e.name}</p>
-									<p class='small muted' style='margin:0;font-size:10px'>${e.category} - ${e.region}</p>
-								</div>
-								<div style='text-align:right;flex-shrink:0'>
-									<p style='margin:0;font-size:13px;font-weight:700;color:#94B4D8'>${fmt(e.annualRevenue)}</p>
-									<p class='small muted' style='margin:0;font-size:10px'>annual</p>
-								</div>
-							</div>
-						`).join('')}
-					</div>
-				</div>
-			`;
-
-			// Revenue timeline
-			const maxRev = Math.max(...p.revenueTimeline.map(r => r.revenue));
-			document.getElementById('revenueTimeline').innerHTML = `
-				<p class='eyebrow'>Revenue Timeline</p>
-				<h3>Agency Growth Trajectory</h3>
-				<p class='small muted'>Managed booking revenue across fiscal years. Total cumulative portfolio exceeds <strong style='color:#94B4D8'>${fmt(p.totalManagedPortfolio)}</strong>.</p>
-				<div style='margin-top:18px;display:flex;align-items:flex-end;gap:8px;height:100px;overflow-x:auto;padding-bottom:28px;position:relative'>
-					${p.revenueTimeline.map((r, i) => {
-						const pct = Math.round((r.revenue / maxRev) * 100);
-						return `
-							<div style='flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative'>
-								<span style='font-size:9px;color:#94B4D8;font-weight:700;letter-spacing:.03em;white-space:nowrap'>${fmt(r.revenue)}</span>
-								<div style='width:100%;background:linear-gradient(180deg,rgba(148,180,216,.9),rgba(148,180,216,.35));border-radius:4px 4px 0 0;height:${pct}px;transition:height 1.4s cubic-bezier(.4,0,.2,1);min-height:4px'></div>
-								<span style='position:absolute;bottom:-20px;font-size:9px;color:rgba(229,228,226,.5);letter-spacing:.04em'>${r.year}</span>
-							</div>
-						`;
-					}).join('')}
-				</div>
-				<div class='hr' style='margin-top:8px'></div>
-				<div style='display:flex;gap:24px;flex-wrap:wrap;margin-top:8px'>
-					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Active Contracts</p><p style='font-size:20px;font-weight:700;color:#94B4D8;margin:2px 0'>${(p.activeContracts).toLocaleString()}</p></div>
-					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Avg Deal Size</p><p style='font-size:20px;font-weight:700;color:#94B4D8;margin:2px 0'>${fmt(p.avgDealSize)}</p></div>
-					<div><p class='small muted' style='font-size:10px;letter-spacing:.08em;text-transform:uppercase'>Verified Roster</p><p style='font-size:20px;font-weight:700;color:#94B4D8;margin:2px 0'>${p.totalRoster}</p></div>
-				</div>
-			`;
-
-		} catch (e) {
-			document.getElementById('portfolioKpis').innerHTML = `<div class='card' style='grid-column:1/-1'><p class='small muted'>Login as admin to view live portfolio financials. ${e.message}</p></div>`;
-		}
-	</script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 /** All Talents Agency — shared platform utilities */
-export const ASSET_V = '20260613';
+export const ASSET_V = '20260619';
 export const SHORTLIST_KEY = 'ata_shortlist';
 export const SHORTLIST_MAX = 5;
 
@@ -17,9 +17,41 @@ export function getShortlist() {
   }
 }
 
-export function setShortlist(ids) {
-  localStorage.setItem(SHORTLIST_KEY, JSON.stringify(ids.slice(0, SHORTLIST_MAX)));
+function shortlistApi() {
+  const host = location.hostname;
+  return host === 'localhost' || host === '127.0.0.1'
+    ? 'http://localhost:4100/api'
+    : 'https://ata-h0yo.onrender.com/api';
+}
+
+function shortlistToken() {
+  return localStorage.getItem('ata_token') || localStorage.getItem('aurelux_token') || '';
+}
+
+export function setShortlist(ids, { sync = true } = {}) {
+  const clean = ids.slice(0, SHORTLIST_MAX);
+  localStorage.setItem(SHORTLIST_KEY, JSON.stringify(clean));
   window.dispatchEvent(new CustomEvent('ata-shortlist-change'));
+  const token = shortlistToken();
+  if (sync && token) {
+    fetch(shortlistApi() + '/shortlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ ids: clean }),
+    }).catch(() => {});
+  }
+}
+
+export async function hydrateShortlist() {
+  const token = shortlistToken();
+  if (!token) return getShortlist();
+  try {
+    const res = await fetch(shortlistApi() + '/shortlist', { headers: { Authorization: 'Bearer ' + token } });
+    if (!res.ok) return getShortlist();
+    const body = await res.json();
+    if (Array.isArray(body.ids)) setShortlist(body.ids, { sync: false });
+  } catch { /* keep the local board */ }
+  return getShortlist();
 }
 
 export function toggleShortlist(id) {
@@ -222,16 +254,253 @@ export function observeDemandPulse(container, celeb, requestFn) {
   }
 }
 
-export function paletteSearchRoster(query, roster, limit = 8) {
-  const q = (query || '').trim().toLowerCase();
-  if (!q) return (roster || []).slice(0, limit);
+/** ── Smart roster search (shared: explorer, hero, Cmd+K, API parity) ── */
+const SEARCH_GROUP_TAGS = [
+  ['bts', 'bts', 'bangtan', 'hybe'],
+  ['blackpink', 'blackpink', 'black pink', 'blink'],
+  ['beyonce', 'beyonce', 'beyoncé'],
+  ['messi', 'messi', 'lionel'],
+  ['ronaldo', 'ronaldo', 'cristiano', 'cr7'],
+  ['taylor', 'taylor swift', 'swift'],
+  ['drake', 'drake', 'ovo'],
+  ['kardashian', 'kardashian', 'kim k'],
+  ['jenner', 'jenner', 'kylie', 'kendall'],
+];
+
+export function normalizeSearchText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .replace(/[''`.]/g, '')
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function celebrityHaystack(c) {
+  return normalizeSearchText([
+    c.name,
+    c.id,
+    c.category,
+    c.region,
+    c.agencyRepresentation,
+    (c.eliteSignal || '').slice(0, 160),
+  ].join(' '));
+}
+
+function scoreCelebrityMatch(c, rawQuery) {
+  const q = normalizeSearchText(rawQuery);
+  if (!q) return 0;
+  const nameNorm = normalizeSearchText(c.name);
+  const hay = celebrityHaystack(c);
+  const tokens = q.split(' ').filter(t => t.length > 0);
+  let score = 0;
+
+  if (nameNorm === q) score = 100;
+  else if (nameNorm.startsWith(q)) score = Math.max(score, 93);
+  else if (nameNorm.includes(q)) score = Math.max(score, 80);
+
+  if (tokens.length > 1 && tokens.every(t => nameNorm.includes(t))) {
+    score = Math.max(score, 90);
+  }
+
+  tokens.forEach((t) => {
+    if (t.length < 2 && !/^\d+$/.test(t)) return;
+    const parts = nameNorm.split(' ').filter(Boolean);
+    if (parts.some(p => p === t)) score += 28;
+    else if (parts.some(p => p.startsWith(t))) score += 20;
+    else if (parts.some(p => t.length >= 3 && p.includes(t))) score += 14;
+    if (hay.includes(t)) score += 10;
+  });
+
+  if (normalizeSearchText(c.id) === q) score = Math.max(score, 96);
+  if (normalizeSearchText(c.category) === q) score = Math.max(score, 45);
+  if (normalizeSearchText(c.region) === q) score = Math.max(score, 42);
+  if (normalizeSearchText(c.agencyRepresentation).includes(q)) score = Math.max(score, 38);
+
+  for (const tags of SEARCH_GROUP_TAGS) {
+    const key = tags[0];
+    if (q === key || q.includes(key) || tokens.includes(key)) {
+      if (tags.slice(1).some(tag => hay.includes(normalizeSearchText(tag)))) {
+        score = Math.max(score, 72);
+      }
+    }
+  }
+
+  if (q.length >= 4) {
+    const parts = nameNorm.split(' ').filter(p => p.length >= 4);
+    for (const part of parts) {
+      if (levenshtein(q, part) <= 2) score = Math.max(score, 68);
+    }
+  }
+
+  return Math.min(100, score);
+}
+
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  const m = a.length;
+  const n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  const row = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    let prev = i - 1;
+    row[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const cur = row[j];
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + cost);
+      prev = cur;
+    }
+  }
+  return row[n];
+}
+
+export function searchRoster(query, roster, opts = {}) {
+  const limit = opts.limit ?? 12;
+  const minScore = opts.minScore ?? 28;
+  const q = String(query || '').trim();
+  if (!q) {
+    return (roster || []).slice(0, limit).map(celeb => ({ celeb, score: 0 }));
+  }
   return (roster || [])
-    .filter(c =>
-      c.name.toLowerCase().includes(q) ||
-      (c.category || '').toLowerCase().includes(q) ||
-      (c.region || '').toLowerCase().includes(q)
-    )
+    .map(celeb => ({ celeb, score: scoreCelebrityMatch(celeb, q) }))
+    .filter(x => x.score >= minScore)
+    .sort((a, b) => b.score - a.score || a.celeb.name.localeCompare(b.celeb.name))
     .slice(0, limit);
+}
+
+export function paletteSearchRoster(query, roster, limit = 8) {
+  return searchRoster(query, roster, { limit, minScore: 22 }).map(x => x.celeb);
+}
+
+export function getSearchSuggestions(query, roster, count = 3) {
+  return searchRoster(query, roster, { limit: count, minScore: 18 });
+}
+
+export function initSmartSearch(inputEl, opts = {}) {
+  if (!inputEl) return () => {};
+  const roster = opts.roster || [];
+  const wrap = inputEl.closest('.search-wrap') || inputEl.parentElement;
+  if (!wrap) return () => {};
+  wrap.classList.add('search-wrap-smart');
+  let panel = wrap.querySelector('.smart-search-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.className = 'smart-search-panel';
+    panel.setAttribute('role', 'listbox');
+    panel.hidden = true;
+    wrap.appendChild(panel);
+  }
+
+  let debounce = null;
+  let activeIdx = 0;
+  let lastResults = [];
+
+  const hrefFor = (c) => (opts.href ? opts.href(c) : `talent.html?id=${c.id}`);
+
+  function renderPanel(q) {
+    const trimmed = q.trim();
+    if (trimmed.length < (opts.minChars ?? 1)) {
+      panel.hidden = true;
+      lastResults = [];
+      return;
+    }
+    lastResults = searchRoster(trimmed, roster, {
+      limit: opts.limit ?? 10,
+      minScore: opts.minScore ?? 26,
+    });
+    activeIdx = 0;
+
+    if (!lastResults.length) {
+      const loose = getSearchSuggestions(trimmed, roster, 4);
+      const suggest = loose.length
+        ? `<p class="ssp-suggest">Did you mean: ${loose.map(s => `<a href="${hrefFor(s.celeb)}">${s.celeb.name}</a>`).join(', ')}?</p>`
+        : '';
+      panel.innerHTML = `
+        <div class="ssp-empty">No exact match for <strong>${trimmed.replace(/</g, '')}</strong></div>
+        ${suggest}
+        <a class="ssp-all" href="explorer.html?search=${encodeURIComponent(trimmed)}">Search full roster →</a>`;
+      panel.hidden = false;
+      bindPanelLinks();
+      return;
+    }
+
+    panel.innerHTML = lastResults.map((r, i) => `
+      <a class="ssp-item${i === 0 ? ' ssp-active' : ''}" role="option" href="${hrefFor(r.celeb)}" data-idx="${i}">
+        <img src="${r.celeb.portrait}" alt="" loading="lazy" decoding="async">
+        <span class="ssp-text">
+          <strong>${r.celeb.name}</strong>
+          <span class="ssp-meta">${r.celeb.category} · ${r.celeb.region} · ${r.celeb.availability}</span>
+        </span>
+      </a>
+    `).join('') + `
+      <a class="ssp-all" href="explorer.html?search=${encodeURIComponent(trimmed)}">View all ${lastResults.length}+ matches →</a>`;
+    panel.hidden = false;
+    bindPanelLinks();
+  }
+
+  function bindPanelLinks() {
+    panel.querySelectorAll('.ssp-item').forEach(el => {
+      el.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        if (opts.onPick) opts.onPick(lastResults[Number(el.dataset.idx)]?.celeb);
+      });
+    });
+  }
+
+  function setActive(idx) {
+    const items = [...panel.querySelectorAll('.ssp-item')];
+    if (!items.length) return;
+    activeIdx = Math.max(0, Math.min(idx, items.length - 1));
+    items.forEach((el, i) => el.classList.toggle('ssp-active', i === activeIdx));
+    items[activeIdx]?.scrollIntoView({ block: 'nearest' });
+  }
+
+  const onInput = () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => renderPanel(inputEl.value), opts.debounceMs ?? 100);
+  };
+
+  const onKeydown = (e) => {
+    if (panel.hidden) return;
+    const items = panel.querySelectorAll('.ssp-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive(activeIdx + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(activeIdx - 1);
+    } else if (e.key === 'Enter' && items.length) {
+      e.preventDefault();
+      const el = items[activeIdx] || items[0];
+      if (el?.href) window.location.href = el.getAttribute('href');
+    } else if (e.key === 'Escape') {
+      panel.hidden = true;
+    }
+  };
+
+  const onBlur = () => {
+    setTimeout(() => { panel.hidden = true; }, 180);
+  };
+
+  const onFocus = () => {
+    if (inputEl.value.trim()) renderPanel(inputEl.value);
+  };
+
+  inputEl.addEventListener('input', onInput);
+  inputEl.addEventListener('keydown', onKeydown);
+  inputEl.addEventListener('blur', onBlur);
+  inputEl.addEventListener('focus', onFocus);
+
+  return () => {
+    inputEl.removeEventListener('input', onInput);
+    inputEl.removeEventListener('keydown', onKeydown);
+    inputEl.removeEventListener('blur', onBlur);
+    inputEl.removeEventListener('focus', onFocus);
+  };
 }
 
 export function parsePaletteIntent(query, roster) {
@@ -255,25 +524,24 @@ export function parsePaletteIntent(query, roster) {
   }
   const pathMatch = q.match(/^path\s+(.+)$/);
   if (pathMatch) {
-    const name = pathMatch[1];
-    const c = (roster || []).find(x => x.name.toLowerCase().includes(name));
-    if (c) return { type: 'path', href: `index.html?sim=${c.id}`, celeb: c };
-    return { type: 'path', href: 'index.html#accessPathSim', label: name };
+    const hit = searchRoster(pathMatch[1], roster, { limit: 1, minScore: 40 })[0];
+    if (hit) return { type: 'path', href: `index.html?sim=${hit.celeb.id}`, celeb: hit.celeb };
+    return { type: 'path', href: 'index.html#accessPathSim', label: pathMatch[1] };
   }
   const holdMatch = q.match(/^hold\s+(.+)$/);
   if (holdMatch) {
-    const name = holdMatch[1];
-    const c = (roster || []).find(x => x.name.toLowerCase().includes(name));
-    if (c) return { type: 'hold', href: `talent.html?id=${c.id}&hold=1`, celeb: c };
+    const hit = searchRoster(holdMatch[1], roster, { limit: 1, minScore: 40 })[0];
+    if (hit) return { type: 'hold', href: `talent.html?id=${hit.celeb.id}&hold=1`, celeb: hit.celeb };
   }
   const bookMatch = q.match(/^book\s+(.+)$/);
   if (bookMatch) {
-    const name = bookMatch[1];
-    const c = (roster || []).find(x => x.name.toLowerCase().includes(name));
-    if (c) return { type: 'book', href: `booking.html?id=${c.id}`, celeb: c };
+    const hit = searchRoster(bookMatch[1], roster, { limit: 1, minScore: 40 })[0];
+    if (hit) return { type: 'book', href: `booking.html?id=${hit.celeb.id}`, celeb: hit.celeb };
   }
-  const c = (roster || []).find(x => x.name.toLowerCase().includes(q));
-  if (c) return { type: 'dossier', href: `talent.html?id=${c.id}`, celeb: c };
+  const hit = searchRoster(query, roster, { limit: 1, minScore: 55 })[0];
+  if (hit && hit.score >= 70) {
+    return { type: 'dossier', href: `talent.html?id=${hit.celeb.id}`, celeb: hit.celeb };
+  }
   if (q.length > 1) return { type: 'search', href: `explorer.html?search=${encodeURIComponent(query.trim())}` };
   return null;
 }
@@ -287,22 +555,19 @@ export function bindShortlistTray(roster) {
 export function renderCompareMatrix(container, result) {
   if (!container || !result?.compared?.length) return;
   const rows = result.compared;
-  const win = result.recommendation?.winner;
   container.innerHTML = `
-    ${win ? `<p class="small" style="margin-bottom:10px"><b>Recommended:</b> ${win.name} — ${result.recommendation.rationale || ''}</p>` : ''}
     <div class="compare-matrix">
       <div class="cm-row cm-head">
-        <span>Talent</span><span>Score</span><span>Price floor</span><span>Availability</span><span>Risk</span>
+        <span>Talent</span><span>Category</span><span>Region</span><span>Access band</span><span>Availability</span>
       </div>
-      ${rows.map((r, i) => `
+      ${rows.map((r) => `
         <div class="cm-row">
-          <span><b>#${i + 1}</b> ${r.name}</span>
-          <span class="cm-score">${r.valueScore}</span>
+          <span><b>${r.name}</b></span>
+          <span>${r.category || '—'}</span>
+          <span>${r.region || '—'}</span>
           <span>${formatPrice(r.startingPrice || 0)}</span>
           <span>${r.availability || '—'}</span>
-          <span>${r.riskIndex || '—'}</span>
         </div>
       `).join('')}
-      <p class="small muted" style="margin-top:10px">${result.recommendation?.rationale || result.recommendation?.winner?.name || ''}</p>
     </div>`;
 }

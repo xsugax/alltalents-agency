@@ -11,3 +11,7 @@ services:
         value: 4100
       - key: NODE_ENV
         value: production
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false

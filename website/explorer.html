@@ -3,7 +3,7 @@
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv='Content-Security-Policy' content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.smartsuppchat.com https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.smartsuppcdn.com; img-src 'self' data: https://i.pravatar.cc https://upload.wikimedia.org https://static.smartsupp.com https://image.smartsupp.com; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com https://www.smartsupp.com https://app.smartsupp.com https://www.smartsuppchat.com https://bootstrap.smartsuppchat.com wss://app.smartsupp.com wss://websocket-visitors.smartsupp.com https://*.smartsuppcdn.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.smartsupp.com https://app.smartsupp.com https://*.smartsuppcdn.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name='referrer' content='no-referrer'>
   <title>Talent Directory | All Talents Agency (ATA)</title>
   <meta name="application-name" content="All Talents Agency">
@@ -38,7 +38,7 @@
   }
   </script>
   <link rel='apple-touch-icon' href='/assets/ata-mark.svg'>
-  <link rel='stylesheet' href='assets/styles.css?v=20260613'>
+  <link rel='stylesheet' href='assets/styles.css?v=20260619'>
   <style>
     /* Explorer filter bar — obsidian */
     #search{background:var(--bg-alt);border:1px solid var(--line);color:var(--text);transition:all .2s ease}
@@ -88,54 +88,19 @@
     </div>
   </div>
 
-  <button id='floatMsgBtn' class='floating-msg-btn' title='Open Concierge Desk' style='position:relative'>
-    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>
-      <path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/>
-    </svg>
-    <span class='fmb-badge'></span>
-  </button>
-  <div id='floatMsgPanel' class='floating-msg-panel'>
-    <div class='fmp-header'>
-      <div class='fmp-avatar'>AT</div>
-      <div class='fmp-agent-info'>
-        <div class='fmp-agent-name'>Concierge Desk</div>
-        <div class='fmp-agent-status'><span class='fmp-online-dot'></span>Private Representative Channel</div>
-      </div>
-      <button class='fmp-close' id='fmpClose' aria-label='Close'>&#x2715;</button>
-    </div>
-    <div class='fmp-body'>
-      <p class='fmp-hint'>Use this panel to send How-to-Meet requests or representative messages for any celebrity.</p>
-      <div class='floating-msg-grid'>
-        <div><span class='fmp-label'>Selected Celebrity</span><input id='meetTarget' readonly placeholder='Choose via card button…'></div>
-        <div class='floating-msg-row'>
-          <div><span class='fmp-label'>Full Name</span><input id='meetName' placeholder='Your full name'></div>
-          <div><span class='fmp-label'>Organization</span><input id='meetOrg' placeholder='Company / Office'></div>
-        </div>
-        <div><span class='fmp-label'>Request Type</span>
-          <select id='meetType'>
-            <option value='meet'>How to Meet</option>
-            <option value='msg'>General Representative Message</option>
-          </select>
-        </div>
-        <div><span class='fmp-label'>Message</span><textarea id='meetBody' rows='4' placeholder='Describe your request, timeline, and intent…'></textarea></div>
-        <button id='meetSend' class='primary'>Send via Secure Channel &#x2192;</button>
-        <p id='meetStatus' class='small muted' style='text-align:center'></p>
-      </div>
-    </div>
-    <div class='fmp-footer'>Encrypted · NDA-default · All Talents Agency</div>
-  </div>
-
   <script type='module'>
     import {
-      request, nav, loadTicker, initNav, initTheme, initScrollReveal, initDynamicTheme, initFlipFilter,
+      request, nav, initNav, initTheme, initScrollReveal, initDynamicTheme, initFlipFilter,
       toggleShortlist, getShortlist, bindShortlistTray, renderCompareMatrix, renderRelatedRail,
       getRelatedTalents, trackEvent, initCommandPalette, renderDemandPulse, getLocalDemandPulse,
       demandPulseHTML, openAccessPortal, closeAccessPortal, openWaitlistReserve, triggerWindowHold,
       renderRedactedBrief, displayPrice, renderProtocolSpine, getAccessProgress,
       renderAccessPathSimulator, bindAccessPathSimulator, initAccessProtocol, bindPathBaitHandlers,
-      isQualified, openQualifyModal
-    } from './assets/app.js?v=20260613';
-    import { CELEBRITIES } from './assets/celebrities-data.js';
+      isQualified, openQualifyModal, searchRoster, getSearchSuggestions, initSmartSearch, getMeetingPlaybook,
+      fetchCelebrityDossier, fetchCelebrity
+    } from './assets/app.js?v=20260925';
+    import { loadRoster } from './assets/app.js?v=20260925';
+    const CELEBRITIES = await loadRoster();
 
     let selectedCelebrity = { id: '', name: '' };
     const shortlist = new Set(getShortlist());
@@ -154,7 +119,9 @@
       dossierBack.style.display = 'flex';
       document.getElementById('dClose').onclick = () => { dossierBack.style.display = 'none'; };
       try {
-        const { celebrity: cel, dossier: d } = await request('/celebrities/' + id + '/dossier');
+        const { celebrity: celPartial, dossier: d } = await fetchCelebrityDossier(id, CELEBRITIES);
+        const celFull = await fetchCelebrity(id, CELEBRITIES).catch(() => null);
+        const cel = { ...celFull, ...celPartial, startingPrice: celFull?.startingPrice ?? celPartial.startingPrice };
         trackEvent('dossier_view', { id: cel.id, name: cel.name });
         document.getElementById('dossierContent').innerHTML = `
           <div class='dossier-header'>
@@ -167,8 +134,8 @@
           </div>
           ${renderRedactedBrief(d, cel, { qualified: isQualified() })}
           <div style='margin-top:16px;display:flex;gap:10px;flex-wrap:wrap'>
-            <button type='button' class='secondary' data-hold-id='${cel.id}' data-hold-name='${cel.name.replace(/'/g, "\\'")}' style='width:auto'>Hold priority window</button>
-            <a href='booking.html?id=${cel.id}' style='flex:1'><button class='primary' style='width:100%'>Continue to booking desk →</button></a>
+            <a href='booking.html?id=${cel.id}&pathway=reservation' style='width:auto'><button class='secondary' type='button' style='width:auto'>Request a date</button></a>
+            <a href='booking.html?id=${cel.id}&pathway=private' style='flex:1'><button class='primary' style='width:100%'>Private engagement</button></a>
           </div>`;
         bindPathBaitHandlers(document.getElementById('dossierContent'));
         window.addEventListener('ata-qualified', () => openDossier(id), { once: true });
@@ -184,15 +151,16 @@
       <section class='glass card section' style='border-color:rgba(0,0,0,.09);box-shadow:0 4px 24px rgba(0,0,0,.06)'>
         <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(112,143,168,.3);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:14px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Private Access Zone - Session Authorized</div>
         <h2 style='font-size:clamp(26px,3.8vw,44px);font-weight:900;letter-spacing:-.02em;margin:0 0 10px'>Select Your Celebrity.<br>Claim Your Private Window.</h2>
-        <p class='lead'>You have direct access to 119+ verified talents through All Talents Agency's sovereign channel network. Tap any profile to open your private meeting portal — choose a venue, lock in your window, and initiate contact.</p>
+        <p class='lead'>Search by name, open a profile, and request an introduction — each talent has a distinct path through their verified representation.</p>
         <div style='display:flex;gap:10px;align-items:center;margin-bottom:8px'>
-          <div class='search-wrap' style='flex:1'><input id='search' placeholder='Search celebrities…' style='width:100%'><span class='search-hint'>/</span></div>
+          <label class='disc-kicker'>Name<input id='search' placeholder='Search by name' style='width:100%'></label>
           <button class='mob-filter-expand' id='filterToggle'>Filters ▾</button>
         </div>
         <div class='filter-selects' id='filterSelects'>
-          <select id='category' class='filter-select' style='flex:1;min-width:140px'><option>All</option><option>Film</option><option>Music</option><option>Sports</option><option>Fashion</option><option>Business</option><option>Influencer</option><option>Comedy</option><option>Entertainment</option></select>
-          <select id='region' class='filter-select' style='flex:1;min-width:140px'><option>All</option><option>North America</option><option>Europe</option><option>Middle East</option><option>Asia</option><option>Latin America</option><option>Africa</option><option>Australia</option></select>
-          <select id='availability' class='filter-select' style='flex:1;min-width:130px'><option>All</option><option>Open</option><option>Limited</option><option>Waitlist</option></select>
+          <label class='disc-kicker'>Category<select id='category' class='filter-select'><option>All</option><option>Film</option><option>Music</option><option>Sports</option><option>Fashion</option><option>Business</option><option>Influencer</option><option>Comedy</option><option>Entertainment</option></select></label>
+          <label class='disc-kicker'>Region<select id='region' class='filter-select'><option>All</option><option>North America</option><option>Europe</option><option>Middle East</option><option>Asia</option><option>Latin America</option><option>Africa</option><option>Australia</option></select></label>
+          <label class='disc-kicker'>Availability<select id='availability' class='filter-select'><option>All</option><option>Open</option><option>Limited</option><option>Waitlist</option></select></label>
+          <label class='disc-kicker'>Budget<select id='budget' class='filter-select'><option value=''>Any</option><option value='under250'>Under $250K</option><option value='mid'>$250K–$750K</option><option value='high'>$750K–$1.5M</option><option value='ultra'>$1.5M+</option></select></label>
           <input id='date' type='date' style='flex:1;min-width:140px'>
           <button id='clearFilters' class='secondary' style='white-space:nowrap;padding:9px 16px;font-size:12px'>Clear</button>
         </div>
@@ -239,7 +207,21 @@
       <section class='grid g3 section' id='results'>
         ${[1,2,3].map(()=>`<article class='card stack' style='height:280px'></article>`).join('')}
       </section>
-      <section id='inquirySection' class='glass card section' style='border-color:rgba(0,0,0,.09);box-shadow:0 4px 24px rgba(0,0,0,.06);max-width:680px;margin:0 auto'>
+      <section id='match' class='glass card section'>
+        <p class='eyebrow'>Match me</p>
+        <h3>I don't have a name yet</h3>
+        <form id='matchForm' class='case-form'>
+          <input name='clientName' required placeholder='Your name'>
+          <input name='clientEmail' type='email' required placeholder='Email'>
+          <input name='location' placeholder='City'>
+          <input name='date' type='date'>
+          <select name='budgetBand'><option value='under250'>Under $250K</option><option value='mid'>$250K–$750K</option><option value='high'>$750K–$1.5M</option><option value='ultra'>$1.5M+</option></select>
+          <textarea name='message' rows='3' placeholder='Occasion, guests, and what the day should feel like'></textarea>
+          <button class='primary' type='submit'>Request a match</button>
+          <p id='matchMsg' class='small muted'></p>
+        </form>
+      </section>
+      <section id='request' class='glass card section' style='max-width:680px;margin:0 auto'>
         <div style='display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid rgba(112,143,168,.3);border-radius:6px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);background:var(--accent-soft);margin-bottom:16px;width:max-content'><span style='width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:apStampPulse 1.5s ease-in-out infinite'></span>Celebrity Not Listed? Request Via Private Desk</div>
         <h3 style='font-weight:800;margin:0 0 6px;font-size:clamp(20px,2.8vw,30px)'>Can't Find Who<br>You're Looking For?</h3>
         <p class='small muted' style='margin:0 0 22px;line-height:1.7'>Submit a private celebrity inquiry through our Concierge Desk. Our representation team will assess availability, negotiate terms, and revert within 48 hours under full NDA.</p>
@@ -290,12 +272,6 @@
       </section>
     `;
 
-    const panel = document.getElementById('floatMsgPanel');
-    const btn = document.getElementById('floatMsgBtn');
-    btn.onclick = () => panel.classList.toggle('open');
-    document.getElementById('fmpClose').onclick = () => panel.classList.remove('open');
-
-    // Mobile: filter panel toggle
     document.getElementById('filterToggle')?.addEventListener('click', () => {
       const row = document.getElementById('filterSelects');
       const tog = document.getElementById('filterToggle');
@@ -308,10 +284,9 @@
       document.getElementById('shortlistState').textContent = ids.length ? ids.join(', ') : 'No profiles selected.';
     }
 
-    const filters = { search: '', category: 'All', region: 'All', availability: 'All' };
-    // -- Pre-fill filters from URL params (e.g. explorer.html?search=Beyonce&category=Music) --
+    const filters = { search: '', category: 'All', region: 'All', availability: 'All', budget: '' };
     const _urlParams = new URLSearchParams(window.location.search);
-    ['search', 'category', 'region', 'availability'].forEach((key) => {
+    ['search', 'category', 'region', 'availability', 'budget'].forEach((key) => {
       const val = _urlParams.get(key);
       if (val) {
         filters[key] = val;
@@ -326,7 +301,7 @@
       clearTimeout(_searchDebounce);
       _searchDebounce = setTimeout(applyFilters, 280);
     });
-    ['category', 'region', 'availability'].forEach((id) =>
+    ['category', 'region', 'availability', 'budget'].forEach((id) =>
       document.getElementById(id).addEventListener('input', () => {
         filters[id] = document.getElementById(id).value;
         applyFilters();
@@ -334,11 +309,12 @@
     );
 
     document.getElementById('clearFilters').onclick = () => {
-      filters.search = ''; filters.category = 'All'; filters.region = 'All'; filters.availability = 'All';
+      filters.search = ''; filters.category = 'All'; filters.region = 'All'; filters.availability = 'All'; filters.budget = '';
       document.getElementById('search').value = '';
       document.getElementById('category').value = 'All';
       document.getElementById('region').value = 'All';
       document.getElementById('availability').value = 'All';
+      document.getElementById('budget').value = '';
       applyFilters();
     };
 
@@ -350,13 +326,13 @@
       }
     });
 
-    function setMeetTemplate(mode, celebrityName) {
+    function setMeetTemplate(mode, celebRef) {
       const textarea = document.getElementById('meetBody');
-      if (mode === 'meet') {
-        textarea.value = `How-to-meet request for ${celebrityName}: Please share representation protocol, qualification criteria, expected timeline, and first-step coordination requirements.`;
-      } else {
-        textarea.value = `Representative message for ${celebrityName}: Requesting callback to discuss strategic fit, event scope, and process.`;
-      }
+      const celeb = typeof celebRef === 'object' && celebRef?.id
+        ? (allCelebrities.find(c => c.id === celebRef.id) || celebRef)
+        : allCelebrities.find(c => c.name === celebRef) || { name: String(celebRef || '') };
+      const pb = getMeetingPlaybook(celeb);
+      textarea.value = mode === 'meet' ? pb.messageStarter : (pb.messageRep || pb.messageStarter);
     }
 
     // -- Waitlist / window hold via shared module ------------
@@ -373,11 +349,19 @@
     const PAGE_SIZE = 24;
     function applyFilters() {
       let data = allCelebrities;
-      const s = filters.search.trim().toLowerCase();
-      if (s) data = data.filter(c => c.name.toLowerCase().includes(s));
+      const s = filters.search.trim();
+      if (s) data = searchRoster(s, data, { limit: 9999, minScore: 26 }).map(x => x.celeb);
       if (filters.category !== 'All') data = data.filter(c => c.category === filters.category);
       if (filters.region !== 'All') data = data.filter(c => c.region === filters.region);
       if (filters.availability !== 'All') data = data.filter(c => c.availability === filters.availability);
+      if (filters.budget) {
+        const ceilings = { under250: 250000, mid: 750000, high: 1500000, ultra: Infinity };
+        const cap = ceilings[filters.budget];
+        if (cap) data = data.filter(c => (c.startingPrice || 0) <= cap);
+        if (filters.budget === 'mid') data = data.filter(c => (c.startingPrice || 0) >= 250000);
+        if (filters.budget === 'high') data = data.filter(c => (c.startingPrice || 0) >= 750000);
+        if (filters.budget === 'ultra') data = data.filter(c => (c.startingPrice || 0) >= 1500000);
+      }
       _filteredData = data; _page = 1;
       renderCards();
     }
@@ -397,7 +381,12 @@
 
       const results = document.getElementById('results');
       if (data.length === 0) {
-        results.innerHTML = `<div class='empty-state'><div class='empty-state-icon'>-</div><h4 style='margin-bottom:8px;color:var(--accent-text)'>No talents found</h4><p class='small muted'>No celebrities match your current filters.</p><p class='small muted' style='margin-top:6px'>Try broadening your search or click <b>- Clear</b> to reset all filters.</p></div>`;
+        const q = filters.search.trim();
+        const loose = q ? getSearchSuggestions(q, allCelebrities, 5) : [];
+        const suggest = loose.length
+          ? `<p class='small muted' style='margin-top:10px'>Did you mean: ${loose.map(s => `<a href='talent.html?id=${s.celeb.id}' style='color:var(--cta)'>${s.celeb.name}</a>`).join(' · ')}?</p>`
+          : '';
+        results.innerHTML = `<div class='empty-state'><div class='empty-state-icon'>-</div><h4 style='margin-bottom:8px;color:var(--accent-text)'>No talents found</h4><p class='small muted'>No celebrities match your current filters.</p>${suggest}<p class='small muted' style='margin-top:6px'>Try a different spelling, group name (e.g. BTS), or click <b>Clear</b> to reset.</p></div>`;
         return;
       }
 
@@ -422,7 +411,6 @@
             <button class='meet-direct-btn' data-a='portal' data-id='${c.id}'>Meet ${c.name.split(' ')[0]} privately</button>
             <button class='mob-see-more-btn' data-a='expand'>Details &amp; actions &#x25BE;</button>
             <div class='celeb-card-extra'>
-              <div class='pressure-bar demand-pulse-wrap' id='press-${c.id}' data-pid='${c.id}' style='margin-top:10px'>${demandPulseHTML(getLocalDemandPulse(c))}</div>
               <div class='celeb-stat-bar' style='margin-top:10px'>
                 <div class='celeb-stat'><div class='cs-label'>Est. Net Worth</div><div class='cs-value'>${c.netWorth || '—'}</div></div>
                 <div class='celeb-stat'><div class='cs-label'>Global Reach</div><div class='cs-value'>${c.socialReachMillions}M</div></div>
@@ -436,7 +424,7 @@
                   <button data-a='sim' data-id='${c.id}'>Access path</button>
                   <button data-a='check' data-id='${c.id}'>Availability window</button>
                   <button class='secondary' data-a='dossier' data-id='${c.id}'>Private dossier</button>
-                  <button class='secondary' data-a='hold' data-id='${c.id}' data-name='${c.name.replace(/'/g, "\\'")}'>Hold window</button>
+                  <button class='secondary' data-a='hold' data-id='${c.id}' data-name='${c.name.replace(/'/g, "\\'")}'>Request a date</button>
                   <button class='secondary' data-a='shortlist' data-id='${c.id}'>${shortlist.has(c.id) ? 'On board' : '+ Engagement board'}</button>
                 </div>
               </div>
@@ -481,20 +469,15 @@
           if (window.innerWidth >= 900) { window.location.href = `talent.html?id=${id}`; }
           else openDossier(id);
         } else if (a === 'hold' || a === 'wl-reserve') {
-          triggerWindowHold(id, name);
+          window.location.href = `booking.html?id=${encodeURIComponent(id)}&pathway=reservation`;
         } else if (a === 'set-meet') {
-          selectedCelebrity = { id, name };
-          document.getElementById('meetTarget').value = `${name} (${id})`;
-          document.getElementById('meetType').value = 'meet';
-          setMeetTemplate('meet', name);
-          document.getElementById('meetStatus').textContent = `Floating panel prepared for ${name}.`;
-          panel.classList.add('open');
+          window.location.href = `booking.html?id=${encodeURIComponent(id)}&pathway=private`;
         } else if (a === 'check') {
           const date = document.getElementById('date').value;
           const status = document.getElementById('s-' + id);
           if (!date) { status.textContent = 'Select a preferred date first.'; return; }
           request(`/celebrities/${id}/availability?date=${date}`)
-            .then(r => { status.textContent = r.available ? `Confirmed for ${r.date}.` : 'Unavailable for selected date.'; })
+            .then(r => { status.textContent = r.reason || (r.available ? 'Open on the published roster.' : 'Not open for that date.'); })
             .catch(err => { status.textContent = err.message; });
         } else if (a === 'shortlist') {
           const r = toggleShortlist(id);
@@ -534,58 +517,8 @@
         }, { passive: true });
       }
 
-      // -- IntersectionObserver for pressure badges (created once, new cards only) -
-      if (!_pressureObserver) {
-        _pressureObserver = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            _pressureObserver.unobserve(entry.target);
-            const id = entry.target.dataset.pid;
-            const celeb = celebMap.get(id);
-            const el = document.getElementById('press-' + id);
-            if (el && celeb) renderDemandPulse(el, celeb, request, { tryApi: true });
-          });
-        }, { rootMargin: '120px' });
-      }
-      results.querySelectorAll('[data-pid]:not([data-obs])').forEach(el => { el.dataset.obs = '1'; _pressureObserver.observe(el); });
       document.getElementById('loadMoreBtn')?.addEventListener('click', () => { _page++; renderCards(); }, { once: true });
     }
-
-    document.getElementById('meetType').addEventListener('change', (e) => {
-      if (!selectedCelebrity.name) return;
-      setMeetTemplate(e.target.value, selectedCelebrity.name);
-    });
-
-    document.getElementById('meetSend').onclick = async () => {
-      const status = document.getElementById('meetStatus');
-      const fullName = document.getElementById('meetName').value.trim();
-      const org = document.getElementById('meetOrg').value.trim();
-      const body = document.getElementById('meetBody').value.trim();
-      const mode = document.getElementById('meetType').value;
-
-      if (!selectedCelebrity.id) {
-        status.textContent = 'Choose a profile via -How to Meet- before sending.';
-        return;
-      }
-      if (!fullName || !org || !body) {
-        status.textContent = 'Add name, organization, and message details.';
-        return;
-      }
-
-      try {
-        const result = await request('/messages/send', {
-          method: 'POST',
-          body: JSON.stringify({
-            celebrityId: selectedCelebrity.id,
-            priority: mode === 'meet' ? 'Urgent' : 'Priority',
-            body: `[${mode === 'meet' ? 'How to Meet Request' : 'Representative Message'}]\nClient: ${fullName}\nOrganization: ${org}\nCelebrity: ${selectedCelebrity.name}\n\n${body}`,
-          }),
-        });
-        status.textContent = `Sent successfully. ${result.acknowledgement.body}`;
-      } catch (error) {
-        status.textContent = error.message + ' (login first)';
-      }
-    };
 
     document.getElementById('compareBtn').onclick = async () => {
       const out = document.getElementById('compareOut');
@@ -607,7 +540,6 @@
 
     renderShortlistState();
 
-    loadTicker();
     initTheme();
     initNav();
     initScrollReveal();
@@ -645,10 +577,32 @@
         document.getElementById('celebInquiryForm').reset();
       } catch (err) {
         msg.style.color = '#e06060';
-        msg.textContent = 'Submission failed. Please try again or use the contact panel.';
+        msg.textContent = 'Submission failed. Check the fields and try again.';
       } finally {
         btn.disabled = false;
         btn.textContent = 'Submit Celebrity Request';
+      }
+    });
+
+    document.getElementById('matchForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const msg = document.getElementById('matchMsg');
+      try {
+        const res = await request('/cases', { method: 'POST', body: JSON.stringify({
+          pathway: 'match',
+          clientName: fd.get('clientName'),
+          clientEmail: fd.get('clientEmail'),
+          location: fd.get('location'),
+          date: fd.get('date'),
+          budgetBand: fd.get('budgetBand'),
+          message: fd.get('message'),
+          eventType: 'Match me',
+        })});
+        msg.textContent = `Request ${res.booking.contractId} is with the desk.`;
+        e.target.reset();
+      } catch (err) {
+        msg.textContent = err.message;
       }
     });
   </script>

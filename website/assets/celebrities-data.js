@@ -177,6 +177,11 @@ const PORTRAIT_MAP = {
   "Eva Elfie":              "/assets/portraits/c238.jpg",
   "Salma Hayek":            "/assets/portraits/c239.jpg",
   "Matt Rife":              "/assets/portraits/c240.jpg",
+  "Charlize Theron":        "/assets/portraits/c7.jpg",
+  "Colin Farrell":          "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/2025_Colin_Farrell_-_2_%28cropped%29.jpg/330px-2025_Colin_Farrell_-_2_%28cropped%29.jpg",
+  "Ryan Gosling":           "/assets/portraits/c242.jpg",
+  "Anne Hathaway":          "/assets/portraits/c243.jpg",
+  "Keanu Reeves":           "/assets/portraits/c8.jpg",
 };
 
 const _parseWorth = w => {
@@ -355,6 +360,11 @@ const _seeds = [
   { name:"Eva Elfie",         cat:"Influencer", region:"Europe",        price:  35000, worth:"$2M",    reach:10,  agency:"Independent", signal:"Award-winning performer and rising social media personality with global fanbase. Industry-leading social engagement metrics. European and international appearances via independent booking agents only." },
   { name:"Salma Hayek",       cat:"Film",       region:"Latin America", price: 400000, worth:"$200M",  reach:28,  agency:"CAA",         signal:"Oscar-nominated actress and Frida producer-star. Eternals and Magic Mike's Last Dance global releases. Kering Group board member and Gucci brand collaborator. Private events via CAA with confirmed 30-day advance and prestige brand alignment." },
   { name:"Matt Rife",         cat:"Influencer", region:"North America", price: 250000, worth:"$12M",   reach:32,  agency:"WME",         signal:"Fastest stand-up comedian to sell out arenas in history — ProbleMATTic World Tour 2024 grossed $100M in first week of sales. 18M TikTok followers. Private shows and brand events via WME with confirmed audience qualification and 21-day advance." },
+  { name:"Charlize Theron",   cat:"Film",       region:"Africa",        price: 310000, worth:"$175M",  reach:42,  agency:"CAA",         signal:"Oscar-winning actress and active UN global humanitarian. The definitive choice for executive-tier brand alignment with substance — private dinners and summit appearances via CAA with 21-day lead." },
+  { name:"Colin Farrell",     cat:"Film",       region:"Europe",        price: 380000, worth:"$80M",   reach:36,  agency:"CAA",         signal:"Golden Globe winner and The Banshees of Inisherin Oscar nominee. Batgirl and The Penguin franchise anchor — premium European prestige talent with controlled media exposure." },
+  { name:"Ryan Gosling",      cat:"Film",       region:"North America", price: 450000, worth:"$70M",   reach:40,  agency:"CAA",         signal:"Barbie and La La Land cultural icon with verified global recognition. Ken energy meets arthouse credibility — ideal for flagship brand summits and executive private screenings." },
+  { name:"Anne Hathaway",     cat:"Film",       region:"North America", price: 420000, worth:"$85M",   reach:38,  agency:"CAA",         signal:"Oscar-winning actress and Versace global ambassador. Devil Wears Prada legacy plus The Idea of You streaming breakout — flawless for luxury galas and female-executive audience alignment." },
+  { name:"Keanu Reeves",      cat:"Film",       region:"North America", price: 290000, worth:"$380M",  reach:38,  agency:"CAA",         signal:"A cultural icon with zero recorded controversy in 35 years. Trusted unconditionally across 180 countries — private dinners and tech summit keynotes via CAA with 21-day lead." },
 ];
 
 const _build = (s, i) => {

@@ -3,25 +3,27 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://i.pravatar.cc; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.smartsuppchat.com https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.smartsuppcdn.com; img-src 'self' data: https://i.pravatar.cc https://upload.wikimedia.org https://static.smartsupp.com https://image.smartsupp.com; connect-src 'self' http://localhost:4100 https://ata-h0yo.onrender.com https://www.smartsupp.com https://app.smartsupp.com https://www.smartsuppchat.com https://bootstrap.smartsuppchat.com wss://app.smartsupp.com wss://websocket-visitors.smartsupp.com https://*.smartsuppcdn.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.smartsupp.com https://app.smartsupp.com https://*.smartsuppcdn.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 	<title>Talent Dossier | All Talents Agency</title>
-	<meta name="robots" content="noindex, nofollow">
-	<link rel="stylesheet" href="assets/styles.css?v=20260613">
+	<meta name="robots" content="index, follow">
+	<link rel="stylesheet" href="assets/styles.css?v=20260926a">
 	<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 </head>
 <body>
 	<div class="container" id="app"></div>
 	<script type="module">
 		import {
-			request, nav, loadTicker, initNav, initTheme, initScrollReveal,
+			request, nav, initNav, initTheme, initScrollReveal,
 			toggleShortlist, getShortlist, renderRelatedRail,
 			bindShortlistTray, trackEvent, getRelatedTalents,
 			initCommandPalette, initDynamicTheme, setCategoryTint,
 			renderProtocolSpine, getAccessProgress, renderRedactedBrief,
 			renderEscrowLedger, displayPrice, triggerWindowHold, bindPathBaitHandlers,
-			initAccessProtocol, initConciergeTriggers, isQualified
-		} from './assets/app.js?v=20260613';
-		import { CELEBRITIES } from './assets/celebrities-data.js';
+			initAccessProtocol, isQualified,
+			fetchCelebrity, fetchCelebrityDossier, resolveApiCelebrityId,
+			renderPathwayChooser, loadRoster
+		} from './assets/app.js?v=20260925';
+		const CELEBRITIES = await loadRoster();
 
 		const params = new URLSearchParams(location.search);
 		const id = params.get('id');
@@ -44,13 +46,13 @@
 
 		if (!id) {
 			app.innerHTML = `${nav('explorer')}<section class="card section"><h2>No talent selected</h2><p class="muted"><a href="explorer.html">Return to explorer</a></p></section>`;
-			loadTicker(); initTheme(); initNav();
+			initTheme(); initNav();
 			initDynamicTheme(); initCommandPalette(CELEBRITIES);
 			throw new Error('no id');
 		}
 
 		app.innerHTML = `${nav('explorer')}<div id="talentRoot"><p class="small muted">Loading dossier…</p></div>`;
-		loadTicker(); initTheme(); initNav(); initScrollReveal();
+		initTheme(); initNav(); initScrollReveal();
 		initDynamicTheme(); initCommandPalette(CELEBRITIES);
 		bindShortlistTray(CELEBRITIES);
 		initAccessProtocol({ onQualified: () => location.reload() });
@@ -58,18 +60,32 @@
 
 		let celeb;
 		try {
-			const [c, dossierRes, relatedRes] = await Promise.all([
-				request('/celebrities/' + id),
-				request('/celebrities/' + id + '/dossier').catch(() => null),
-				request('/celebrities/' + id + '/related').catch(() => ({ data: getRelatedTalents(
-					CELEBRITIES.find(x => x.id === id) || {}, CELEBRITIES
+			const c = await fetchCelebrity(id, CELEBRITIES);
+			const [dossierRes, relatedRes] = await Promise.all([
+				fetchCelebrityDossier(id, CELEBRITIES).catch(() => null),
+				request('/celebrities/' + resolveApiCelebrityId(c.id) + '/related').catch(() => ({ data: getRelatedTalents(
+					CELEBRITIES.find(x => x.id === id) || c, CELEBRITIES
 				) })),
 			]);
 			celeb = c;
+			document.title = `${c.name} | All Talents Agency`;
+			const ld = document.createElement('script');
+			ld.type = 'application/ld+json';
+			ld.textContent = JSON.stringify({
+				'@context': 'https://schema.org',
+				'@type': 'Person',
+				name: c.name,
+				jobTitle: c.category,
+				url: `https://alltalentsagency.com/talent.html?id=${encodeURIComponent(c.id)}`,
+				image: c.portrait || undefined,
+				description: `${c.name} is on the All Talents Agency roster. ${c.category || ''} · ${c.region || ''}. Published starting figure ${c.startingPrice || 0}.`,
+			});
+			document.head.appendChild(ld);
 			setCategoryTint(c.category);
 			const d = dossierRes?.dossier;
 			const related = relatedRes?.data || [];
 			const listed = getShortlist().includes(id);
+			const localC = CELEBRITIES.find(x => x.id === id) || c;
 
 			document.getElementById('talentRoot').innerHTML = `
 				${renderProtocolSpine(getAccessProgress().step)}
@@ -83,46 +99,37 @@
 						<div style="display:flex;flex-wrap:wrap;gap:14px;margin:16px 0">
 							<span class="badge">${c.availability}</span>
 							<span class="small"><span class="muted">Access</span> <strong style="color:var(--accent-text)">${displayPrice(c.startingPrice)}</strong></span>
-							<span class="small"><span class="muted">Demand</span> <strong>${c.demandIndex}/99</strong></span>
 						</div>
 						<div class="talent-cta-row">
-							<button type="button" class="primary" id="talentHoldBtn" style="width:auto">Hold priority window</button>
-							<a href="booking.html?id=${c.id}"><button class="secondary" type="button">Continue to booking desk →</button></a>
-							<a href="crowdbooking.html?celeb=${c.id}"><button class="secondary" type="button">Crowd access</button></a>
-							<button class="secondary" type="button" id="talentShortlistBtn" style="width:auto">${listed ? 'On engagement board' : '+ Engagement board'}</button>
+							<button class="secondary" type="button" id="talentShortlistBtn" style="width:auto">${listed ? 'On your shortlist' : 'Add to shortlist'}</button>
 						</div>
 					</div>
+				</section>
+				<section class="section">
+					<p class="eyebrow">Choose a path</p>
+					${renderPathwayChooser(c)}
 				</section>
 				<section class="grid g2 section reveal-on-scroll">
 					<article class="card stack" id="intelBrief">
 						<p class="eyebrow">Intelligence brief</p>
-						${d ? renderRedactedBrief(d, c, { qualified: isQualified() }) : '<p class="muted">Brief loading unavailable — proceed via booking desk.</p>'}
+						${d ? renderRedactedBrief(d, c, { qualified: isQualified() }) : '<p class="muted">Brief loading unavailable — proceed via booking.</p>'}
 					</article>
 					<article class="card stack">
-						<p class="eyebrow">Escrow preview</p>
-						<div class="experience-preview">
-							<img src="${c.portrait}" alt="">
-							<div>
-								<h3 style="margin:0 0 8px;font-size:18px">An evening with ${c.name}</h3>
-								<p class="small muted">What you are paying for — representation review, window reservation, compliance, logistics.</p>
-								${renderEscrowLedger({ quote: c.startingPrice })}
-							</div>
-						</div>
+						<p class="eyebrow">Published figure</p>
+						<p>Starting figure ${displayPrice(c.startingPrice)}. The desk confirms terms after the request. Nothing is charged on this page.</p>
 					</article>
 				</section>
 				<section class="section reveal-on-scroll" id="relatedRailWrap"></section>
 			`;
 
 			renderRelatedRail(document.getElementById('relatedRailWrap'), related);
-			bindPathBaitHandlers(document.getElementById('intelBrief'));
-			document.getElementById('talentHoldBtn')?.addEventListener('click', () => triggerWindowHold(c.id, c.name));
+			bindPathBaitHandlers(document.getElementById('talentRoot'));
 			document.getElementById('talentShortlistBtn')?.addEventListener('click', () => {
 				const r = toggleShortlist(id);
 				if (!r.ok) alert('Engagement board holds 5 profiles maximum.');
 				else document.getElementById('talentShortlistBtn').textContent =
 					getShortlist().includes(id) ? 'On engagement board' : '+ Engagement board';
 			});
-			initConciergeTriggers({ dwellMs: 20000, celebName: c.name, addBubble });
 		} catch (e) {
 			document.getElementById('talentRoot').innerHTML = `<section class="card"><p>${e.message}</p><a href="explorer.html">Explorer</a></section>`;
 		}

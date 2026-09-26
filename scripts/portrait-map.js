@@ -74,7 +74,7 @@ export const PORTRAIT_MAP = {
   c72: '/assets/portraits/c72.jpg',
   c73: '/assets/portraits/c73.jpg',
   c74: '/assets/portraits/c74.jpg',
-  // c75: FAILED,
+  c75: '/assets/portraits/c75.jpg',
   c76: '/assets/portraits/c76.png',
   c77: '/assets/portraits/c77.jpg',
   c78: '/assets/portraits/c78.jpg',
@@ -118,5 +118,8 @@ export const PORTRAIT_MAP = {
   c116: '/assets/portraits/c116.png',
   c117: '/assets/portraits/c117.jpg',
   c118: '/assets/portraits/c118.png',
-  c119: '/assets/portraits/c119.jpg'
+  c119: '/assets/portraits/c119.jpg',
+  // c241: FAILED,
+  // c242: FAILED,
+  // c243: FAILED
 };
