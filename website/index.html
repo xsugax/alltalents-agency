@@ -153,7 +153,7 @@
 				<p class='access-strip-sub'>Search the roster, open a profile, and request an introduction — each talent has their own path through verified representation.</p>
 				<div class='access-chips'>
 					<span class='access-chips-label'>Trending:</span>
-					${['Beyonce','Taylor Swift','Charlize Theron','Cristiano Ronaldo','Rihanna','Drake','Zendaya','Messi','BTS','BLACKPINK'].map(n => `<button type='button' class='quick-chip' data-q="${n}">${n}</button>`).join('')}
+					${['Charlize Theron','Salma Hayek','Johnny Depp','Taylor Swift','Rihanna','Drake','Zendaya','Messi','BTS','BLACKPINK'].map(n => `<button type='button' class='quick-chip' data-q="${n}">${n}</button>`).join('')}
 				</div>
 				<div class='access-live-count'><span id='deskClock'>Desk</span> · <span class='desk-line' id='deskLine'>Opening the calendar</span></div>
 				<div class='window-grid' id='windowGrid' style='margin-top:18px'>
@@ -219,7 +219,8 @@
 		});
 
 		const hero = document.getElementById('hero');
-		const featured = CELEBRITIES.filter((c) => c.featured).slice(0, 6);
+		const featured = CELEBRITIES.filter((c) => c.featured)
+			.sort((a, b) => (Number(a.featuredOrder) || 0) - (Number(b.featuredOrder) || 0));
 		if (!featured.length) featured.push(...CELEBRITIES.slice(0, 6));
 		featuredCelebrity = { id: featured[0]?.id || '', name: featured[0]?.name || '' };
 
@@ -273,7 +274,7 @@
 				<div class='hero-cinematic-content'>
 					<form class='hero-search-mega' id='heroSearchForm' onsubmit='event.preventDefault();const q=document.getElementById("heroSearchInput").value.trim();if(q)location.href="explorer.html?search="+encodeURIComponent(q);'>
 						<div class='search-wrap hero-search-wrap' style='flex:1;position:relative;min-width:0'>
-							<input id='heroSearchInput' type='search' placeholder='Search any celebrity — Beyoncé, BTS, Messi, Taylor Swift…' autocomplete='off'>
+							<input id='heroSearchInput' type='search' placeholder='Search any celebrity — Charlize Theron, Salma Hayek, Johnny Depp…' autocomplete='off'>
 						</div>
 						<button type='submit' class='primary'>Search →</button>
 					</form>

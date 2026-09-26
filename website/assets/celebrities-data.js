@@ -178,6 +178,7 @@ const PORTRAIT_MAP = {
   "Salma Hayek":            "/assets/portraits/c239.jpg",
   "Matt Rife":              "/assets/portraits/c240.jpg",
   "Charlize Theron":        "/assets/portraits/c7.jpg",
+  "Johnny Depp":            "https://upload.wikimedia.org/wikipedia/commons/2/21/Johnny_Depp_2020.jpg",
   "Colin Farrell":          "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/2025_Colin_Farrell_-_2_%28cropped%29.jpg/330px-2025_Colin_Farrell_-_2_%28cropped%29.jpg",
   "Ryan Gosling":           "/assets/portraits/c242.jpg",
   "Anne Hathaway":          "/assets/portraits/c243.jpg",
@@ -365,12 +366,13 @@ const _seeds = [
   { name:"Ryan Gosling",      cat:"Film",       region:"North America", price: 450000, worth:"$70M",   reach:40,  agency:"CAA",         signal:"Barbie and La La Land cultural icon with verified global recognition. Ken energy meets arthouse credibility — ideal for flagship brand summits and executive private screenings." },
   { name:"Anne Hathaway",     cat:"Film",       region:"North America", price: 420000, worth:"$85M",   reach:38,  agency:"CAA",         signal:"Oscar-winning actress and Versace global ambassador. Devil Wears Prada legacy plus The Idea of You streaming breakout — flawless for luxury galas and female-executive audience alignment." },
   { name:"Keanu Reeves",      cat:"Film",       region:"North America", price: 290000, worth:"$380M",  reach:38,  agency:"CAA",         signal:"A cultural icon with zero recorded controversy in 35 years. Trusted unconditionally across 180 countries — private dinners and tech summit keynotes via CAA with 21-day lead." },
+  { id:"c-johnny-depp", name:"Johnny Depp", cat:"Film", region:"North America", price: 480000, worth:"$150M", reach:22, agency:"CAA", signal:"Pirates of the Caribbean and a Cannes-winning director. Private dinners and festival appearances arranged through the desk with a 30-day lead." },
 ];
 
 const _build = (s, i) => {
   const avail = s.price >= 1500000 ? "Waitlist" : s.price >= 600000 ? "Limited" : "Open";
   return {
-    id: `c${i + 1}`,
+    id: s.id || `c${i + 1}`,
     name: s.name,
     verified: true,
     category: s.cat,
@@ -399,4 +401,6 @@ const _build = (s, i) => {
   };
 };
 
-export const CELEBRITIES = _seeds.map(_build);
+const OFF_ROSTER = new Set(['beyonce', 'cristiano ronaldo']);
+const rosterKey = (name) => String(name || '').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+export const CELEBRITIES = _seeds.map(_build).filter((c) => !OFF_ROSTER.has(rosterKey(c.name)));

@@ -18,8 +18,10 @@ const HIDDEN_NAMES = new Set([
 ]);
 
 const FEATURED_NAMES = [
-  'Zendaya', 'Taylor Swift', 'Chris Evans', 'Jennifer Aniston', 'Cristiano Ronaldo', 'Beyonce',
+  'Charlize Theron', 'Salma Hayek', 'Johnny Depp', 'Zendaya', 'Taylor Swift', 'Chris Evans', 'Jennifer Aniston',
 ];
+
+const OFF_ROSTER = ['beyonce', 'cristiano ronaldo'];
 
 export class HttpError extends Error {
   constructor(status, message) {
@@ -394,11 +396,78 @@ export async function ensureCrowdCoverage() {
   if (added) console.log(`[ATA] crowd dates added for ${added} talents`);
 }
 
+function plainName(name) {
+  return String(name || '').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+}
+
+async function insertTalentRecord(celeb) {
+  const hidden = HIDDEN_NAMES.has(plainName(celeb.name));
+  const visibility = hidden ? 'hidden' : (celeb.availability === 'Waitlist' ? 'waitlist' : 'public');
+  const featuredOrder = FEATURED_NAMES.findIndex((n) => plainName(n) === plainName(celeb.name));
+  const featured = featuredOrder >= 0;
+  await query(
+    `INSERT INTO talents
+      (id, name, category, region, availability, visibility, starting_price, portrait, featured, featured_order, profile)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)
+     ON CONFLICT (id) DO NOTHING`,
+    [
+      celeb.id, celeb.name, celeb.category, celeb.region, celeb.availability, visibility,
+      celeb.startingPrice || 0, celeb.portrait || '', featured, featured ? featuredOrder : null,
+      JSON.stringify(celeb),
+    ],
+  );
+  const experiences = [
+    { pathway: 'private', title: `Private time with ${celeb.name}`, summary: celeb.eliteSignal || '', location: celeb.region, price: celeb.startingPrice },
+    { pathway: 'vacation', title: `Travel with ${celeb.name}`, summary: 'A hosted trip arranged through the desk.', location: celeb.region, price: Math.round((celeb.startingPrice || 0) * 1.8) },
+    { pathway: 'full_coverage', title: `Full coverage with ${celeb.name}`, summary: 'The desk stays with the engagement from first brief to the day itself.', location: celeb.region, price: Math.round((celeb.startingPrice || 0) * 2.4) },
+  ];
+  for (const exp of experiences) {
+    await query(
+      `INSERT INTO experiences (id, talent_id, pathway, title, summary, location, price_from, published)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,true)`,
+      [uuid(), celeb.id, exp.pathway, exp.title, exp.summary, exp.location, exp.price || 0],
+    );
+  }
+}
+
+/** Hides names taken off the roster and inserts anyone added after the first seed. */
+async function applyRosterEdit() {
+  const { CELEBRITIES } = await import('../../website/assets/celebrities-data.js');
+  await query(
+    `UPDATE talents SET visibility = 'hidden', featured = false, featured_order = NULL
+     WHERE lower(translate(name, 'éÉàÀ', 'eEaA')) = ANY($1::text[])`,
+    [OFF_ROSTER],
+  );
+  await query(
+    `UPDATE crowd_events SET published = false
+     WHERE lower(translate(talent_name, 'éÉàÀ', 'eEaA')) = ANY($1::text[])
+        OR talent_id IN (SELECT id FROM talents WHERE visibility = 'hidden')`,
+    [OFF_ROSTER],
+  );
+
+  const rows = await query('SELECT lower(name) AS name FROM talents');
+  const have = new Set(rows.map((row) => plainName(row.name)));
+  for (const celeb of CELEBRITIES) {
+    if (have.has(plainName(celeb.name))) continue;
+    await insertTalentRecord(celeb);
+  }
+
+  await query(`UPDATE talents SET featured = false, featured_order = NULL WHERE visibility <> 'hidden'`);
+  for (let i = 0; i < FEATURED_NAMES.length; i++) {
+    await query(
+      `UPDATE talents SET featured = true, featured_order = $2
+       WHERE lower(name) = lower($1) AND visibility <> 'hidden'`,
+      [FEATURED_NAMES[i], i],
+    );
+  }
+}
+
 export async function initDb() {
   await connect();
   await exec(SCHEMA);
   const [{ n }] = await query('SELECT count(*)::int AS n FROM talents');
   if (!n) await seed();
+  await applyRosterEdit();
   await ensureCrowdCoverage();
   await reload();
   console.log(`[ATA] database ready (${dbMode()}) — ${db.celebrities.length} public talents`);
