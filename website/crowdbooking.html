@@ -26,7 +26,7 @@
   <link rel="canonical" href="https://alltalentsagency.com/crowdbooking.html">
   <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
   <link rel='shortcut icon' href='/assets/favicon.svg'>
-  <link rel='stylesheet' href='assets/styles.css?v=20260926'>
+  <link rel='stylesheet' href='assets/styles.css?v=20260926b'>
 </head>
 <body>
   <div class='container' id='app'></div>
@@ -89,8 +89,8 @@
             <p class='eyebrow'>Upcoming Verified Events</p>
             <p class='small muted' style='margin-top:2px'>Published slot figures. The desk confirms each place. Nothing is charged on this page.</p>
           </div>
-          <div style='display:flex;gap:8px;flex-wrap:wrap'>
-            <select id='filterCat' style='width:auto;padding:8px 12px;font-size:11px'>
+          <div class='crowd-filters'>
+            <select id='filterCat'>
               <option value='All'>All Categories</option>
               <option value='Music'>Music</option>
               <option value='Sports'>Sports</option>
@@ -99,7 +99,7 @@
               <option value='Influencer'>Influencer</option>
               <option value='Fashion'>Fashion</option>
             </select>
-            <select id='filterPrice' style='width:auto;padding:8px 12px;font-size:11px'>
+            <select id='filterPrice'>
               <option value='0'>Any Price</option>
               <option value='2000'>Under $2,000</option>
               <option value='3500'>Under $3,500</option>
@@ -215,38 +215,48 @@
       }
     }
 
+    function closeCrowdModal() {
+      modalBack.classList.remove('cm-open');
+      document.body.style.overflow = '';
+    }
+
     async function openConfirmModal(ev, plan, triggerBtn) {
+      const when = new Date(ev.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
       modalContent.innerHTML = `
-        <button onclick="document.getElementById('crowdModalBack').classList.remove('cm-open')" style='position:absolute;top:14px;right:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(229,228,226,.5);font-size:11px;padding:6px 14px;border-radius:8px;cursor:pointer;width:auto;letter-spacing:.06em;text-transform:uppercase'>Close -</button>
-        <p class='eyebrow' style='color:#9fe6b0'>Claim Your Slot</p>
-        <h3 style='margin:8px 0 4px;font-size:19px'>${ev.eventTitle}</h3>
-        <p class='small muted'> ${ev.city} &nbsp;-&nbsp;  ${new Date(ev.date + 'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})} &nbsp;-&nbsp; ${ev.name}</p>
-        <div style='margin:16px 0;padding:14px;background:rgba(159,230,176,.05);border:1px solid rgba(159,230,176,.2);border-radius:12px'>
-          <div style='display:flex;justify-content:space-between;align-items:baseline'>
-            <span class='small muted'>Published slot</span>
-            <strong style='color:#9fe6b0;font-size:20px;font-weight:900'>$${Number(ev.pricePerSlot || 0).toLocaleString()}</strong>
+        <div class='cm-sheet'>
+          <div class='cm-sheet-bar'>
+            <p class='eyebrow' style='color:#9fe6b0'>Claim your slot</p>
+            <button type='button' class='cm-x' id='cmClose'>Close</button>
           </div>
-          <p class='small muted' style='font-size:11px;margin-top:8px'>${ev.available} places left. The desk confirms settlement. Nothing is charged here.</p>
-        </div>
-        <div style='margin-bottom:16px'>
-          <p class='small muted' style='margin-bottom:8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase'>What\'s Included</p>
+          <h3 class='cm-title'>${ev.eventTitle}</h3>
+          <p class='small muted cm-meta'>${ev.city} · ${when} · ${ev.name}</p>
+          <div class='cm-price'>
+            <div class='cm-price-row'>
+              <span class='small muted'>Published slot</span>
+              <strong>$${Number(ev.pricePerSlot || 0).toLocaleString()}</strong>
+            </div>
+            <p class='small muted'>${ev.available} places left. The desk confirms settlement. Nothing is charged here.</p>
+          </div>
+          <p class='cm-kicker'>Included</p>
           <div class='ce-includes'>${ev.includes.map(i => `<span>${i}</span>`).join('')}</div>
+          <div class='case-form' style='margin:14px 0'>
+            <input id='cmName' placeholder='Your name' value='${currentUser()?.name || ''}'>
+            <input id='cmEmail' type='email' placeholder='Email' value='${currentUser()?.email || ''}'>
+          </div>
+          <p class='cm-note'>This opens a Crowd Access case. The desk confirms the place and the terms. Nothing is charged on this page.</p>
+          <button type='button' class='cm-confirm' id='cmConfirmBtn'>Confirm and secure my slot</button>
+          <p id='cmStatus' class='small muted cm-status'></p>
         </div>
-        <div class='case-form' style='margin-bottom:16px'>
-          <input id='cmName' placeholder='Your name' value='${currentUser()?.name || ''}'>
-          <input id='cmEmail' type='email' placeholder='Email' value='${currentUser()?.email || ''}'>
-          <p class='small muted'>This requests a shared slot. The desk confirms settlement. Nothing is charged here.</p>
-        </div>
-        <p class='small muted' style='font-size:10.5px;line-height:1.5;margin-bottom:14px;padding:10px;background:rgba(255,255,255,.03);border-radius:8px'>This opens a Crowd Access case. The desk confirms the place and the terms. Nothing is charged on this page.</p>
-        <button id='cmConfirmBtn' style='width:100%;padding:16px;background:linear-gradient(135deg,rgba(159,230,176,.25),rgba(159,230,176,.1));border:1px solid rgba(159,230,176,.5);color:#9fe6b0;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;border-radius:12px;cursor:pointer'>- &nbsp;Confirm & Secure My Slot</button>
-        <p id='cmStatus' class='small muted' style='text-align:center;margin-top:8px'></p>
       `;
       modalBack.classList.add('cm-open');
+      modalBack.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('cmClose').onclick = closeCrowdModal;
 
       document.getElementById('cmConfirmBtn').onclick = async () => {
         const btn = document.getElementById('cmConfirmBtn');
         const status = document.getElementById('cmStatus');
-        btn.disabled = true; btn.textContent = 'Sending request...';
+        btn.disabled = true; btn.textContent = 'Sending request';
         try {
           const res = await request(`/crowd-events/${ev.id}/join`, { method: 'POST', body: JSON.stringify({
             plan,
@@ -255,19 +265,21 @@
           }) });
           trackEvent('crowd_join', { eventId: ev.id, celebId: ev.celebId });
           modalContent.innerHTML = `
-            <div style='text-align:center;padding:10px 0'>
+            <div class='cm-sheet cm-done'>
               <p class='eyebrow' style='color:#9fe6b0'>Request received</p>
-              <h3 style='margin:8px 0 4px'>${ev.eventTitle}</h3>
+              <h3 class='cm-title'>${ev.eventTitle}</h3>
               <div class='crowd-slot-code'>${res.booking.details?.slotCode || res.booking.contractId}</div>
               <p class='small muted'>${res.message}</p>
               <p class='small muted'>Status: ${res.booking.status}</p>
-              <button onclick="document.getElementById('crowdModalBack').classList.remove('cm-open')" style='margin-top:12px'>Done</button>
+              <button type='button' class='cm-confirm' id='cmDone' style='margin-top:14px'>Done</button>
             </div>`;
+          document.getElementById('cmDone').onclick = closeCrowdModal;
+          modalBack.scrollTop = 0;
           const idx = allEvents.findIndex(e => e.id === ev.id);
           if (idx >= 0) { allEvents[idx].claimed++; allEvents[idx].available = Math.max(0, allEvents[idx].slots - allEvents[idx].claimed); }
           renderEvents(getFiltered());
         } catch(err) {
-          btn.disabled = false; btn.textContent = 'Send request';
+          btn.disabled = false; btn.textContent = 'Confirm and secure my slot';
           status.textContent = err.message;
         }
       };
