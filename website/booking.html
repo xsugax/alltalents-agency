@@ -7,7 +7,7 @@
 	<meta name='referrer' content='no-referrer'>
 	<title>Sovereign Booking | All Talents Agency</title>
 	<meta name="robots" content="noindex, nofollow">
-	<link rel='stylesheet' href='assets/styles.css?v=20260926c'>
+	<link rel='stylesheet' href='assets/styles.css?v=20261022a'>
 	<link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
 </head>
 <body>
@@ -198,12 +198,12 @@
 						<div class="bk-panel ${step === 2 ? 'bk-show' : ''}" data-step="2">
 							<p class="eyebrow">Your details</p>
 							<div class="case-form">
-								<input id="clientName" placeholder="Your name" value="${draft.clientName}">
-								<input id="clientEmail" type="email" placeholder="Email" value="${draft.clientEmail}">
+								<input id="clientName" placeholder="Your name" autocomplete="name" maxlength="160" required value="${draft.clientName}">
+								<input id="clientEmail" type="email" placeholder="Email" autocomplete="email" maxlength="254" required value="${draft.clientEmail}">
 								<textarea id="settlementNote" rows="3" placeholder="How you prefer to settle. The desk confirms terms. Nothing is charged here.">${draft.settlementNote}</textarea>
 							</div>
-							<button type="button" class="primary" id="submit" style="margin-top:14px">Send request</button>
-							<div id="msg"></div>
+							<button type="button" class="primary" id="submit" style="margin-top:14px">Confirm request</button>
+							<div id="msg" aria-live="polite"></div>
 							<button type="button" class="secondary" id="bkBack2" style="width:auto;margin-top:8px">← Back</button>
 						</div>
 					</article>
@@ -223,6 +223,15 @@
 				document.getElementById('submit').onclick = async () => {
 					remember();
 					const msg = document.getElementById('msg');
+					const nameInput = document.getElementById('clientName');
+					const emailInput = document.getElementById('clientEmail');
+					nameInput.setCustomValidity(nameInput.value.trim() ? '' : 'Enter your name.');
+					if (!nameInput.reportValidity()) return;
+					if (!emailInput.reportValidity()) return;
+					const submit = document.getElementById('submit');
+					submit.disabled = true;
+					submit.textContent = 'Sending request…';
+					msg.className = '';
 					const date = activePathway === 'vacation' ? draft.arrival : draft.date;
 					const eventType = activePathway === 'vacation'
 						? (vacationExp?.title || 'Vacation')
@@ -253,10 +262,21 @@
 							}),
 						});
 						trackEvent('booking_initiate', { id, bookingId: r.booking.id, pathway: activePathway });
-						document.getElementById('submit').disabled = true;
-						msg.innerHTML = `<div class="card" style="margin-top:12px;padding:16px"><p class="eyebrow">Request received</p><p><b>${r.booking.contractId}</b> · ${r.booking.status}</p><p class="small muted"><a href="portal.html">Track it in the portal</a> after you sign in with the same email.</p></div>`;
+						submit.textContent = 'Request confirmed';
+						document.querySelector('.bk-steps').outerHTML = renderBookingDeskSteps(step, true);
+						document.querySelector('.bk-steps').classList.add('bk-steps-confirmed');
+						const confirmation = document.createElement('section');
+						confirmation.className = 'bk-confirmation';
+						confirmation.setAttribute('role', 'status');
+						confirmation.innerHTML = `<svg class="bk-confirmation-icon" viewBox="0 0 64 64" aria-hidden="true"><circle class="bk-confirmation-ring" cx="32" cy="32" r="28"/><path class="bk-confirmation-check" d="m18 33 9 9 19-20"/></svg><p class="eyebrow">Request received</p><p class="bk-confirmation-ref"><strong></strong><span></span></p><p class="small muted">Your request is with the desk. No booking or date is confirmed until the representative responds.</p><a href="portal.html">Track it in the portal</a><p class="small muted">Sign in with the same email to view updates.</p>`;
+						confirmation.querySelector('strong').textContent = r.booking.contractId;
+						confirmation.querySelector('span').textContent = ` · ${r.booking.status}`;
+						msg.replaceChildren(confirmation);
 					} catch (e) {
+						submit.disabled = false;
+						submit.textContent = 'Confirm request';
 						msg.textContent = e.message;
+						msg.className = 'bk-submit-error';
 					}
 				};
 			}

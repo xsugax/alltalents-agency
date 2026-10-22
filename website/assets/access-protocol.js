@@ -122,10 +122,15 @@ export function getAccessProgress() {
 /** Private booking desk phases (booking.html wizard). */
 export const BOOKING_DESK_LABELS = ['01 Confirm', '02 Brief', '03 Your details'];
 
-export function renderBookingDeskSteps(step = 0) {
-  return `<div class="bk-steps">${BOOKING_DESK_LABELS.map((label, i) => {
-    const cls = step === i ? 'bk-active' : step > i ? 'bk-done' : '';
-    return `<span class="bk-step ${cls}">${label}</span>`;
+export function renderBookingDeskSteps(step = 0, confirmed = false) {
+  return `<div class="bk-steps" role="list" aria-label="Booking request progress">${BOOKING_DESK_LABELS.map((label, i) => {
+    const done = step > i || (confirmed && step === i);
+    const cls = done ? 'bk-done' : step === i ? 'bk-active' : '';
+    const title = label.replace(/^\d+\s+/, '');
+    const marker = done
+      ? `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3.2 3.2L13 4.8"/></svg>`
+      : String(i + 1).padStart(2, '0');
+    return `<span class="bk-step ${cls}" role="listitem" ${step === i && !confirmed ? 'aria-current="step"' : ''}><span class="bk-step-num">${marker}</span><span>${title}</span></span>`;
   }).join('')}</div>`;
 }
 

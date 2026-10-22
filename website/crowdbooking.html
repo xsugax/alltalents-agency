@@ -26,7 +26,7 @@
   <link rel="canonical" href="https://alltalentsagency.com/crowdbooking.html">
   <link rel='icon' href='/assets/favicon.svg' type='image/svg+xml'>
   <link rel='shortcut icon' href='/assets/favicon.svg'>
-  <link rel='stylesheet' href='assets/styles.css?v=20260926c'>
+  <link rel='stylesheet' href='assets/styles.css?v=20261022a'>
 </head>
 <body>
 	<div id="ataBoot" class="ata-boot" role="status" aria-live="polite"><div class="ata-boot-mark" aria-hidden="true">ATA</div><div class="ata-boot-track" aria-hidden="true"><span></span></div><p class="ata-boot-label">Opening the desk</p></div>
@@ -62,7 +62,7 @@
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 02</p>
             <h4>Select Your Plan</h4>
-            <p>Request-only listings do not reserve a place. Any published slot figures are subject to confirmation.</p>
+            <p>See the indicative per-person estimate. Final event details and pricing require representative approval.</p>
           </div>
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 03</p>
@@ -156,17 +156,18 @@
         return;
       }
       const displayedEvents = events.slice(0, visibleCount);
-      document.getElementById('calendar').innerHTML = displayedEvents.map(ev => {
+      document.getElementById('calendar').innerHTML = displayedEvents.map((ev, index) => {
         const avail = ev.slots - ev.claimed;
         const pct = ev.soldPct;
         const isFull = !ev.requestOnly && avail <= 0;
         const eventId = escapeHTML(ev.id);
         const eventName = escapeHTML(ev.name);
+        const price = ev.requestOnly ? ev.estimatedPricePerSlot : ev.pricePerSlot;
         return `
           <article class='crowd-event-card${ev.requestOnly ? ' ce-request-only' : ''}' id='card-${eventId}'>
             <div class='ce-header'>
               <div class='ce-head-row'>
-                <img class='ce-portrait' src='${escapeHTML(ev.portrait)}' alt='${eventName}' loading='lazy' decoding='async'>
+                <img class='ce-portrait' src='${escapeHTML(ev.portrait)}' alt='${eventName}' width='72' height='88' loading='${index < 2 ? 'eager' : 'lazy'}' fetchpriority='${index < 2 ? 'high' : 'auto'}' decoding='async'>
                 <div class='ce-head-copy'>
                   <div class='ce-event-type'>${escapeHTML(ev.requestOnly ? 'Availability request · Not confirmed' : ev.eventType)}</div>
                   <div class='ce-title'>${escapeHTML(ev.eventTitle)}</div>
@@ -183,13 +184,13 @@
                 <div class='ce-slot-bar'><div class='ce-slot-fill${pct >= 80 ? " sf-critical" : ""}' style='width:${pct}%'></div></div>
               </div>`}
 
-              ${ev.requestOnly ? `<div class='ce-request-price'>Pricing, if any, will be provided only after representative confirmation.</div>` : `<div style='margin-bottom:10px'>
-                <div class='ce-price-row'>
-                  <span class='ce-price-main'>${fmtPrice(ev.pricePerSlot)}</span>
-                  <span class='ce-price-sub'>published slot</span>
-                </div>
-                <p class='small muted' style='margin:3px 0 8px;font-size:11px'>${avail} places left. The desk confirms settlement. Nothing is charged here.</p>
-              </div>`}
+              <div style='margin-bottom:10px'>
+                ${Number.isFinite(Number(price)) && Number(price) > 0 ? `<div class='ce-price-row'>
+                  <span class='ce-price-main'>${ev.requestOnly ? 'From ' : ''}${fmtPrice(Number(price))}</span>
+                  <span class='ce-price-sub'>${ev.requestOnly ? 'indicative / person' : 'published slot'}</span>
+                </div>` : `<div class='ce-request-price'>Price estimate available on request</div>`}
+                <p class='small muted' style='margin:3px 0 8px;font-size:11px'>${ev.requestOnly ? 'Indicative estimate only, based on the published starting rate and talent category. Final pricing requires representative approval; no event or appearance is confirmed.' : `${avail} places left. The desk confirms settlement. Nothing is charged here.`}</p>
+              </div>
 
               <div class='ce-includes'>
                 ${ev.includes.map(i => `<span>${escapeHTML(i)}</span>`).join('')}
@@ -301,7 +302,8 @@
       const search = filterTalent?.value.trim().toLocaleLowerCase() || '';
       return allEvents.filter(ev => {
         if (cat !== 'All' && ev.category !== cat) return false;
-        if (maxP > 0 && !ev.requestOnly && ev.pricePerSlot > maxP) return false;
+        const price = ev.requestOnly ? ev.estimatedPricePerSlot : ev.pricePerSlot;
+        if (maxP > 0 && price > maxP) return false;
         if (search && !`${ev.name} ${ev.eventTitle} ${ev.eventType}`.toLocaleLowerCase().includes(search)) return false;
         return true;
       });

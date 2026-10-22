@@ -49,7 +49,7 @@ const PORTRAIT_MAP = {
   "J Balvin":               "/assets/portraits/c75.jpg",
   "Jackie Chan":            "/assets/portraits/c78.jpg",
   "Vin Diesel":             "/assets/portraits/c81.jpg",
-  "Akon":                   "/assets/portraits/c84.png",
+  "Akon":                   "/assets/portraits/akon.jpg",
   "Elton John":             "/assets/portraits/c85.jpg",
   "Roger Federer":          "/assets/portraits/c87.jpg",
   "Rafael Nadal":           "/assets/portraits/c88.jpg",
@@ -183,8 +183,8 @@ const PORTRAIT_MAP = {
   "Ryan Gosling":           "/assets/portraits/c242.jpg",
   "Anne Hathaway":          "/assets/portraits/c243.jpg",
   "Keanu Reeves":           "/assets/portraits/c8.jpg",
-  "Alex O'Loughlin":        "/assets/portraits/c244.jpg",
-  "Sofia Vergara":          "/assets/portraits/c25.jpg",
+  "Alex O'Loughlin":        "/assets/portraits/c244.jpg?v=20261022a",
+  "Sofia Vergara":          "/assets/portraits/c25.jpg?v=20261022a",
 };
 
 const _parseWorth = w => {

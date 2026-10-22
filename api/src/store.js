@@ -344,10 +344,18 @@ async function seed() {
   );
 }
 
-function crowdSlotPrice(starting) {
+function crowdSlotPrice(starting, category) {
   const figure = Number(starting) || 0;
-  const share = Math.round((figure * 0.004) / 100) * 100;
-  return Math.min(25000, Math.max(2500, share || 2500));
+  const categoryMultiplier = {
+    Business: 1.2,
+    Fashion: 1.05,
+    Film: 0.9,
+    Influencer: 0.85,
+    Music: 1,
+    Sports: 1.15,
+  }[category] || 1;
+  const share = Math.round((figure * 0.004 * categoryMultiplier) / 100) * 100;
+  return Math.min(25000, Math.max(750, share || 750));
 }
 
 function crowdCity(region) {
@@ -375,7 +383,15 @@ export async function ensureCrowdCoverage() {
   let added = 0;
   for (let i = 0; i < talents.length; i++) {
     const talent = talents[i];
-    if (covered.has(talent.id)) continue;
+    const price = crowdSlotPrice(talent.starting_price, talent.category);
+    if (covered.has(talent.id)) {
+      await query(
+        `UPDATE crowd_events SET event_date='', price_per_slot=$2
+         WHERE talent_id=$1 AND request_only=true AND title=$3`,
+        [talent.id, price, `${talent.name} — group access inquiry`],
+      );
+      continue;
+    }
     await query(
       `INSERT INTO crowd_events
         (id, talent_id, talent_name, title, event_type, city, event_date, slots, claimed, price_per_slot, includes, published, request_only)
@@ -389,7 +405,7 @@ export async function ensureCrowdCoverage() {
         talent.category || 'Appearance',
         crowdCity(talent.region),
         '',
-        crowdSlotPrice(talent.starting_price),
+        price,
         JSON.stringify(['Availability request only', 'No event or appearance is confirmed', 'Date and access require representative approval']),
       ],
     );
@@ -452,6 +468,18 @@ async function applyRosterEdit() {
   for (const celeb of CELEBRITIES) {
     if (have.has(plainName(celeb.name))) continue;
     await insertTalentRecord(celeb);
+  }
+  const portraitUpdates = CELEBRITIES.filter((celeb) =>
+    ['Akon', "Alex O'Loughlin", 'Sofia Vergara'].includes(celeb.name),
+  );
+  for (const celeb of portraitUpdates) {
+    if (!celeb.portrait) continue;
+    await query(
+      `UPDATE talents SET portrait=$2, profile=jsonb_set(profile, '{portrait}', to_jsonb($2::text), true)
+       WHERE id=$1 AND name=$3
+         AND (portrait IS DISTINCT FROM $2 OR profile->>'portrait' IS DISTINCT FROM $2)`,
+      [celeb.id, celeb.portrait, celeb.name],
+    );
   }
 
   await query(`UPDATE talents SET featured = false, featured_order = NULL WHERE visibility <> 'hidden'`);
@@ -582,6 +610,7 @@ export async function upsertExperience(input, actor) {
 function crowdShape(row) {
   const includes = parseJson(row.includes, []);
   const available = Math.max(0, row.slots - row.claimed);
+  const requestOnly = !!row.request_only;
   return {
     id: row.id,
     celebId: row.talent_id,
@@ -592,12 +621,15 @@ function crowdShape(row) {
     eventType: row.event_type,
     city: row.city,
     date: row.event_date,
-    requestOnly: !!row.request_only,
+    requestOnly,
     slots: row.slots,
     claimed: row.claimed,
     available,
     soldPct: row.slots ? Math.round((row.claimed / row.slots) * 100) : 0,
     pricePerSlot: row.price_per_slot,
+    estimatedPricePerSlot: requestOnly
+      ? crowdSlotPrice(row.talent_starting_price, row.talent_category || row.event_type)
+      : null,
     includes,
     published: row.published,
     installments: [
@@ -609,7 +641,7 @@ function crowdShape(row) {
 
 export async function listCrowd({ includeUnpublished = false } = {}) {
   const rows = await query(
-    `SELECT ce.*, t.portrait AS talent_portrait, t.category AS talent_category
+    `SELECT ce.*, t.portrait AS talent_portrait, t.category AS talent_category, t.starting_price AS talent_starting_price
      FROM crowd_events ce
      LEFT JOIN talents t ON t.id = ce.talent_id
      ${includeUnpublished ? '' : "WHERE ce.published = true AND (ce.request_only = true OR ce.event_date >= to_char(CURRENT_DATE, 'YYYY-MM-DD'))"}
@@ -620,7 +652,7 @@ export async function listCrowd({ includeUnpublished = false } = {}) {
 
 export async function getCrowd(id) {
   const rows = await query(
-    `SELECT ce.*, t.portrait AS talent_portrait, t.category AS talent_category
+    `SELECT ce.*, t.portrait AS talent_portrait, t.category AS talent_category, t.starting_price AS talent_starting_price
      FROM crowd_events ce LEFT JOIN talents t ON t.id = ce.talent_id
      WHERE ce.id = $1`,
     [id],
