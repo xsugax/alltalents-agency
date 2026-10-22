@@ -31,56 +31,48 @@
 <body>
 	<div id="ataBoot" class="ata-boot" role="status" aria-live="polite"><div class="ata-boot-mark" aria-hidden="true">ATA</div><div class="ata-boot-track" aria-hidden="true"><span></span></div><p class="ata-boot-label">Opening the desk</p></div>
 	<script>window.__ataBootAt=Date.now();setTimeout(function(){var b=document.getElementById('ataBoot');if(b)b.classList.add('ata-boot-done');document.documentElement.classList.add('is-hydrated');},24000);</script>
-  <div class='container' id='app'></div>
+	<div class='container' id='app'></div>
 
-  <!-- -- CROWD CONFIRM MODAL --- -->
-  <div id='crowdModalBack' class='crowd-modal-back'>
-    <div class='crowd-modal' id='crowdModalContent'></div>
-  </div>
-
-  <script type='module'>
+	<script type='module'>
     import { request, nav, currentUser, initNav, initTheme, trackEvent, initCommandPalette, initDynamicTheme, loadRoster } from './assets/app.js?v=20260926d';
     const CELEBRITIES = await loadRoster();
 
     (async () => {
 
     const app = document.getElementById('app');
-    const modalBack = document.getElementById('crowdModalBack');
-    const modalContent = document.getElementById('crowdModalContent');
-
     // Pre-select celeb from URL param
     const urlParam = new URLSearchParams(window.location.search).get('celeb');
 
-    modalBack.addEventListener('click', (e) => { if (e.target === modalBack) closeModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-    function closeModal() { modalBack.classList.remove('cm-open'); }
+    const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[char]);
 
     app.innerHTML = `
       ${nav('crowd')}
       <section class='crowd-hero section'>
-        <div class='crowd-hero-label'>Live Crowd Events</div>
+        <div class='crowd-hero-label'>Crowd Access</div>
         <h2>Join a Group.<br><span>Access an Icon.</span></h2>
-        <p class='lead' style='max-width:620px;margin:10px 0 0'>Private celebrity access - without the private price tag. Join a curated group of qualified clients and attend the <em>same real event</em> as your chosen celebrity. Concerts, premieres, paddocks, brand studios. Real access. Shared investment.</p>
+        <p class='lead' style='max-width:620px;margin:10px 0 0'>Browse group-access opportunities and request an introduction. A listing is not a confirmed appearance; all dates, availability, pricing, and access are subject to approval by authorized representation.</p>
         <div class='crowd-how'>
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 01</p>
             <h4>Choose Your Event</h4>
-            <p>Browse vetted upcoming celebrity events with confirmed access inclusion. Each event has limited slots.</p>
+            <p>Browse event listings or submit an availability request. The desk must confirm each opportunity.</p>
           </div>
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 02</p>
             <h4>Select Your Plan</h4>
-            <p>Each event has a published slot figure and a real remaining count. The desk confirms the place. Nothing is charged here.</p>
+            <p>Request-only listings do not reserve a place. Any published slot figures are subject to confirmation.</p>
           </div>
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 03</p>
             <h4>Claim Your Slot</h4>
-            <p>Lock your spot. Receive your NDA-protected slot code and event credentials 14 days before the event.</p>
+            <p>Submit a request for review. No place is reserved until the desk confirms it.</p>
           </div>
           <div class='crowd-how-step'>
             <p class='ch-num'>Step 04</p>
             <h4>Attend & Experience</h4>
-            <p>Show up. Be in the room. Your slot guarantees the listed access items - photo, signed item, backstage or VIP tier.</p>
+            <p>Attend only after the date, terms, and access are confirmed in writing.</p>
           </div>
         </div>
       </section>
@@ -89,17 +81,12 @@
         <div style='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px'>
           <div>
             <p class='eyebrow'>Upcoming Verified Events</p>
-            <p class='small muted' style='margin-top:2px'>Published slot figures. The desk confirms each place. Nothing is charged on this page.</p>
+            <p class='small muted' style='margin-top:2px'>Event dates and access are confirmed by authorized representatives. Availability requests do not guarantee an appearance or incur a charge.</p>
           </div>
           <div class='crowd-filters'>
+            <input id='filterTalent' type='search' placeholder='Search talent or event' aria-label='Search talent or event'>
             <select id='filterCat'>
               <option value='All'>All Categories</option>
-              <option value='Music'>Music</option>
-              <option value='Sports'>Sports</option>
-              <option value='Film'>Film</option>
-              <option value='Business'>Business</option>
-              <option value='Influencer'>Influencer</option>
-              <option value='Fashion'>Fashion</option>
             </select>
             <select id='filterPrice'>
               <option value='0'>Any Price</option>
@@ -142,9 +129,20 @@
       if (mine.length) allEvents = mine;
     }
 
-    // State per card: selected plan
-    const planState = {};
-    allEvents.forEach(ev => { planState[ev.id] = 'full'; });
+    const filterCat = document.getElementById('filterCat');
+    const filterTalent = document.getElementById('filterTalent');
+    for (const category of [...new Set(allEvents.map(event => event.category).filter(Boolean))].sort()) {
+      const option = document.createElement('option');
+      option.value = category;
+      option.textContent = category;
+      filterCat.append(option);
+    }
+
+    allEvents.sort((a, b) => {
+      const featured = event => ['c244', 'c245'].includes(event.celebId) ? 0 : 1;
+      return featured(a) - featured(b) || String(a.date).localeCompare(String(b.date));
+    });
+    let visibleCount = 12;
 
     function fmtDate(d) {
       const dt = new Date(d + 'T00:00:00');
@@ -157,50 +155,64 @@
         document.getElementById('calendar').innerHTML = `<div class='card' style='grid-column:1/-1;padding:40px;text-align:center'><p class='muted'>No events match your filters.</p></div>`;
         return;
       }
-      document.getElementById('calendar').innerHTML = events.map(ev => {
+      const displayedEvents = events.slice(0, visibleCount);
+      document.getElementById('calendar').innerHTML = displayedEvents.map(ev => {
         const avail = ev.slots - ev.claimed;
         const pct = ev.soldPct;
-        const isFull = avail <= 0;
+        const isFull = !ev.requestOnly && avail <= 0;
+        const eventId = escapeHTML(ev.id);
+        const eventName = escapeHTML(ev.name);
         return `
-          <div class='crowd-event-card' id='card-${ev.id}'>
+          <article class='crowd-event-card${ev.requestOnly ? ' ce-request-only' : ''}' id='card-${eventId}'>
             <div class='ce-header'>
-              <div class='ce-event-type'>${ev.eventType}</div>
-              <div class='ce-title'>${ev.eventTitle}</div>
-              <div class='ce-meta'> ${ev.city} &nbsp;-&nbsp;  ${fmtDate(ev.date)} &nbsp;-&nbsp; ${ev.name}</div>
+              <div class='ce-head-row'>
+                <img class='ce-portrait' src='${escapeHTML(ev.portrait)}' alt='${eventName}' loading='lazy' decoding='async'>
+                <div class='ce-head-copy'>
+                  <div class='ce-event-type'>${escapeHTML(ev.requestOnly ? 'Availability request · Not confirmed' : ev.eventType)}</div>
+                  <div class='ce-title'>${escapeHTML(ev.eventTitle)}</div>
+                  <div class='ce-meta'>${ev.requestOnly ? `Date and access to be confirmed · ${eventName}` : `${escapeHTML(ev.city)} · ${fmtDate(ev.date)} · ${eventName}`}</div>
+                </div>
+              </div>
             </div>
             <div class='ce-body'>
-              <div class='ce-slots'>
+              ${ev.requestOnly ? `<p class='ce-request-note'>This is an inquiry only. No event, date, appearance, price, or access is confirmed. The representative must approve any next steps.</p>` : `<div class='ce-slots'>
                 <div class='ce-slots-top'>
                   <span class='ce-slots-label'>Slots Claimed</span>
                   <span class='ce-slots-count'>${isFull ? '- SOLD OUT' : `${avail} of ${ev.slots} remaining`}</span>
                 </div>
                 <div class='ce-slot-bar'><div class='ce-slot-fill${pct >= 80 ? " sf-critical" : ""}' style='width:${pct}%'></div></div>
-              </div>
+              </div>`}
 
-              <div style='margin-bottom:10px'>
+              ${ev.requestOnly ? `<div class='ce-request-price'>Pricing, if any, will be provided only after representative confirmation.</div>` : `<div style='margin-bottom:10px'>
                 <div class='ce-price-row'>
                   <span class='ce-price-main'>${fmtPrice(ev.pricePerSlot)}</span>
                   <span class='ce-price-sub'>published slot</span>
                 </div>
                 <p class='small muted' style='margin:3px 0 8px;font-size:11px'>${avail} places left. The desk confirms settlement. Nothing is charged here.</p>
-              </div>
+              </div>`}
 
               <div class='ce-includes'>
-                ${ev.includes.map(i => `<span>${i}</span>`).join('')}
+                ${ev.includes.map(i => `<span>${escapeHTML(i)}</span>`).join('')}
               </div>
 
-              <button class='ce-join-btn' data-ev='${ev.id}' ${isFull ? 'disabled' : ''}>${isFull ? '- Fully Claimed' : ' &nbsp;Claim My Slot -'}</button>
+              <button class='ce-join-btn' type='button' data-ev='${eventId}' aria-expanded='false' ${isFull ? 'disabled' : ''}>${isFull ? 'Fully Claimed' : ev.requestOnly ? 'Request availability' : 'Request a slot'}</button>
             </div>
-          </div>
+          </article>
         `;
       }).join('');
+      if (events.length > visibleCount) {
+        document.getElementById('calendar').insertAdjacentHTML('beforeend', `<button id='loadMoreEvents' class='secondary' type='button' style='grid-column:1/-1;justify-self:center;width:auto;padding:12px 28px'>Load more events (${events.length - visibleCount} remaining)</button>`);
+        document.getElementById('loadMoreEvents').onclick = () => {
+          visibleCount += 12;
+          renderEvents(getFiltered());
+        };
+      }
 
       document.querySelectorAll('.ce-join-btn').forEach(btn => {
         btn.onclick = () => {
           const evId = btn.dataset.ev;
           const ev = allEvents.find(e => e.id === evId);
-          const plan = planState[evId] || 'full';
-          openConfirmModal(ev, plan, btn);
+          openAvailabilityForm(ev, btn);
         };
       });
 
@@ -217,93 +229,91 @@
       }
     }
 
-    function closeCrowdModal() {
-      modalBack.classList.remove('cm-open');
-      document.body.style.overflow = '';
-    }
-
-    async function openConfirmModal(ev, plan, triggerBtn) {
-      const when = new Date(ev.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-      modalContent.innerHTML = `
-        <div class='cm-sheet'>
-          <div class='cm-sheet-bar'>
-            <p class='eyebrow' style='color:#9fe6b0'>Claim your slot</p>
-            <button type='button' class='cm-x' id='cmClose'>Close</button>
-          </div>
-          <h3 class='cm-title'>${ev.eventTitle}</h3>
-          <p class='small muted cm-meta'>${ev.city} · ${when} · ${ev.name}</p>
-          <div class='cm-price'>
-            <div class='cm-price-row'>
-              <span class='small muted'>Published slot</span>
-              <strong>$${Number(ev.pricePerSlot || 0).toLocaleString()}</strong>
-            </div>
-            <p class='small muted'>${ev.available} places left. The desk confirms settlement. Nothing is charged here.</p>
-          </div>
-          <p class='cm-kicker'>Included</p>
-          <div class='ce-includes'>${ev.includes.map(i => `<span>${i}</span>`).join('')}</div>
-          <div class='case-form' style='margin:14px 0'>
-            <input id='cmName' placeholder='Your name' value='${currentUser()?.name || ''}'>
-            <input id='cmEmail' type='email' placeholder='Email' value='${currentUser()?.email || ''}'>
-          </div>
-          <p class='cm-note'>This opens a Crowd Access case. The desk confirms the place and the terms. Nothing is charged on this page.</p>
-          <button type='button' class='cm-confirm' id='cmConfirmBtn'>Confirm and secure my slot</button>
-          <p id='cmStatus' class='small muted cm-status'></p>
+    function openAvailabilityForm(ev, triggerBtn) {
+      const card = document.getElementById(`card-${ev.id}`);
+      const body = card?.querySelector('.ce-body');
+      if (!body) return;
+      const currentForm = document.getElementById('crowdRequestForm');
+      if (currentForm) {
+        const previousButton = currentForm.parentElement?.querySelector('.ce-join-btn');
+        if (previousButton) previousButton.setAttribute('aria-expanded', 'false');
+        currentForm.remove();
+      }
+      const form = document.createElement('form');
+      form.id = 'crowdRequestForm';
+      form.className = 'crowd-request-form';
+      form.innerHTML = `
+        <h3>${ev.requestOnly ? 'Request availability' : 'Request a place'}</h3>
+        <p class='small muted'>${ev.requestOnly ? 'This sends an interest inquiry only. No event or appearance is confirmed, and no charge is made.' : 'The desk will confirm the place and settlement. No charge is made on this page.'}</p>
+        <label>Name<input name='clientName' autocomplete='name' maxlength='160' required value='${escapeHTML(currentUser()?.name || '')}'></label>
+        <label>Email<input name='clientEmail' type='email' autocomplete='email' maxlength='254' required value='${escapeHTML(currentUser()?.email || '')}'></label>
+        <div class='crowd-request-actions'>
+          <button class='ce-join-btn' type='submit'>Send request</button>
+          <button class='ce-request-cancel' type='button'>Cancel</button>
         </div>
+        <p class='crowd-request-status' role='status' aria-live='polite'></p>
       `;
-      modalBack.classList.add('cm-open');
-      modalBack.scrollTop = 0;
-      document.body.style.overflow = 'hidden';
-      document.getElementById('cmClose').onclick = closeCrowdModal;
-
-      document.getElementById('cmConfirmBtn').onclick = async () => {
-        const btn = document.getElementById('cmConfirmBtn');
-        const status = document.getElementById('cmStatus');
-        btn.disabled = true; btn.textContent = 'Sending request';
-        try {
-          const res = await request(`/crowd-events/${ev.id}/join`, { method: 'POST', body: JSON.stringify({
-            plan,
-            clientName: document.getElementById('cmName').value,
-            clientEmail: document.getElementById('cmEmail').value,
-          }) });
-          trackEvent('crowd_join', { eventId: ev.id, celebId: ev.celebId });
-          modalContent.innerHTML = `
-            <div class='cm-sheet cm-done'>
-              <p class='eyebrow' style='color:#9fe6b0'>Request received</p>
-              <h3 class='cm-title'>${ev.eventTitle}</h3>
-              <div class='crowd-slot-code'>${res.booking.details?.slotCode || res.booking.contractId}</div>
-              <p class='small muted'>${res.message}</p>
-              <p class='small muted'>Status: ${res.booking.status}</p>
-              <button type='button' class='cm-confirm' id='cmDone' style='margin-top:14px'>Done</button>
-            </div>`;
-          document.getElementById('cmDone').onclick = closeCrowdModal;
-          modalBack.scrollTop = 0;
-          const idx = allEvents.findIndex(e => e.id === ev.id);
-          if (idx >= 0) { allEvents[idx].claimed++; allEvents[idx].available = Math.max(0, allEvents[idx].slots - allEvents[idx].claimed); }
-          renderEvents(getFiltered());
-        } catch(err) {
-          btn.disabled = false; btn.textContent = 'Confirm and secure my slot';
-          status.textContent = err.message;
-        }
+      body.append(form);
+      triggerBtn.setAttribute('aria-expanded', 'true');
+      form.querySelector('.ce-request-cancel').onclick = () => {
+        triggerBtn.setAttribute('aria-expanded', 'false');
+        form.remove();
       };
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const submit = form.querySelector('[type=submit]');
+        const status = form.querySelector('[role=status]');
+        submit.disabled = true;
+        submit.textContent = 'Sending request...';
+        try {
+          const fields = new FormData(form);
+          const res = await request(`/crowd-events/${encodeURIComponent(ev.id)}/join`, {
+            method: 'POST',
+            body: JSON.stringify({
+              clientName: fields.get('clientName'),
+              clientEmail: fields.get('clientEmail'),
+            }),
+          });
+          trackEvent('crowd_join', { eventId: ev.id, celebId: ev.celebId });
+          status.textContent = res.message;
+          submit.textContent = 'Request sent';
+          if (!ev.requestOnly) {
+            ev.claimed += 1;
+            ev.available = Math.max(0, ev.slots - ev.claimed);
+            const count = card.querySelector('.ce-slots-count');
+            if (count) count.textContent = ev.available ? `${ev.available} of ${ev.slots} remaining` : 'Fully claimed';
+            submit.disabled = true;
+          } else {
+            submit.hidden = true;
+          }
+        } catch (error) {
+          status.textContent = error.message;
+          submit.disabled = false;
+          submit.textContent = 'Send request';
+        }
+      });
+      form.querySelector('input')?.focus({ preventScroll: true });
     }
 
     function getFiltered() {
-      const cat = document.getElementById('filterCat')?.value || 'All';
+      const cat = filterCat?.value || 'All';
       const maxP = parseInt(document.getElementById('filterPrice')?.value || '0');
+      const search = filterTalent?.value.trim().toLocaleLowerCase() || '';
       return allEvents.filter(ev => {
         if (cat !== 'All' && ev.category !== cat) return false;
-        if (maxP > 0 && ev.pricePerSlot > maxP) return false;
+        if (maxP > 0 && !ev.requestOnly && ev.pricePerSlot > maxP) return false;
+        if (search && !`${ev.name} ${ev.eventTitle} ${ev.eventType}`.toLocaleLowerCase().includes(search)) return false;
         return true;
       });
     }
 
     renderEvents(allEvents);
 
-    document.getElementById('filterCat').onchange = () => renderEvents(getFiltered());
-    document.getElementById('filterPrice').onchange = () => renderEvents(getFiltered());
+    filterCat.onchange = () => { visibleCount = 12; renderEvents(getFiltered()); };
+    document.getElementById('filterPrice').onchange = () => { visibleCount = 12; renderEvents(getFiltered()); };
+    filterTalent.oninput = () => { visibleCount = 12; renderEvents(getFiltered()); };
 
     })(); // end async IIFE
   </script>
 </body>
 </html>
-

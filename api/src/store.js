@@ -91,7 +91,8 @@ CREATE TABLE IF NOT EXISTS crowd_events (
   claimed integer NOT NULL DEFAULT 0,
   price_per_slot integer NOT NULL,
   includes jsonb NOT NULL DEFAULT '[]',
-  published boolean NOT NULL DEFAULT true
+  published boolean NOT NULL DEFAULT true,
+  request_only boolean NOT NULL DEFAULT false
 );
 CREATE TABLE IF NOT EXISTS cases (
   id text PRIMARY KEY,
@@ -365,30 +366,31 @@ export async function ensureCrowdCoverage() {
   const talents = await query(
     `SELECT id, name, category, region, starting_price FROM talents WHERE visibility <> 'hidden' ORDER BY name`,
   );
-  const existing = await query(`SELECT talent_id FROM crowd_events WHERE talent_id IS NOT NULL`);
+  const existing = await query(
+    `SELECT talent_id FROM crowd_events
+     WHERE talent_id IS NOT NULL AND published = true
+       AND (request_only = true OR event_date >= to_char(CURRENT_DATE, 'YYYY-MM-DD'))`,
+  );
   const covered = new Set(existing.map((row) => row.talent_id));
   let added = 0;
   for (let i = 0; i < talents.length; i++) {
     const talent = talents[i];
     if (covered.has(talent.id)) continue;
-    const when = new Date();
-    when.setUTCDate(when.getUTCDate() + 21 + (i % 180));
-    const date = when.toISOString().slice(0, 10);
     await query(
       `INSERT INTO crowd_events
-        (id, talent_id, talent_name, title, event_type, city, event_date, slots, claimed, price_per_slot, includes, published)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,20,0,$8,$9::jsonb,true)
+        (id, talent_id, talent_name, title, event_type, city, event_date, slots, claimed, price_per_slot, includes, published, request_only)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,20,0,$8,$9::jsonb,true,true)
        ON CONFLICT (id) DO NOTHING`,
       [
-        `ce_${talent.id}`,
+        `ce_${talent.id}_request`,
         talent.id,
         talent.name,
-        `${talent.name} shared appearance`,
+        `${talent.name} — group access inquiry`,
         talent.category || 'Appearance',
         crowdCity(talent.region),
-        date,
+        '',
         crowdSlotPrice(talent.starting_price),
-        JSON.stringify(['Shared verified appearance', 'Published slot figure', 'The desk confirms the place']),
+        JSON.stringify(['Availability request only', 'No event or appearance is confirmed', 'Date and access require representative approval']),
       ],
     );
     added += 1;
@@ -465,6 +467,7 @@ async function applyRosterEdit() {
 export async function initDb() {
   await connect();
   await exec(SCHEMA);
+  await exec('ALTER TABLE crowd_events ADD COLUMN IF NOT EXISTS request_only boolean NOT NULL DEFAULT false');
   const [{ n }] = await query('SELECT count(*)::int AS n FROM talents');
   if (!n) await seed();
   await applyRosterEdit();
@@ -583,10 +586,13 @@ function crowdShape(row) {
     id: row.id,
     celebId: row.talent_id,
     name: row.talent_name,
+    category: row.talent_category || row.event_type,
+    portrait: row.talent_portrait || '',
     eventTitle: row.title,
     eventType: row.event_type,
     city: row.city,
     date: row.event_date,
+    requestOnly: !!row.request_only,
     slots: row.slots,
     claimed: row.claimed,
     available,
@@ -603,13 +609,22 @@ function crowdShape(row) {
 
 export async function listCrowd({ includeUnpublished = false } = {}) {
   const rows = await query(
-    `SELECT * FROM crowd_events ${includeUnpublished ? '' : 'WHERE published = true'} ORDER BY event_date`,
+    `SELECT ce.*, t.portrait AS talent_portrait, t.category AS talent_category
+     FROM crowd_events ce
+     LEFT JOIN talents t ON t.id = ce.talent_id
+     ${includeUnpublished ? '' : "WHERE ce.published = true AND (ce.request_only = true OR ce.event_date >= to_char(CURRENT_DATE, 'YYYY-MM-DD'))"}
+     ORDER BY ce.event_date`,
   );
   return rows.map(crowdShape);
 }
 
 export async function getCrowd(id) {
-  const rows = await query('SELECT * FROM crowd_events WHERE id = $1', [id]);
+  const rows = await query(
+    `SELECT ce.*, t.portrait AS talent_portrait, t.category AS talent_category
+     FROM crowd_events ce LEFT JOIN talents t ON t.id = ce.talent_id
+     WHERE ce.id = $1`,
+    [id],
+  );
   return rows[0] ? crowdShape(rows[0]) : null;
 }
 
@@ -618,14 +633,17 @@ export async function upsertCrowd(input, actor) {
   const existing = await query('SELECT id FROM crowd_events WHERE id = $1', [id]);
   if (!existing.length) {
     await query(
-      `INSERT INTO crowd_events (id, talent_id, talent_name, title, event_type, city, event_date, slots, claimed, price_per_slot, includes, published)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,$9,$10::jsonb,$11)`,
-      [id, input.talentId || null, input.talentName || '', input.title, input.eventType || '', input.city || '', input.date || '', Number(input.slots) || 0, Number(input.pricePerSlot) || 0, JSON.stringify(input.includes || []), input.published !== false],
+      `INSERT INTO crowd_events (id, talent_id, talent_name, title, event_type, city, event_date, slots, claimed, price_per_slot, includes, published, request_only)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,$9,$10::jsonb,$11,$12)`,
+      [id, input.talentId || null, input.talentName || '', input.title, input.eventType || '', input.city || '', input.date || '', Number(input.slots) || 0, Number(input.pricePerSlot) || 0, JSON.stringify(input.includes || []), input.published !== false, input.requestOnly === true],
     );
   } else {
     await query(
-      `UPDATE crowd_events SET title=$2, event_type=$3, city=$4, event_date=$5, slots=$6, price_per_slot=$7, published=$8, talent_name=$9 WHERE id=$1`,
-      [id, input.title, input.eventType || '', input.city || '', input.date || '', Number(input.slots) || 0, Number(input.pricePerSlot) || 0, input.published !== false, input.talentName || ''],
+      `UPDATE crowd_events
+       SET title=$2, event_type=$3, city=$4, event_date=$5, slots=$6,
+           price_per_slot=$7, published=$8, talent_name=$9, request_only=$10
+       WHERE id=$1`,
+      [id, input.title, input.eventType || '', input.city || '', input.date || '', Number(input.slots) || 0, Number(input.pricePerSlot) || 0, input.published !== false, input.talentName || '', input.requestOnly === true],
     );
   }
   await audit(actor, 'CROWD_SAVED', id);
@@ -677,7 +695,10 @@ export async function counts() {
   const [{ talents }] = await query(`SELECT count(*)::int AS talents FROM talents t JOIN categories c ON c.name = t.category WHERE t.visibility <> 'hidden' AND c.published = true`);
   const [{ open_talents }] = await query(`SELECT count(*)::int AS open_talents FROM talents WHERE visibility = 'public' AND availability = 'Open'`);
   const [{ waitlist }] = await query(`SELECT count(*)::int AS waitlist FROM talents WHERE visibility = 'waitlist'`);
-  const [{ crowd }] = await query(`SELECT count(*)::int AS crowd FROM crowd_events WHERE published = true AND claimed < slots`);
+  const [{ crowd }] = await query(
+    `SELECT count(*)::int AS crowd FROM crowd_events
+     WHERE published = true AND (request_only = true OR (claimed < slots AND event_date >= to_char(CURRENT_DATE, 'YYYY-MM-DD')))`,
+  );
   const [{ open_cases }] = await query(`SELECT count(*)::int AS open_cases FROM cases WHERE status IN ('Received','In review','Terms offered')`);
   const [{ confirmed }] = await query(`SELECT count(*)::int AS confirmed FROM cases WHERE status = 'Confirmed'`);
   const [{ pipeline }] = await query(`SELECT coalesce(sum(quote),0)::int AS pipeline FROM cases WHERE status NOT IN ('Declined','Cancelled')`);
@@ -720,7 +741,7 @@ export async function createCase(input, actorUser) {
     const eventId = Array.isArray(input.eventId) ? input.eventId[0] : input.eventId;
     crowd = await getCrowd(eventId);
     if (!crowd || crowd.published === false) throw new HttpError(404, 'Crowd event not found');
-    if (crowd.available < 1) throw new HttpError(409, 'This event is fully claimed');
+    if (!crowd.requestOnly && crowd.available < 1) throw new HttpError(409, 'This event is fully claimed');
     input.talentId = input.talentId || crowd.celebId || null;
   }
   if (input.talentId) {
@@ -735,7 +756,7 @@ export async function createCase(input, actorUser) {
     throw new HttpError(409, 'This talent is on the waitlist. Submit a reservation request.');
   }
 
-  if (pathway === 'crowd') {
+  if (pathway === 'crowd' && !crowd.requestOnly) {
     const updated = await query(
       'UPDATE crowd_events SET claimed = claimed + 1 WHERE id = $1 AND claimed < slots RETURNING id',
       [crowd.id],
@@ -743,14 +764,19 @@ export async function createCase(input, actorUser) {
     if (!updated.length) throw new HttpError(409, 'This event is fully claimed');
   }
 
-  const quote = pathway === 'crowd' ? crowd.pricePerSlot : await quoteFor(talent, pathway, input.experienceId);
+  const quote = pathway === 'crowd'
+    ? (crowd.requestOnly ? 0 : crowd.pricePerSlot)
+    : await quoteFor(talent, pathway, input.experienceId);
   const id = uuid();
-  const slotCode = pathway === 'crowd' ? `CROWD-${String(crowd.id).toUpperCase()}-${Math.floor(10000 + Math.random() * 90000)}` : null;
+  const slotCode = pathway === 'crowd' && !crowd.requestOnly
+    ? `CROWD-${String(crowd.id).toUpperCase()}-${Math.floor(10000 + Math.random() * 90000)}`
+    : null;
   const details = {
     contractId: `ATA-${Math.floor(100000 + Math.random() * 900000)}`,
     experienceId: input.experienceId || null,
     eventId: crowd?.id || null,
     slotCode,
+    requestOnly: !!crowd?.requestOnly,
     settlementNote: String(input.settlementNote || '').slice(0, 500),
     securityLevel: String(input.securityLevel || '').slice(0, 80),
     rider: String(input.rider || input.message || '').slice(0, 2000),
@@ -771,8 +797,8 @@ export async function createCase(input, actorUser) {
       id, pathway, actorUser?.id || null, clientName, clientEmail,
       talent?.id || null, talent?.name || input.talentName || null,
       input.eventType || crowd?.eventTitle || pathway,
-      input.date || crowd?.date || null,
-      input.location || crowd?.city || null,
+      input.date || (crowd?.requestOnly ? null : crowd?.date) || null,
+      input.location || (crowd?.requestOnly ? null : crowd?.city) || null,
       input.budgetBand || null,
       quote,
       JSON.stringify(details),

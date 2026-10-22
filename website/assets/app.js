@@ -380,7 +380,7 @@ export function nav(active){
       <a class="nov-link${active==='portal'?' nov-active':''}" href="portal.html"><span class="nov-num">05</span>Client Portal</a>
       <a class="nov-link${active==='login'?' nov-active':''}" href="login.html"><span class="nov-num">06</span>Secure Access</a>
     </nav>
-    <div class="nov-footer"><span>All Talents Agency</span><span class="nov-footer-sep">·</span><span>Every request becomes a case</span></div>
+    <div class="nov-footer"><span>All Talents Agency</span><span class="nov-footer-sep">·</span><span>Every request becomes a case</span><span class="nov-footer-sep">·</span><a href="image-credits.html">Image credits</a></div>
   </div>`;
 }
 
@@ -852,4 +852,3 @@ export function initFlipFilter(containerSel, itemSel) {
     });
   };
 }
-

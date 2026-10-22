@@ -183,6 +183,8 @@ const PORTRAIT_MAP = {
   "Ryan Gosling":           "/assets/portraits/c242.jpg",
   "Anne Hathaway":          "/assets/portraits/c243.jpg",
   "Keanu Reeves":           "/assets/portraits/c8.jpg",
+  "Alex O'Loughlin":        "/assets/portraits/c244.jpg",
+  "Sofia Vergara":          "/assets/portraits/c25.jpg",
 };
 
 const _parseWorth = w => {
@@ -367,6 +369,8 @@ const _seeds = [
   { name:"Anne Hathaway",     cat:"Film",       region:"North America", price: 420000, worth:"$85M",   reach:38,  agency:"CAA",         signal:"Oscar-winning actress and Versace global ambassador. Devil Wears Prada legacy plus The Idea of You streaming breakout — flawless for luxury galas and female-executive audience alignment." },
   { name:"Keanu Reeves",      cat:"Film",       region:"North America", price: 290000, worth:"$380M",  reach:38,  agency:"CAA",         signal:"A cultural icon with zero recorded controversy in 35 years. Trusted unconditionally across 180 countries — private dinners and tech summit keynotes via CAA with 21-day lead." },
   { id:"c-johnny-depp", name:"Johnny Depp", cat:"Film", region:"North America", price: 480000, worth:"$150M", reach:22, agency:"CAA", signal:"Pirates of the Caribbean and a Cannes-winning director. Private dinners and festival appearances arranged through the desk with a 30-day lead." },
+  { id:"c244", name:"Alex O'Loughlin", cat:"Film", region:"Australia", price:180000, worth:"$10M", reach:3, agency:"Independent", signal:"Australian actor known for Hawaii Five-0 and Moonlight. Appearance requests are coordinated through authorized representation." },
+  { id:"c245", name:"Sofia Vergara", cat:"Film", region:"North America", price:350000, worth:"$180M", reach:34.5, agency:"WME", signal:"Emmy-nominated actor and entrepreneur best known for Modern Family. Private appearances and brand engagements are coordinated through representation." },
 ];
 
 const _build = (s, i) => {

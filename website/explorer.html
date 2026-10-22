@@ -370,6 +370,9 @@
 
     // -- Render cards: paginated (24/page), delegated handlers, lazy pressure --
     let _pressureObserver = null, _tiltSetup = false, _clickSetup = false;
+    const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[char]);
     function renderCards() {
       const data = _filteredData;
       const countEl = document.getElementById('resultsCount');
@@ -386,7 +389,7 @@
         const q = filters.search.trim();
         const loose = q ? getSearchSuggestions(q, allCelebrities, 5) : [];
         const suggest = loose.length
-          ? `<p class='small muted' style='margin-top:10px'>Did you mean: ${loose.map(s => `<a href='talent.html?id=${s.celeb.id}' style='color:var(--cta)'>${s.celeb.name}</a>`).join(' · ')}?</p>`
+          ? `<p class='small muted' style='margin-top:10px'>Did you mean: ${loose.map(s => `<a href='talent.html?id=${escapeHTML(s.celeb.id)}' style='color:var(--cta)'>${escapeHTML(s.celeb.name)}</a>`).join(' · ')}?</p>`
           : '';
         results.innerHTML = `<div class='empty-state'><div class='empty-state-icon'>-</div><h4 style='margin-bottom:8px;color:var(--accent-text)'>No talents found</h4><p class='small muted'>No celebrities match your current filters.</p>${suggest}<p class='small muted' style='margin-top:6px'>Try a different spelling, group name (e.g. BTS), or click <b>Clear</b> to reset.</p></div>`;
         return;
@@ -396,42 +399,42 @@
       const batch = data.slice(PAGE_SIZE * (_page - 1), end);
       const hasMore = data.length > end;
       const cardsHTML = batch.map((c) => `
-        <article class='celeb-card tilt-card' data-id='${c.id}' style='contain:layout style'>
+        <article class='celeb-card tilt-card' data-id='${escapeHTML(c.id)}' style='contain:layout style'>
           <div class='celeb-portrait-wrap'>
-            <img src='${c.portrait}' alt='${c.name}' loading='lazy' decoding='async'/>
+            <img src='${escapeHTML(c.portrait)}' alt='${escapeHTML(c.name)}' loading='lazy' decoding='async'/>
             <div class='celeb-portrait-fade'></div>
             <div class='celeb-portrait-badges'>
               <span class='celeb-verified-badge'>Verified</span>
-              <span class='celeb-avail-badge cab-${c.availability.toLowerCase()}'>${c.availability}</span>
+              <span class='celeb-avail-badge cab-${escapeHTML(c.availability.toLowerCase())}'>${escapeHTML(c.availability)}</span>
             </div>
             <div class='celeb-portrait-name'>
-              <h3>${c.name}</h3>
-              <div class='cn-sub'>${c.category} · ${c.region}</div>
+              <h3>${escapeHTML(c.name)}</h3>
+              <div class='cn-sub'>${escapeHTML(c.category)} · ${escapeHTML(c.region)}</div>
             </div>
           </div>
           <div class='celeb-card-body'>
-            <button class='meet-direct-btn' data-a='portal' data-id='${c.id}'>Meet ${c.name.split(' ')[0]} privately</button>
+            <button class='meet-direct-btn' data-a='portal' data-id='${escapeHTML(c.id)}'>Meet ${escapeHTML(c.name.split(' ')[0])} privately</button>
             <button class='mob-see-more-btn' data-a='expand'>Details &amp; actions &#x25BE;</button>
             <div class='celeb-card-extra'>
               <div class='celeb-stat-bar' style='margin-top:10px'>
-                <div class='celeb-stat'><div class='cs-label'>Est. Net Worth</div><div class='cs-value'>${c.netWorth || '—'}</div></div>
-                <div class='celeb-stat'><div class='cs-label'>Global Reach</div><div class='cs-value'>${c.socialReachMillions}M</div></div>
-                <div class='celeb-stat'><div class='cs-label'>Brand Value</div><div class='cs-value'>${c.brandValue || '—'}</div></div>
+                <div class='celeb-stat'><div class='cs-label'>Est. Net Worth</div><div class='cs-value'>${escapeHTML(c.netWorth || '—')}</div></div>
+                <div class='celeb-stat'><div class='cs-label'>Global Reach</div><div class='cs-value'>${escapeHTML(c.socialReachMillions)}M</div></div>
+                <div class='celeb-stat'><div class='cs-label'>Brand Value</div><div class='cs-value'>${escapeHTML(c.brandValue || '—')}</div></div>
               </div>
-              <p class='celeb-signal'>"${c.eliteSignal}"</p>
-              <p class='celeb-price-tag'>Access band · <strong>${displayPrice(c.startingPrice)}</strong> · ${c.agencyRepresentation}</p>
+              <p class='celeb-signal'>"${escapeHTML(c.eliteSignal)}"</p>
+              <p class='celeb-price-tag'>Access band · <strong>${escapeHTML(displayPrice(c.startingPrice))}</strong> · ${escapeHTML(c.agencyRepresentation)}</p>
               <div class='celeb-actions'>
-                <button class='crowd-mini-btn' data-a='crowd' data-id='${c.id}'>Join crowd event</button>
+                <button class='crowd-mini-btn' data-a='crowd' data-id='${escapeHTML(c.id)}'>Join crowd event</button>
                 <div class='celeb-sub-actions'>
-                  <button data-a='sim' data-id='${c.id}'>Access path</button>
-                  <button data-a='check' data-id='${c.id}'>Availability window</button>
-                  <button class='secondary' data-a='dossier' data-id='${c.id}'>Private dossier</button>
-                  <button class='secondary' data-a='hold' data-id='${c.id}' data-name='${c.name.replace(/'/g, "\\'")}'>Request a date</button>
-                  <button class='secondary' data-a='shortlist' data-id='${c.id}'>${shortlist.has(c.id) ? 'On board' : '+ Engagement board'}</button>
+                  <button data-a='sim' data-id='${escapeHTML(c.id)}'>Access path</button>
+                  <button data-a='check' data-id='${escapeHTML(c.id)}'>Availability window</button>
+                  <button class='secondary' data-a='dossier' data-id='${escapeHTML(c.id)}'>Private dossier</button>
+                  <button class='secondary' data-a='hold' data-id='${escapeHTML(c.id)}' data-name='${escapeHTML(c.name)}'>Request a date</button>
+                  <button class='secondary' data-a='shortlist' data-id='${escapeHTML(c.id)}'>${shortlist.has(c.id) ? 'On board' : '+ Engagement board'}</button>
                 </div>
               </div>
             </div>
-            <p class='small muted' id='s-${c.id}' style='margin-top:6px'></p>
+            <p class='small muted' id='s-${escapeHTML(c.id)}' style='margin-top:6px'></p>
           </div>
         </article>
       `);
@@ -610,4 +613,3 @@
   </script>
 </body>
 </html>
-

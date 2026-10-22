@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#060809">
+  <title>Image Credits | All Talents Agency</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <style>
+    .credits-page{max-width:900px;margin:0 auto;padding:64px 24px 80px}
+    .credits-page h1{margin:0 0 12px;font-size:clamp(32px,6vw,54px)}
+    .credits-intro{color:var(--muted);line-height:1.7;margin:0 0 28px}
+    .credit-list{display:grid;gap:16px}
+    .credit-item{display:flex;gap:20px;align-items:center;padding:18px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface)}
+    .credit-item img{width:112px;height:140px;object-fit:cover;border-radius:var(--radius-sm)}
+    .credit-item h2{margin:0 0 8px;font-size:20px}
+    .credit-item p{margin:5px 0;color:var(--muted);line-height:1.55}
+    .credit-item a{color:var(--accent-text)}
+    .credits-back{display:inline-block;margin-bottom:28px;color:var(--accent-text)}
+    @media(max-width:520px){.credits-page{padding:40px 18px}.credit-item{align-items:flex-start;gap:14px;padding:14px}.credit-item img{width:84px;height:112px}}
+  </style>
+</head>
+<body>
+  <main class="credits-page">
+    <a class="credits-back" href="explorer.html">Back to the talent directory</a>
+    <h1>Image credits</h1>
+    <p class="credits-intro">These portraits are reproduced under the licenses shown below. Follow each source link for full license and author details.</p>
+    <section class="credit-list" aria-label="Portrait attributions">
+      <article class="credit-item">
+        <img src="assets/portraits/c244.jpg" alt="Alex O'Loughlin portrait">
+        <div>
+          <h2>Alex O'Loughlin</h2>
+          <p>Photo by Greg Hernandez.</p>
+          <p><a href="https://commons.wikimedia.org/wiki/File:Alex_OLoughlin.jpg" rel="noopener noreferrer">Wikimedia Commons source</a> · <a href="https://creativecommons.org/licenses/by/2.0/" rel="noopener noreferrer">CC BY 2.0</a></p>
+        </div>
+      </article>
+      <article class="credit-item">
+        <img src="assets/portraits/c25.jpg" alt="Sofia Vergara portrait">
+        <div>
+          <h2>Sofia Vergara</h2>
+          <p>Photo by Toglenn (Glenn Francis).</p>
+          <p><a href="https://commons.wikimedia.org/wiki/File:Sof%C3%ADa_Vergara_2019_by_Glenn_Francis.jpg" rel="noopener noreferrer">Wikimedia Commons source</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noopener noreferrer">CC BY-SA 4.0</a></p>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

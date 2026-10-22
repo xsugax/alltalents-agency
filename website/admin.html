@@ -199,7 +199,7 @@
 			<div>
 				<div class='adm-section-head'><span class='adm-section-title'>Crowd inventory</span><input id='crowdSearch' placeholder='Filter events' style='max-width:240px'></div>
 				<div class='adm-table-wrap' style='max-height:280px;overflow:auto'>
-					<table class='adm-table'><thead><tr><th>Event</th><th>Date</th><th>Slots</th><th>Price</th><th>Live</th><th></th></tr></thead>
+					<table class='adm-table'><thead><tr><th>Event</th><th>Date</th><th>Slots</th><th>Price</th><th>Request only</th><th>Live</th><th></th></tr></thead>
 					<tbody id='crowdBody'></tbody></table>
 				</div>
 			</div>
@@ -230,8 +230,12 @@
 
 	let _token = localStorage.getItem('adm_token') || '';
 	let _bookings = [];
+	let _eventStream = null;
 
 	const $ = id => document.getElementById(id);
+	const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+		'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+	})[char]);
 
 	async function api(path, opts = {}) {
 		const r = await fetch(`${API}${path}`, {
@@ -262,23 +266,27 @@
 		const email = $('adEmail').value.trim();
 		const pass = $('adPass').value;
 		$('loginErr').textContent = '';
+		$('loginBtn').disabled = true;
 		$('loginBtn').textContent = 'Signing in…';
 		try {
 			const res = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password: pass }) });
 			if (res.user?.role !== 'admin') throw new Error('Not an admin account');
 			_token = res.token;
 			localStorage.setItem('adm_token', _token);
-			showDashboard();
+			await showDashboard();
 		} catch(e) {
-			$('loginErr').textContent = e.message;
+			$('loginErr').textContent = e.message || 'Sign-in failed. Check your connection and try again.';
 		} finally {
+			$('loginBtn').disabled = false;
 			$('loginBtn').textContent = 'Sign In';
 		}
 	};
-	$('adPass').onkeydown = e => { if (e.key === 'Enter') $('loginBtn').click(); };
+	$('adEmail').onkeydown = $('adPass').onkeydown = e => { if (e.key === 'Enter') $('loginBtn').click(); };
 
 	// ── LOGOUT ───────────────────────────────────────────────────────────────
 	$('logoutBtn').onclick = () => {
+		_eventStream?.close();
+		_eventStream = null;
 		_token = '';
 		localStorage.removeItem('adm_token');
 		$('dashboard').style.display = 'none';
@@ -306,31 +314,37 @@
 		}
 
 		$('bookingsBody').innerHTML = list.map(b => `
-			<tr id='row-${b.id}'>
+			<tr id='row-${escapeHTML(b.id)}'>
 				<td>
-					<div class='adm-tbl-name'>${b.celebrityName || '–'}</div>
-					<div class='adm-tbl-meta'>${b.contractId || b.id.slice(0,8).toUpperCase()}</div>
+					<div class='adm-tbl-name'>${escapeHTML(b.celebrityName || '–')}</div>
+					<div class='adm-tbl-meta'>${escapeHTML(b.contractId || b.id.slice(0,8).toUpperCase())}</div>
 				</td>
 				<td>
-					<div style='font-size:12px;font-weight:600'>${b.userName || '–'}</div>
-					<div class='adm-tbl-meta'>${b.userEmail || ''}</div>
+					<div style='font-size:12px;font-weight:600'>${escapeHTML(b.userName || '–')}</div>
+					<div class='adm-tbl-meta'>${escapeHTML(b.userEmail || '')}</div>
 				</td>
 				<td>
-					<div style='font-size:12px'>${b.eventType || '–'}</div>
-					<div class='adm-tbl-meta'>${b.location || ''}</div>
+					<div style='font-size:12px'>${escapeHTML(b.eventType || '–')}</div>
+					<div class='adm-tbl-meta'>${escapeHTML(b.location || '')}</div>
 				</td>
-				<td style='font-size:12px;white-space:nowrap'>${fmtDate(b.date)}</td>
+				<td style='font-size:12px;white-space:nowrap'>${escapeHTML(fmtDate(b.date))}</td>
 				<td class='adm-price'>${fmtMoney(b.pricing?.finalQuote)}</td>
 				<td>
-					<select class='adm-status-sel' onchange='updateStatus("${b.id}", this.value)'>
-						${STAGES.map(s => `<option value='${s}'${s===b.status?' selected':''}>${s}</option>`).join('')}
+					<select class='adm-status-sel' data-status-booking='${escapeHTML(b.id)}'>
+						${STAGES.map(s => `<option value='${escapeHTML(s)}'${s===b.status?' selected':''}>${escapeHTML(s)}</option>`).join('')}
 					</select>
 				</td>
 				<td>
-					<button class='adm-del-btn' onclick='cancelBooking("${b.id}", "${(b.celebrityName||'').replace(/"/g,"")}")'>Cancel</button>
+					<button class='adm-del-btn' data-cancel-booking='${escapeHTML(b.id)}' data-name='${escapeHTML(b.celebrityName || '')}'>Cancel</button>
 				</td>
 			</tr>
 		`).join('');
+		$('bookingsBody').querySelectorAll('[data-status-booking]').forEach(select => {
+			select.onchange = () => updateStatus(select.dataset.statusBooking, select.value);
+		});
+		$('bookingsBody').querySelectorAll('[data-cancel-booking]').forEach(button => {
+			button.onclick = () => cancelBooking(button.dataset.cancelBooking, button.dataset.name);
+		});
 	}
 
 	async function updateStatus(id, stage) {
@@ -354,9 +368,6 @@
 			alert('Failed: ' + e.message);
 		}
 	}
-	window.updateStatus = updateStatus;
-	window.cancelBooking = cancelBooking;
-
 	// ── AUDIT LOG ─────────────────────────────────────────────────────────────
 	function renderAuditLog(logs) {
 		if (!logs?.length) {
@@ -367,8 +378,8 @@
 			<div class='adm-log-item'>
 				<div class='adm-log-dot'></div>
 				<div>
-					<div class='adm-log-action'>${l.action.replace(/_/g,' ')}</div>
-					<div class='adm-log-meta'>${l.actor} &nbsp;·&nbsp; ${fmtTime(l.timestamp)}</div>
+					<div class='adm-log-action'>${escapeHTML(String(l.action || 'Activity').replace(/_/g,' '))}</div>
+					<div class='adm-log-meta'>${escapeHTML(l.actor)} &nbsp;·&nbsp; ${escapeHTML(fmtTime(l.timestamp))}</div>
 				</div>
 			</div>
 		`).join('');
@@ -388,12 +399,16 @@
 		try {
 			const d = await api('/admin/dashboard');
 			renderAuditLog(d.auditLogs || []);
-		} catch { /* silent */ }
+		} catch(e) {
+			showToast(`Activity log unavailable: ${e.message}`);
+		}
 	}
 
 	// ── SSE ───────────────────────────────────────────────────────────────────
 	function connectSSE() {
+		_eventStream?.close();
 		const es = new EventSource(`${API}/admin/events?token=${encodeURIComponent(_token)}`);
+		_eventStream = es;
 		es.onopen = () => { $('liveStatus').style.display = 'flex'; };
 		es.onerror = () => { $('liveStatus').style.display = 'none'; };
 		es.onmessage = (e) => {
@@ -432,26 +447,33 @@
 		const q = ($('talentSearch')?.value || '').toLowerCase();
 		const rows = _talents.filter(t => !q || t.name.toLowerCase().includes(q)).slice(0, 80);
 		$('talentBody').innerHTML = rows.map(t => `<tr>
-			<td>${t.name}</td><td>${t.category}</td>
-			<td><select data-vis='${t.id}'>${['public','hidden','waitlist'].map(v => `<option ${t.visibility===v?'selected':''}>${v}</option>`).join('')}</select></td>
-			<td><select data-avail='${t.id}'>${['Open','Limited','Waitlist'].map(v => `<option ${t.availability===v?'selected':''}>${v}</option>`).join('')}</select></td>
-			<td><input data-price='${t.id}' value='${t.startingPrice || 0}' style='width:110px'></td>
-			<td><label><input type='checkbox' data-feat='${t.id}' ${t.featured?'checked':''}> <input data-order='${t.id}' value='${t.featuredOrder ?? ''}' style='width:48px' placeholder='#'></label></td>
-			<td><button class='adm-refresh' data-save='${t.id}' type='button'>Save</button></td>
+			<td>${escapeHTML(t.name)}</td><td>${escapeHTML(t.category)}</td>
+			<td><select data-vis='${escapeHTML(t.id)}'>${['public','hidden','waitlist'].map(v => `<option ${t.visibility===v?'selected':''}>${v}</option>`).join('')}</select></td>
+			<td><select data-avail='${escapeHTML(t.id)}'>${['Open','Limited','Waitlist'].map(v => `<option ${t.availability===v?'selected':''}>${v}</option>`).join('')}</select></td>
+			<td><input data-price='${escapeHTML(t.id)}' type='number' min='0' step='1000' value='${Number(t.startingPrice) || 0}' style='width:110px'></td>
+			<td><label><input type='checkbox' data-feat='${escapeHTML(t.id)}' ${t.featured?'checked':''}> <input data-order='${escapeHTML(t.id)}' type='number' min='0' value='${escapeHTML(t.featuredOrder ?? '')}' style='width:48px' placeholder='#'></label></td>
+			<td><button class='adm-refresh' data-save='${escapeHTML(t.id)}' type='button'>Save</button></td>
 		</tr>`).join('') || `<tr><td colspan='7' class='adm-empty'>No talents</td></tr>`;
 		$('talentBody').querySelectorAll('[data-save]').forEach(btn => {
 			btn.onclick = async () => {
 				const id = btn.dataset.save;
 				const root = $('talentBody');
-				await api('/admin/talents/' + id, { method: 'PATCH', body: JSON.stringify({
-					visibility: root.querySelector(`[data-vis="${id}"]`).value,
-					availability: root.querySelector(`[data-avail="${id}"]`).value,
-					startingPrice: Number(root.querySelector(`[data-price="${id}"]`).value),
-					featured: root.querySelector(`[data-feat="${id}"]`).checked,
-					featuredOrder: root.querySelector(`[data-order="${id}"]`).value,
-				}) });
-				showToast('Talent saved');
-				await loadTalents();
+				btn.disabled = true;
+				try {
+					await api('/admin/talents/' + encodeURIComponent(id), { method: 'PATCH', body: JSON.stringify({
+						visibility: root.querySelector(`[data-vis="${id}"]`).value,
+						availability: root.querySelector(`[data-avail="${id}"]`).value,
+						startingPrice: Number(root.querySelector(`[data-price="${id}"]`).value),
+						featured: root.querySelector(`[data-feat="${id}"]`).checked,
+						featuredOrder: root.querySelector(`[data-order="${id}"]`).value,
+					}) });
+					showToast('Talent saved');
+					await loadTalents();
+				} catch (error) {
+					showToast(`Talent not saved: ${error.message}`);
+				} finally {
+					btn.disabled = false;
+				}
 			};
 		});
 	}
@@ -471,11 +493,19 @@
 		const exps = value(2);
 		const crowd = value(3);
 		if (settled.some(s => s.status === 'rejected')) showToast('Part of the desk is still opening');
-		$('categoryDesk').innerHTML = (cats.data || []).map(c => `<label class='adm-log-item'><input type='checkbox' data-cat='${c.name}' ${c.published ? 'checked' : ''}> ${c.name}</label>`).join('');
+		$('categoryDesk').innerHTML = (cats.data || []).map(c => `<label class='adm-log-item'><input type='checkbox' data-cat='${escapeHTML(c.name)}' ${c.published ? 'checked' : ''}> ${escapeHTML(c.name)}</label>`).join('');
 		$('categoryDesk').querySelectorAll('[data-cat]').forEach(box => {
 			box.onchange = async () => {
-				await api('/admin/categories/' + encodeURIComponent(box.dataset.cat), { method: 'PATCH', body: JSON.stringify({ published: box.checked }) });
-				showToast(box.dataset.cat + (box.checked ? ' published' : ' hidden'));
+				box.disabled = true;
+				try {
+					await api('/admin/categories/' + encodeURIComponent(box.dataset.cat), { method: 'PATCH', body: JSON.stringify({ published: box.checked }) });
+					showToast(box.dataset.cat + (box.checked ? ' published' : ' hidden'));
+				} catch (error) {
+					box.checked = !box.checked;
+					showToast(`Category not updated: ${error.message}`);
+				} finally {
+					box.disabled = false;
+				}
 			};
 		});
 		$('homeHeadline').value = home.home?.headline || '';
@@ -490,21 +520,30 @@
 		const talentName = id => (_talents.find(t => t.id === id) || {}).name || id;
 		const rows = _experiences.filter(e => !q || talentName(e.talent_id).toLowerCase().includes(q) || String(e.title || '').toLowerCase().includes(q)).slice(0, 40);
 		$('expBody').innerHTML = rows.map(e => `<tr>
-			<td>${talentName(e.talent_id)}</td><td>${e.pathway}</td><td>${e.title}</td>
-			<td><input data-exp-price='${e.id}' value='${e.price_from}' style='width:100px'></td>
-			<td><input type='checkbox' data-exp-live='${e.id}' ${e.published ? 'checked' : ''}></td>
-			<td><button class='adm-refresh' data-exp-save='${e.id}' type='button'>Save</button></td>
+			<td>${escapeHTML(talentName(e.talent_id))}</td><td>${escapeHTML(e.pathway)}</td><td>${escapeHTML(e.title)}</td>
+			<td><input data-exp-price='${escapeHTML(e.id)}' type='number' min='0' value='${Number(e.price_from) || 0}' style='width:100px'></td>
+			<td><input type='checkbox' data-exp-live='${escapeHTML(e.id)}' ${e.published ? 'checked' : ''}></td>
+			<td><button class='adm-refresh' data-exp-save='${escapeHTML(e.id)}' type='button'>Save</button></td>
 		</tr>`).join('') || `<tr><td colspan='6'>No experiences</td></tr>`;
 		$('expBody').querySelectorAll('[data-exp-save]').forEach(btn => {
 			btn.onclick = async () => {
 				const id = btn.dataset.expSave;
 				const row = _experiences.find(e => e.id === id);
-				await api('/admin/experiences', { method: 'POST', body: JSON.stringify({
-					id, talentId: row.talent_id, pathway: row.pathway, title: row.title, summary: row.summary, location: row.location,
-					priceFrom: Number($('expBody').querySelector(`[data-exp-price="${id}"]`).value),
-					published: $('expBody').querySelector(`[data-exp-live="${id}"]`).checked,
-				}) });
-				showToast('Experience saved');
+				if (!row) return;
+				btn.disabled = true;
+				try {
+					await api('/admin/experiences', { method: 'POST', body: JSON.stringify({
+						id, talentId: row.talent_id, pathway: row.pathway, title: row.title, summary: row.summary, location: row.location,
+						priceFrom: Number($('expBody').querySelector(`[data-exp-price="${id}"]`).value),
+						published: $('expBody').querySelector(`[data-exp-live="${id}"]`).checked,
+					}) });
+					showToast('Experience saved');
+					await loadDesk();
+				} catch (error) {
+					showToast(`Experience not saved: ${error.message}`);
+				} finally {
+					btn.disabled = false;
+				}
 			};
 		});
 	}
@@ -512,26 +551,38 @@
 		const q = ($('crowdSearch')?.value || '').toLowerCase();
 		const rows = _crowd.filter(e => !q || `${e.eventTitle || ''} ${e.name || ''}`.toLowerCase().includes(q)).slice(0, 40);
 		$('crowdBody').innerHTML = rows.map(e => `<tr>
-			<td>${e.eventTitle}<div class='small muted'>${e.name}</div></td>
-			<td><input data-crowd-date='${e.id}' value='${e.date || ''}' style='width:120px'></td>
-			<td><input data-crowd-slots='${e.id}' value='${e.slots}' style='width:64px'></td>
-			<td><input data-crowd-price='${e.id}' value='${e.pricePerSlot}' style='width:90px'></td>
-			<td><input type='checkbox' data-crowd-live='${e.id}' ${e.published ? 'checked' : ''}></td>
-			<td><button class='adm-refresh' data-crowd-save='${e.id}' type='button'>Save</button></td>
-		</tr>`).join('') || `<tr><td colspan='6'>No crowd events</td></tr>`;
-		if (_crowd.length > rows.length) $('crowdBody').insertAdjacentHTML('beforeend', `<tr><td colspan='6' class='adm-empty'>Showing ${rows.length} of ${_crowd.length}. Filter to narrow the list.</td></tr>`);
+			<td>${escapeHTML(e.eventTitle)}<div class='small muted'>${escapeHTML(e.name)}</div></td>
+			<td><input data-crowd-date='${escapeHTML(e.id)}' type='date' value='${escapeHTML(e.date || '')}' style='width:140px'></td>
+			<td><input data-crowd-slots='${escapeHTML(e.id)}' type='number' min='1' value='${Number(e.slots) || 1}' style='width:72px'></td>
+			<td><input data-crowd-price='${escapeHTML(e.id)}' type='number' min='0' value='${Number(e.pricePerSlot) || 0}' style='width:90px'></td>
+			<td><input type='checkbox' aria-label='Request only' data-crowd-request='${escapeHTML(e.id)}' ${e.requestOnly ? 'checked' : ''}></td>
+			<td><input type='checkbox' aria-label='Published' data-crowd-live='${escapeHTML(e.id)}' ${e.published ? 'checked' : ''}></td>
+			<td><button class='adm-refresh' data-crowd-save='${escapeHTML(e.id)}' type='button'>Save</button></td>
+		</tr>`).join('') || `<tr><td colspan='7'>No crowd events</td></tr>`;
+		if (_crowd.length > rows.length) $('crowdBody').insertAdjacentHTML('beforeend', `<tr><td colspan='7' class='adm-empty'>Showing ${rows.length} of ${_crowd.length}. Filter to narrow the list.</td></tr>`);
 		$('crowdBody').querySelectorAll('[data-crowd-save]').forEach(btn => {
 			btn.onclick = async () => {
 				const id = btn.dataset.crowdSave;
 				const row = _crowd.find(e => e.id === id);
-				await api('/admin/crowd-events', { method: 'POST', body: JSON.stringify({
-					id, title: row.eventTitle, eventType: row.eventType, city: row.city, talentName: row.name,
-					date: $('crowdBody').querySelector(`[data-crowd-date="${id}"]`).value,
-					slots: Number($('crowdBody').querySelector(`[data-crowd-slots="${id}"]`).value),
-					pricePerSlot: Number($('crowdBody').querySelector(`[data-crowd-price="${id}"]`).value),
-					published: $('crowdBody').querySelector(`[data-crowd-live="${id}"]`).checked,
-				}) });
-				showToast('Crowd event saved');
+				if (!row) return;
+				btn.disabled = true;
+				try {
+					const result = await api('/admin/crowd-events', { method: 'POST', body: JSON.stringify({
+						id, talentId: row.celebId, title: row.eventTitle, eventType: row.eventType, city: row.city, talentName: row.name,
+						date: $('crowdBody').querySelector(`[data-crowd-date="${id}"]`).value,
+						slots: Number($('crowdBody').querySelector(`[data-crowd-slots="${id}"]`).value),
+						pricePerSlot: Number($('crowdBody').querySelector(`[data-crowd-price="${id}"]`).value),
+						requestOnly: $('crowdBody').querySelector(`[data-crowd-request="${id}"]`).checked,
+						published: $('crowdBody').querySelector(`[data-crowd-live="${id}"]`).checked,
+					}) });
+					_crowd = _crowd.map(event => event.id === id ? result.event : event);
+					showToast('Crowd event saved');
+					drawCrowd();
+				} catch (error) {
+					showToast(`Crowd event not saved: ${error.message}`);
+				} finally {
+					btn.disabled = false;
+				}
 			};
 		});
 	}
@@ -547,8 +598,12 @@
 		$('expSearch').oninput = drawExperiences;
 		if ($('crowdSearch')) $('crowdSearch').oninput = drawCrowd;
 		$('saveHome').onclick = async () => {
-			await api('/admin/content/home', { method: 'PUT', body: JSON.stringify({ headline: $('homeHeadline').value, sub: $('homeSub').value }) });
-			showToast('Home copy saved');
+			try {
+				await api('/admin/content/home', { method: 'PUT', body: JSON.stringify({ headline: $('homeHeadline').value, sub: $('homeSub').value }) });
+				showToast('Home copy saved');
+			} catch (error) {
+				showToast(`Home copy not saved: ${error.message}`);
+			}
 		};
 		connectSSE();
 		$('refreshBtn').onclick = async () => {

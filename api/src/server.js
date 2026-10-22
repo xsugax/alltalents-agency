@@ -632,7 +632,9 @@ app.post("/api/crowd-events/:id/join", rateLimit, optionalAuth, async (req, res,
     }, req.user || null);
     return res.status(201).json({
       booking,
-      message: `Request received for ${booking.eventType}. Your reference is ${booking.details?.slotCode || booking.contractId}.`,
+      message: booking.details?.requestOnly
+        ? `Your interest request is received for ${booking.celebrityName || booking.eventType}. The desk will confirm whether an event can be arranged. Reference: ${booking.contractId}.`
+        : `Request received for ${booking.eventType}. Your reference is ${booking.details?.slotCode || booking.contractId}.`,
     });
   } catch (err) { next(err); }
 });
